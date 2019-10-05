@@ -46,7 +46,7 @@ sh run-metadata-digger.sh <path_to_config>
 ```
 
 ## Running in distributed mode
-See above information about running in standalone mode to download release and adjust configuration, just go to `ditributed` directory, not `standalone`.
+See above information about running in standalone mode to download release and adjust configuration.
 Currently there is not script that runs Metadata Digger on Spark cluster, so please use spark-submit command with provided JAR and main class - `ai.datahunters.md.launcher.DistributedBasicExtractor`. There is only one argument - path to configuration file.
 
 <br />

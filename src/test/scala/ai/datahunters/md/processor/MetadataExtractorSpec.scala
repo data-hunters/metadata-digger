@@ -3,6 +3,7 @@ package ai.datahunters.md.processor
 import java.nio.file.{Files, Paths}
 
 import ai.datahunters.md.schema.{BinaryInputSchemaConfig, EmbeddedMetadataSchemaConfig}
+import ai.datahunters.md.util.TextUtils
 import ai.datahunters.md.{SparkBaseSpec, UnitSpec}
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.{DataTypes, StructField, StructType}
@@ -13,7 +14,7 @@ class MetadataExtractorSpec extends UnitSpec with SparkBaseSpec {
   "A MetadataExtractor" should "extract metadata from image" in {
     val imgBytes = Files.readAllBytes(Paths.get(imgPath(ImagePath)))
     val data = Seq(
-      Row.fromTuple("some/path", imgBytes)
+      Row.fromTuple("some/path", "some/path/img.jpg", imgBytes)
     )
     val rdd = sparkSession.sparkContext.parallelize(data)
     val df = sparkSession.createDataFrame(rdd, Schema)
@@ -27,7 +28,7 @@ class MetadataExtractorSpec extends UnitSpec with SparkBaseSpec {
     val tags = metadata.getMap[String, Map[String, String]](metadata.fieldIndex(EmbeddedMetadataSchemaConfig.TagsCol))
     val dirs = metadata.getAs[Seq[String]](EmbeddedMetadataSchemaConfig.DirectoriesCol)
 
-    val expectedTagPair = ("Component3", "Cr component: Quantization table 1, Sampling factors 1 horiz/1 vert")
+    val expectedTagPair = ("Component 3", "Cr component: Quantization table 1, Sampling factors 1 horiz/1 vert")
     val jpegDir = tags.get("JPEG").get
     assert(jpegDir.get(expectedTagPair._1).get === expectedTagPair._2)
     assert(tagsCount === 19)
@@ -49,6 +50,7 @@ object MetadataExtractorSpec {
 
   val Schema = StructType(Array(
     StructField("Path", DataTypes.StringType, true),
+    StructField(BinaryInputSchemaConfig.FilePathCol, DataTypes.StringType, false),
     StructField(BinaryInputSchemaConfig.FileCol, DataTypes.BinaryType, true)
   )
   )

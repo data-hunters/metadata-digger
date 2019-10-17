@@ -7,6 +7,8 @@ import org.apache.spark.sql.types.StructType
   * @param allowedDirs
   */
 case class MetadataSchemaConfig(allowedDirs: Seq[String]) extends SchemaConfig {
+
+
   override def columns(): Seq[String] = allowedDirs
 
   override def schema(): StructType = new SchemaBuilder()
@@ -20,5 +22,7 @@ object MetadataSchemaConfig {
     * Name of column containing all columns representing groups/directories.
     */
   val MetadataCol = "Metadata"
+
+  val MetadataContentCol = "Metadata Content"
 
 }

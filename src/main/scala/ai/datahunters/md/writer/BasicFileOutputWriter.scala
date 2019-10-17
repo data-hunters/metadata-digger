@@ -1,11 +1,13 @@
 package ai.datahunters.md.writer
+import ai.datahunters.md.config.{ConfigLoader, FilesReaderConfig}
 import ai.datahunters.md.schema.SchemaConfig
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.slf4j.{Logger, LoggerFactory}
 
 case class BasicFileOutputWriter(sparkSession: SparkSession,
                                  format: String,
-                                 outputFilesNum: Int) extends FileOutputWriter {
+                                 outputFilesNum: Int,
+                                 outputPath: String) extends FileOutputWriter {
 
   import BasicFileOutputWriter._
 
@@ -16,7 +18,7 @@ case class BasicFileOutputWriter(sparkSession: SparkSession,
     throw new RuntimeException(s"Format $format is not supported! The following file formats are supported: ${AllowedFormats.mkString(",")}")
   }
 
-  override def write(data: DataFrame, path: String): Unit = {
+  override def write(data: DataFrame): Unit = {
     val outputDF = if (currentPartitionsNum(data) != outputFilesNum) {
       logger.warn("Changing number of partitions to achieve specific number of output files.")
       data.repartition(outputFilesNum)
@@ -24,7 +26,7 @@ case class BasicFileOutputWriter(sparkSession: SparkSession,
     outputDF.write
       .format(format)
       .option("header", true)
-      .save(path)
+      .save(outputPath)
   }
 
   private def currentPartitionsNum(data: DataFrame): Int = data.rdd
@@ -33,6 +35,7 @@ case class BasicFileOutputWriter(sparkSession: SparkSession,
 }
 
 object BasicFileOutputWriter {
+
 
   val AllowedFormats = Seq(
     FileOutputWriter.CsvFormat,

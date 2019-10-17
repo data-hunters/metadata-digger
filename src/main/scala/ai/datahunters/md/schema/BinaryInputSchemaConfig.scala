@@ -9,35 +9,31 @@ import org.apache.spark.sql.types.StructType
   * @param filePathCol Path to particular path
   * @param fileCol Binary content of loaded file
   */
-case class BinaryInputSchemaConfig(basePathCol: String = BinaryInputSchemaConfig.BasePathCol,
-                                   pathIdCol: String = BinaryInputSchemaConfig.PathIdCol,
-                                   filePathCol: String = BinaryInputSchemaConfig.FilePathCol,
-                                   fileCol: String = BinaryInputSchemaConfig.FileCol) extends SchemaConfig {
+case class BinaryInputSchemaConfig() extends SchemaConfig {
 
-
+  import BinaryInputSchemaConfig._
 
   override def columns(): Seq[String] = Seq(
-    basePathCol,
-    pathIdCol,
-    filePathCol,
-    fileCol
+    ContentHash,
+    BasePathCol,
+    FilePathCol,
+    FileCol
   )
 
   override def schema(): StructType = new SchemaBuilder()
-    .addStringField(basePathCol)
-    .addStringField(pathIdCol)
-    .addStringField(filePathCol)
-    .addBinaryField(fileCol)
-    .build()
-
+      .addStringField(ContentHash)
+      .addStringField(BasePathCol)
+      .addStringField(FilePathCol)
+      .addBinaryField(FileCol)
+      .build()
 
 }
 
 object BinaryInputSchemaConfig {
 
-  val BasePathCol = "BasePath"
-  val PathIdCol = "PathID"
-  val FilePathCol = "FilePath"
-  val FileCol = "FileData"
+  val ContentHash = "ID"
+  val BasePathCol = "Base Path"
+  val FilePathCol = "File Path"
+  val FileCol = "File Data"
 
 }

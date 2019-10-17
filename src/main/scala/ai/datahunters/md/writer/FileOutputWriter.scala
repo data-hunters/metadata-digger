@@ -2,9 +2,9 @@ package ai.datahunters.md.writer
 
 import org.apache.spark.sql.DataFrame
 
-trait FileOutputWriter {
+trait FileOutputWriter extends PipelineSink {
 
-  def write(data: DataFrame, path: String): Unit
+  def write(data: DataFrame): Unit
 
 }
 

@@ -9,17 +9,22 @@ import org.apache.spark.sql.types.StructType
   *
   * @param allowedTags
   */
-case class MetadataTagsSchemaConfig (allowedTags: Seq[String]) extends SchemaConfig {
-  override def columns(): Seq[String] = allowedTags
+case class MetadataTagsSchemaConfig (colPrefix: String, allowedTags: Seq[String]) extends SchemaConfig {
+
+  protected val finalAllowedTags = allowedTags.map(t => s"$colPrefix$t")
+  override def columns(): Seq[String] = finalAllowedTags
 
   override def schema(): StructType = new SchemaBuilder()
-    .addStringFields(allowedTags)
+    .addStringFields(finalAllowedTags)
     .build()
 }
 
 object MetadataTagsSchemaConfig {
 
   val MetadataCol = "Metadata"
+
+  val TagsCol = "Tags"
+  val DirectoriesCol = "Directories"
 
 
 }

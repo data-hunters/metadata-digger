@@ -1,7 +1,7 @@
 package ai.datahunters.md.schema
 
 import org.apache.spark.sql.{DataFrame, Row}
-import org.apache.spark.sql.types.StructType
+import org.apache.spark.sql.types.{StructField, StructType}
 
 /**
   * Provides base class for schemas used in particular steps of processing.
@@ -49,4 +49,18 @@ object SchemaConfig {
   def existingColumns(schema: StructType, except: Seq[String] = Seq()): Seq[String] = schema.fields
     .map(_.name)
     .filterNot(except.contains)
+
+  /**
+    * Find StructField object in passed DataFrame schema based on name.
+    *
+    * @param df
+    * @param name
+    * @return
+    */
+  def findField(df: DataFrame, name: String): StructField = {
+    df.schema
+      .fields
+      .filter(f => name.equalsIgnoreCase(f.name))
+      .head
+  }
 }

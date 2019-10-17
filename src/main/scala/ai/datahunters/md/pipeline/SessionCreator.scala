@@ -1,6 +1,7 @@
 package ai.datahunters.md.pipeline
 
-import ai.datahunters.md.config.{BaseConfig, ConfigLoader, LocalModeConfig}
+import ai.datahunters.md.config.{ConfigLoader, SessionConfig}
+import org.apache
 import org.apache.spark
 import org.apache.spark.sql
 import org.apache.spark.sql.SparkSession
@@ -10,22 +11,23 @@ import org.apache.spark.sql.SparkSession
   * @param config
   * @param appName
   */
-class SessionCreator(config: BaseConfig, appName: String) {
+class SessionCreator(config: SessionConfig, localMode: Boolean, appName: String) {
 
   def create(): SparkSession = {
-    val builder = config match {
-      case c: LocalModeConfig => createLocalSessioBuilder(c)
-      case _ => throw new RuntimeException("Unsupported type of configuration.")
+    val builder = if (localMode) {
+      createLocalSessioBuilder()
+    } else {
+      new apache.spark.sql.SparkSession.Builder
     }
     builder
       .appName(appName)
       .getOrCreate()
   }
 
-  private def createLocalSessioBuilder(localConfig: LocalModeConfig): sql.SparkSession.Builder = {
+  private def createLocalSessioBuilder(): sql.SparkSession.Builder = {
     new spark.sql.SparkSession.Builder()
-      .master(s"local[${localConfig.cores}]")
-      .config(ConfigLoader.SparkDriverMemKey, s"${localConfig.maxMemoryGB}g")
+      .master(s"local[${config.cores}]")
+      .config(ConfigLoader.SparkDriverMemKey, s"${config.maxMemoryGB}g")
   }
 
 }

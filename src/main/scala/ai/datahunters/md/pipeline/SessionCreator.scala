@@ -1,6 +1,7 @@
 package ai.datahunters.md.pipeline
 
-import ai.datahunters.md.config.{BaseConfig, ConfigLoader, LocalModeConfig}
+import ai.datahunters.md.config.{BaseConfig, ConfigLoader, DistributedModeConfig, LocalModeConfig}
+import org.apache
 import org.apache.spark
 import org.apache.spark.sql
 import org.apache.spark.sql.SparkSession
@@ -14,7 +15,8 @@ class SessionCreator(config: BaseConfig, appName: String) {
 
   def create(): SparkSession = {
     val builder = config match {
-      case c: LocalModeConfig => createLocalSessioBuilder(c)
+      case cl: LocalModeConfig => createLocalSessioBuilder(cl)
+      case cd: DistributedModeConfig => new apache.spark.sql.SparkSession.Builder
       case _ => throw new RuntimeException("Unsupported type of configuration.")
     }
     builder

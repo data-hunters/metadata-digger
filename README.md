@@ -1,5 +1,5 @@
 # Metadata Digger
-Main goal of this project is to provide better insights in Metadata extracted from binary files (like images).
+Main goal of this project is to provide better insights into Metadata extracted from binary files (like images).
 MD is built on top of [Apache Spark](https://spark.apache.org/) - one of the most popular Big Data processing engine - to take advantage of distributed computing.
 
 Currently MD is under development but basic functionality is available:
@@ -23,7 +23,7 @@ For distributed mode, you should use Spark 2.4.3.
 ## Output formats
 Currently two output formats are supported:
 * CSV file
-* JSON fil - each line has separated JSON object, so it is easy to load data in stream line by line
+* JSON file - each line has separated JSON object, so it is easy to load data in stream line by line
 
 ## Running in Standalone mode
 To get current distribution, please go to releases tab and download zipped 0.1.1 version and unpack it. There you will have run-metadata-digger.sh script and two sample configuration files (`json.config.properties` and `csv.config.properties`) with examples for JSON and CSV output format. Pick one, open it and change two settings:
@@ -46,7 +46,7 @@ sh run-metadata-digger.sh <path_to_config>
 ```
 
 ## Running in distributed mode
-See above information about running in standalone mode to download release and adjust configuration, just go to `ditributed` directory, not `standalone`.
+See above information about running in standalone mode to download release and adjust configuration.
 Currently there is not script that runs Metadata Digger on Spark cluster, so please use spark-submit command with provided JAR and main class - `ai.datahunters.md.launcher.DistributedBasicExtractor`. There is only one argument - path to configuration file.
 
 <br />

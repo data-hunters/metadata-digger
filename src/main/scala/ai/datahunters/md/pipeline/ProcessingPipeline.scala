@@ -1,18 +1,29 @@
 package ai.datahunters.md.pipeline
 
 import ai.datahunters.md.filter.Filter
-import ai.datahunters.md.processor.Processor
+import ai.datahunters.md.processor.{ColumnNamesConverter, Processor}
 import org.apache.spark.sql.DataFrame
 
 import scala.collection.mutable.ArrayBuffer
 
+/**
+  * Run all processing steps.
+  *
+  * @param inputDF
+  */
 case class ProcessingPipeline(inputDF: DataFrame) {
 
   private var formatAdjustmentProcessor: Option[Processor] = None
+  private var namesConverter: Option[ColumnNamesConverter] = None
   private val steps = ArrayBuffer[Step]()
 
   def setFormatAdjustmentProcessor(processor: Option[Processor]): ProcessingPipeline = {
     formatAdjustmentProcessor = processor
+    this
+  }
+
+  def setColumnNamesConverter(processor: Option[ColumnNamesConverter]): ProcessingPipeline = {
+    namesConverter = processor
     this
   }
 
@@ -32,6 +43,8 @@ case class ProcessingPipeline(inputDF: DataFrame) {
       bufferDF = step.execute(bufferDF)
     }
     bufferDF = formatAdjustmentProcessor.map(_.execute(bufferDF)).getOrElse(bufferDF)
+    bufferDF = namesConverter.map(_.execute(bufferDF)).getOrElse(bufferDF)
+    bufferDF.printSchema()
     bufferDF
   }
 

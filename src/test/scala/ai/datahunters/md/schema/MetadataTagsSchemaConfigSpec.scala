@@ -7,7 +7,7 @@ class MetadataTagsSchemaConfigSpec extends UnitSpec {
 
   "A MetadataTagsSchemaConfig" should "keep info about metadata schema where with tags as columns" in {
     val tags = Seq("tag1", "tag4", "tag2")
-    assert(MetadataTagsSchemaConfig(tags).columns() === tags)
+    assert(MetadataTagsSchemaConfig("", tags).columns() === tags)
   }
 
 }

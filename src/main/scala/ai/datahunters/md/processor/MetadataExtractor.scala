@@ -27,27 +27,3 @@ case class MetadataExtractor(dropFileColumn: Boolean = true) extends Processor {
       outputDF.cache()
   }
 }
-
-object MetadataExtractor {
-
-  val AllowedDirs = Seq(
-    "JPEG",
-    "Exif IFD0",
-    "Exif SubIFD",
-    "Nikon Makernote",
-    "Olympus Makernote",
-    "Canon Makernote",
-    "Panasonic Makernote",
-    "PrintIM",
-    "Interoperability",
-    "GPS",
-    "Exif Thumbnail",
-    "Huffman",
-    "File Type",
-    "MP4",
-    "MP4 Video",
-    "MP4 Sound"
-  )
-
-
-}

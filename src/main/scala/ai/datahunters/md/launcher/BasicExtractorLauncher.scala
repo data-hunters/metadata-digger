@@ -4,10 +4,8 @@ import ai.datahunters.md.config._
 import ai.datahunters.md.pipeline.{BasicExtractionWorkflow, SessionCreator}
 import ai.datahunters.md.reader.PipelineSourceFactory
 import ai.datahunters.md.util.Parser.parse
-import ai.datahunters.md.writer.solr.SolrClientBuilder
 import ai.datahunters.md.writer.{FormatAdjustmentProcessorFactory, PipelineSinkFactory}
 import com.typesafe.config.Config
-import org.apache.solr.client.solrj.impl.CloudSolrClient
 
 object BasicExtractorLauncher {
 
@@ -23,7 +21,7 @@ object BasicExtractorLauncher {
     val config: Config = ConfigLoader.load(args(0))
     val sessionCreator = new SessionCreator(SessionConfig.build(config), localMode, AppName)
     val sparkSession = sessionCreator.create()
-    val reader = PipelineSourceFactory.create(FilesReaderConfig.build(config), sparkSession)
+    val reader = PipelineSourceFactory.create(ReaderConfig.build(config), sparkSession)
     val writer = PipelineSinkFactory.create(config, sparkSession)
     val format = config.getString(WriterConfig.OutputFormatKey)
     val processingConfig = ProcessingConfig.build(config)

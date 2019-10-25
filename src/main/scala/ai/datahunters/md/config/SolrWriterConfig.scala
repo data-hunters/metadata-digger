@@ -5,9 +5,7 @@ import com.typesafe.config.Config
 case class SolrWriterConfig(val collection: String,
                             val zkServers: Seq[String],
                             val zkSolrZNode: Option[String]
-                 ) {
-
-}
+                 )
 
 object SolrWriterConfig {
 

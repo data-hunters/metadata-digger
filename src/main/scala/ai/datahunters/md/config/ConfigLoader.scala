@@ -36,5 +36,4 @@ object ConfigLoader {
     config.withFallback(defaultsConfig)
   }
 
-
 }

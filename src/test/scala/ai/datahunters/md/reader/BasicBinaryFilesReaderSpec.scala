@@ -2,6 +2,7 @@ package ai.datahunters.md.reader
 
 import java.nio.file.{Files, Paths}
 
+import ai.datahunters.md.config.LocalFSReaderConfig
 import ai.datahunters.md.schema.BinaryInputSchemaConfig
 import ai.datahunters.md.{SparkBaseSpec, UnitSpec}
 import org.apache.spark.sql.DataFrame
@@ -12,13 +13,7 @@ class BasicBinaryFilesReaderSpec extends UnitSpec with SparkBaseSpec {
 
 
   "An BasicBinaryFilesReader" should "properly load image file to dataframe" in {
-    val reader = BasicBinaryFilesReader(sparkSession, 1, Seq(imgPath("")))
-    val df = reader.load()
-    verifyReaderResults(df)
-  }
-
-  it should "properly load image file to dataframe from list of paths" in {
-    val reader = BasicBinaryFilesReader(sparkSession, 1, Seq(imgPath("")))
+    val reader = BasicBinaryFilesReader(sparkSession, LocalFSReaderConfig(Seq(imgPath("")), 1))
     val df = reader.load()
     verifyReaderResults(df)
   }

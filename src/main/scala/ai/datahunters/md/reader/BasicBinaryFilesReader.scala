@@ -1,6 +1,7 @@
 package ai.datahunters.md.reader
-import ai.datahunters.md.config.GeneralConfig
+import ai.datahunters.md.config.{FilesReaderConfig, GeneralConfig}
 import ai.datahunters.md.schema.{BinaryInputSchemaConfig, SchemaConfig}
+import com.amazonaws.regions.Region
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.{DataFrame, Row, SparkSession}
 
@@ -13,11 +14,12 @@ import org.apache.spark.sql.{DataFrame, Row, SparkSession}
   * @param paths All paths to directories where binary files are located.
   */
 case class BasicBinaryFilesReader(sparkSession: SparkSession,
-                                  partitionsNum: Int,
-                                  paths: Seq[String]) extends BinaryFilesReader {
+                                  config: FilesReaderConfig) extends BinaryFilesReader {
 
   import BinaryFilesReader._
   val schemaConfig: SchemaConfig = BinaryInputSchemaConfig()
+  val partitionsNum = config.partitionsNum
+  val paths = config.inputPaths
 
   /**
     * Build DataFrame
@@ -25,7 +27,8 @@ case class BasicBinaryFilesReader(sparkSession: SparkSession,
     * @return
     */
   override def load(): DataFrame = {
-    if (partitionsNum > 0) sparkSession.conf.set(GeneralConfig.SparkDFPartitionsNumKey, partitionsNum)
+    config.adjustSparkConfig(sparkSession)
+
     val rdds = paths
       .map(readToRDD)
     val allRDDs = sparkSession.sparkContext

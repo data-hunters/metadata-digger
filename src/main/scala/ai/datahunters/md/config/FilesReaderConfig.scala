@@ -1,27 +1,28 @@
 package ai.datahunters.md.config
 
 import com.typesafe.config.Config
+import org.apache.spark.sql.SparkSession
 
-case class FilesReaderConfig(val inputPaths: Seq[String],
-                             val partitionsNum: Int) extends ReaderConfig {
+trait FilesReaderConfig extends ReaderConfig {
+
+  def inputPaths: Seq[String]
+  def partitionsNum: Int
+
+  override def adjustSparkConfig(sparkSession: SparkSession): Unit = {
+    if (partitionsNum > 0) sparkSession.conf.set(GeneralConfig.SparkDFPartitionsNumKey, partitionsNum)
+  }
 
 }
 
 object FilesReaderConfig {
+
+  val StorageName = "file"
   val InputPathsKey = "input.paths"
   val PartitionsNumKey = "input.partitions"
-
-  import ConfigLoader._
 
   val Defaults = Map(
     PartitionsNumKey -> -1
   )
 
-  def build(config: Config): FilesReaderConfig = {
-    val configWithDefaults = assignDefaults(config, Defaults)
-    FilesReaderConfig(
-      configWithDefaults.getString(InputPathsKey).split(ListElementsDelimiter),
-      configWithDefaults.getInt(PartitionsNumKey)
-    )
-  }
+
 }

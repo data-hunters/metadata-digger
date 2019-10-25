@@ -9,7 +9,7 @@ import org.apache.spark.sql.SparkSession
 object PipelineSourceFactory {
 
   def create(config: ReaderConfig, sparkSession: SparkSession): PipelineSource = config match {
-    case c: FilesReaderConfig => BasicBinaryFilesReader(sparkSession, c.partitionsNum, c.inputPaths)
+    case c: FilesReaderConfig => BasicBinaryFilesReader(sparkSession, c)
     case _ => throw new RuntimeException(s"Not supported Reader for ${config.getClass}")
   }
 }

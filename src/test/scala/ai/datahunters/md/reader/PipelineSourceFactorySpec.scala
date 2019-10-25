@@ -1,12 +1,12 @@
 package ai.datahunters.md.reader
 
+import ai.datahunters.md.config.{LocalFSReaderConfig, ReaderConfig}
 import ai.datahunters.md.{SparkBaseSpec, UnitSpec}
-import ai.datahunters.md.config.{FilesReaderConfig, ReaderConfig}
 
 class PipelineSourceFactorySpec extends UnitSpec with SparkBaseSpec {
 
   "A PipelineSourceFactory" should "create BasicBinaryFilesReader" in {
-    val readerConfig = mock[FilesReaderConfig]
+    val readerConfig = mock[LocalFSReaderConfig]
     val reader = PipelineSourceFactory.create(readerConfig, sparkSession)
     assert(reader.isInstanceOf[BasicBinaryFilesReader])
   }

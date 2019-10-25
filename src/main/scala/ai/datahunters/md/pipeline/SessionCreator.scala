@@ -25,6 +25,7 @@ class SessionCreator(config: SessionConfig, localMode: Boolean, appName: String)
   }
 
   private def createLocalSessioBuilder(): sql.SparkSession.Builder = {
+
     new spark.sql.SparkSession.Builder()
       .master(s"local[${config.cores}]")
       .config(ConfigLoader.SparkDriverMemKey, s"${config.maxMemoryGB}g")

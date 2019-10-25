@@ -12,6 +12,9 @@ val scalaTestV = "3.0.8"
 val mockitoV = "3.1.0"
 val typesafeConfigV = "1.3.4"
 val solrV = "8.2.0"
+val hadoopV = "2.8.0" // This variable is not used to force Hadoop dependencies from Spark packages
+val hadoopAWSV = hadoopV
+val awsSDKV = "1.11.656"
 
 
 
@@ -21,7 +24,9 @@ lazy val sparkDependencies = Seq(
 )
 
 lazy val externalConnectors = Seq(
-  "org.apache.solr" % "solr-solrj" % solrV
+  "org.apache.solr" % "solr-solrj" % solrV,
+  "org.apache.hadoop" % "hadoop-aws" % hadoopAWSV exclude("com.fasterxml.jackson.core", "*") exclude("com.amazonaws", "*"),
+  "com.amazonaws" % "aws-java-sdk" % awsSDKV
 )
 
 lazy val utilsDependencies = Seq(
@@ -43,7 +48,6 @@ assemblyMergeStrategy in assembly := {
 }
 assemblyJarName in assembly := s"${name.value}-${version.value}.jar"
 
-//resolvers += "maven.restlet.org" at "http://maven.restlet.org"
 
 testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-y", "org.scalatest.FlatSpec")
 logBuffered in Test := false

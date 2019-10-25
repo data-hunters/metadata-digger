@@ -4,9 +4,20 @@ import ai.datahunters.md.schema.MetadataSchemaConfig.{MetadataCol, MetadataConte
 import ai.datahunters.md.schema._
 import ai.datahunters.md.udf.Extractors
 import org.apache.spark.sql.{Column, DataFrame}
-import org.apache.spark.sql.types.StructType
+import org.apache.spark.sql.types.{ArrayType, StructType}
 
-case class FlattenMetadataTags(colPrefix: String, includeDirName: Boolean = false, allowedTags: Option[Seq[String]] = None) extends Processor {
+/**
+  * Retrieve all metadata columns from nested structures to the root
+  *
+  * @param colPrefix Prefix that should be added to all metadata
+  * @param includeDirName Add directory/group name to all metadata tags
+  * @param removeArrays Remove all columns that have type of array
+  * @param allowedTags List of allowed tags to include in the final DataFrame, include all if None.
+  */
+case class FlattenMetadataTags(colPrefix: String,
+                               includeDirName: Boolean = false,
+                               removeArrays: Boolean = false,
+                               allowedTags: Option[Seq[String]] = None) extends Processor {
   import org.apache.spark.sql.functions._
   import FlattenMetadataTags._
   import Extractors._
@@ -16,9 +27,20 @@ case class FlattenMetadataTags(colPrefix: String, includeDirName: Boolean = fals
     val columns = SchemaConfig.dfExistingColumns(inputDF, Seq(MetadataCol)) ++ Seq(s"${MetadataCol}.*")
     val selectMetadataTagsUDF = selectMetadataTagsFromDirs(colPrefix, includeDirName, selectedTags)
 
-    inputDF.withColumn(MetadataCol, selectMetadataTagsUDF(col(MetadataCol)))
+    val transformedDF = inputDF.withColumn(MetadataCol, selectMetadataTagsUDF(col(MetadataCol)))
       .select(columns.head, columns.tail:_*)
       .withColumn(MetadataContentCol, concat_ws(" ", buildConcatTagList(selectedTags, colPrefix):_*))
+    selectFinalColumns(transformedDF)
+  }
+
+  private def selectFinalColumns(df: DataFrame): DataFrame = if (removeArrays) {
+    val simpleFields = df.schema
+      .fields
+      .filter(f => !f.dataType.isInstanceOf[ArrayType] && !f.dataType.isInstanceOf[StructType] )
+      .map(fn => col(fn.name))
+    df.select(simpleFields:_*)
+  } else {
+    df
   }
 
   private def buildConcatTagList(selectedTags: Seq[String], colPrefix: String): Seq[Column] = {

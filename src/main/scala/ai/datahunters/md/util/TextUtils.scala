@@ -2,7 +2,7 @@ package ai.datahunters.md.util
 
 object TextUtils {
 
-  def safeName(v: String): String = v.replaceAll("[\\{\\}\\.\\(\\),'\"\\?;<>*&%$#@\\!`\\[\\]]", "")
+  def safeName(v: String): String = v.replaceAll("[\\{\\}\\.\\(\\),'\"\\?;<>*&%$#@\\!`\\[\\]/]", "")
 
 
   object NamingConvention {

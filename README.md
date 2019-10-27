@@ -1,6 +1,6 @@
 # Metadata Digger
 Main goal of Metadata Digger is to provide better insights into Metadata extracted from binary files (like images).
-MD is built on top of [Apache Spark](https://spark.apache.org/) - one of the most popular Big Data processing engine - to take advantage of distributed computing.
+MD is built on top of <a href="https://spark.apache.org/" target="_blank">Apache Spark</a> - one of the most popular Big Data processing engine - to take advantage of distributed computing.
 
 Currently MD is under development but basic functionality is available:
 
@@ -14,7 +14,7 @@ Currently MD is under development but basic functionality is available:
 * Basic filtering - you can provide list of allowed groups/directories of tags (e.g.: ExifIFD0, ExifSubIFD, JPEG, GPS) or particular tags.
 * Scaling extraction process to multiple machines and cores, so you can work with huge volumes of data
 * Saving output in CSV and JSON formats
-* Indexing results to [Apache Solr](http://lucene.apache.org/solr/) (Full-Text Search Engine)
+* Indexing results to <a href="http://lucene.apache.org/solr/" target="_blank">Apache Solr</a> (Full-Text Search Engine)
 
 To provide easy start for OSINT researchers who do not know details of Apache Spark, special Standalone version has been prepared that can utilize many cores of processor on single machine.
 **If you want to try Metadata Digger without going into Big Data/Spark technical details**, read *Getting Started* section, especially *Runing in Standalone mode*. More complex configuration is covered in *Advanced settings*.
@@ -36,7 +36,7 @@ Currently two files output formats are supported:
 * CSV file
 * JSON file - each line has separated JSON object, so it is easy to load data in stream line by line
 
-Additionally it is possible to index metadata directly to [Apache Solr](http://lucene.apache.org/solr/) (one of the most popular Full-Text Search Engine), instead of writing results to file.
+Additionally it is possible to index metadata directly to  <a href="http://lucene.apache.org/solr/" target="_blank">Apache Solr</a> (one of the most popular Full-Text Search Engine), instead of writing results to file.
 
 ### Running in Standalone mode
 To get current distribution, please go to releases tab and download zipped 0.1.1 version and unpack it. There you will have run-metadata-digger.sh script and two sample configuration files (`json.config.properties` and `csv.config.properties`) with examples for JSON and CSV output format. Pick one, open it and change two settings:
@@ -71,9 +71,9 @@ Metadata Digger is built as Processing Pipeline with configurable blocks called 
 First thing we have to decide before we start configuring Reader is type of storage. Currently we support the following:
 
 * Local File System - your local disk, avoid using it in Distributed mode on multiple machines because every machine has to have access to the data and output will be misleading (multiple files spread across all servers).
-* [Hadoop Distributed File System](https://en.wikipedia.org/wiki/Apache_Hadoop#Hadoop_distributed_file_system) (HDFS)
-* [Amazon Simple Storage Service](https://aws.amazon.com/s3/) (S3)
-* [Digital Ocean Spaces](https://www.digitalocean.com/products/spaces/) (Spaces Object Storage)
+* <a href="https://en.wikipedia.org/wiki/Apache_Hadoop#Hadoop_distributed_file_system" target="_blank">Hadoop Distributed File System</a> (HDFS)
+* <a href="https://aws.amazon.com/s3/" target="_blank">Amazon Simple Storage Service</a> (S3)
+* <a href="https://www.digitalocean.com/products/spaces/" target="_blank">Digital Ocean Spaces</a> (Spaces Object Storage)
 
 
 
@@ -102,12 +102,12 @@ One of the most popular Service providing Storage in Cloud. If you keep your fil
 | `storage.s3.accessKey` |  | S3 Access Key |
 | `storage.s3.secretKey` |  | S3 Secret Key |
 | `storage.s3.endpoint`  |  | Endpoint including Region. In most cases it will have the following formt: *s3.[REGION].amazonaws.com*, e.g. *s3.eu-central-1.amazonaws.com*. Currently it is possible to load only from one region. |
-| `storage.s3.credsProvided` | true | Flag determining if credentials (Access Key and Secret Key) are provided in main Metadata Digger config file. This is default and the easiest way. However, it is not the most secure because it can happen that credentials will be visible in internal Metadata Digger logs (on your machines of course, we are not sending anything on external servers). To configure S3 in the most secure way, you should follow Hadoop instruction (e.g. [Cloudera Guide](https://docs.cloudera.com/documentation/enterprise/6/6.3/topics/spark_s3.html)). |
+| `storage.s3.credsProvided` | true | Flag determining if credentials (Access Key and Secret Key) are provided in main Metadata Digger config file. This is default and the easiest way. However, it is not the most secure because it can happen that credentials will be visible in internal Metadata Digger logs (on your machines of course, we are not sending anything on external servers). To configure S3 in the most secure way, you should follow Hadoop instruction (e.g. <a href="https://docs.cloudera.com/documentation/enterprise/6/6.3/topics/spark_s3.html" target="_blank">Cloudera Guide</a>). |
 
 Paths to particular directories on S3 should be set in the following format: *s3a://[BUCKET_NAME]/[PATH_TO_DIRECTORY]* or just: *[BUCKET_NAME]/[PATH_TO_DIRECTORY]*. **Do not use `s3://` prefix because it is the old and not supported format**.
 
 #### Digital Ocean Spaces
-Less popular but similar to S3 service providing Storage in Cloud. It is young but general idea of Digital Ocean - "*Developer Cloud - We make it simple to launch in the cloud and scale up as you grow – with an intuitive control panel, predictable pricing, team accounts, and more*" makes this service quite good place for individual OSINT researchers (if you can upload your files on cloud of course...). Setup is very quick, simple and they have API compatible with Amazon S3, so people can [offically use Amazon S3 client libraries](https://developers.digitalocean.com/documentation/spaces/) to connect to Digital Ocean Spaces. If  you want to load your files from this storage, use S3 properties as follows:
+Less popular but similar to S3 service providing Storage in Cloud. It is young but general idea of Digital Ocean - "*Developer Cloud - We make it simple to launch in the cloud and scale up as you grow – with an intuitive control panel, predictable pricing, team accounts, and more*" makes this service quite good place for individual OSINT researchers (if you can upload your files on cloud of course...). Setup is very quick, simple and they have API compatible with Amazon S3, so people can <a href="https://developers.digitalocean.com/documentation/spaces/" target="_blank">offically use Amazon S3 client libraries</a> to connect to Digital Ocean Spaces. If  you want to load your files from this storage, use S3 properties as follows:
 
 
 | Property | Default | Description |
@@ -115,18 +115,18 @@ Less popular but similar to S3 service providing Storage in Cloud. It is young b
 | `storage.s3.accessKey` |  | Digital Ocean Spaces Access Key |
 | `storage.s3.secretKey` |  | Digital Ocean Spaces Secret Key |
 | `storage.s3.endpoint`  |  | Endpoint including Region. In most cases it will have the following formt: *https://[REGION].digitaloceanspaces.com*, e.g. *https://nyc3.digitaloceanspaces.com*. Currently it is possible to load only from one region. |
-| `storage.s3.credsProvided` | true | Flag determining if credentials (Access Key and Secret Key) are provided in main Metadata Digger config file. This is default and the easiest way. However, it is not the most secure because it can happen that credentials will be visible in internal Metadata Digger logs (on your machines of course, we are not sending anything on external servers). To configure Digital Ocean Spaces in the most secure way, you should follow Hadoop instruction for S3 (e.g. [Cloudera Guide](https://docs.cloudera.com/documentation/enterprise/6/6.3/topics/spark_s3.html)). |
+| `storage.s3.credsProvided` | true | Flag determining if credentials (Access Key and Secret Key) are provided in main Metadata Digger config file. This is default and the easiest way. However, it is not the most secure because it can happen that credentials will be visible in internal Metadata Digger logs (on your machines of course, we are not sending anything on external servers). To configure Digital Ocean Spaces in the most secure way, you should follow Hadoop instruction for S3 (e.g. <a href="https://docs.cloudera.com/documentation/enterprise/6/6.3/topics/spark_s3.html" target="_blank">Cloudera Guide</a>). |
 
 Paths to particular directories on Spaces should be set in the following format: *s3a://[BUCKET_NAME]/[PATH_TO_DIRECTORY]* or just: *[BUCKET_NAME]/[PATH_TO_DIRECTORY]*. **Do not use `s3://` prefix because it is the old and not supported format**.
 
 ## External dependencies
 We use the following libraries in our application:
 
-* [Apache Spark](https://spark.apache.org/) - Apache License 2.0
-* [Metadata Extractor](https://drewnoakes.com/code/exif/) - Apache License 2.0
-* [SolrJ](https://github.com/apache/lucene-solr/) - Apache License 2.0
-* [Apache Hadoop](https://github.com/apache/hadoop/) - Apache License 2.0
-* [AWS SDK for Java](https://github.com/aws/aws-sdk-java/) - Apache License 2.0
+* <a href="https://spark.apache.org/" target="_blank">Apache Spark</a> - Apache License 2.0
+* <a href="https://drewnoakes.com/code/exif/" target="_blank">Metadata Extractor</a> - Apache License 2.0
+* <a href="https://github.com/apache/lucene-solr/" target="_blank">SolrJ</a> - Apache License 2.0
+* <a href="https://github.com/apache/hadoop/" target="_blank">Apache Hadoop</a> - Apache License 2.0
+* <a href="https://github.com/aws/aws-sdk-java/" target="_blank">AWS SDK for Java</a> - Apache License 2.0
 * Other common libraries for Scala, see built.sbt for details
 
 Please read documentation of particular dependencies to check details about licenses and used libraries.

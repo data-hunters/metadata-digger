@@ -1,17 +1,27 @@
 # Metadata Digger
-Main goal of this project is to provide better insights into Metadata extracted from binary files (like images).
+Main goal of Metadata Digger is to provide better insights into Metadata extracted from binary files (like images).
 MD is built on top of [Apache Spark](https://spark.apache.org/) - one of the most popular Big Data processing engine - to take advantage of distributed computing.
 
 Currently MD is under development but basic functionality is available:
 
-* Extracting Metadata from files located in multiple directories locally or on HDFS
+* Extracting Metadata from files located in multiple directories, from the following sources:
+
+    * Local File System or on HDFS
+    * HDFS
+    * Amazon Simple Storage Service (S3)
+    * Digital Ocean Spaces (Spaces Object Storage)
+
 * Basic filtering - you can provide list of allowed groups/directories of tags (e.g.: ExifIFD0, ExifSubIFD, JPEG, GPS) or particular tags.
 * Scaling extraction process to multiple machines and cores, so you can work with huge volumes of data
 * Saving output in CSV and JSON formats
+* Indexing results to [Apache Solr](http://lucene.apache.org/solr/) (Full-Text Search Engine)
 
 To provide easy start for OSINT researchers who do not know details of Apache Spark, special Standalone version has been prepared that can utilize many cores of processor on single machine.
+**If you want to try Metadata Digger without going into Big Data/Spark technical details**, read *Getting Started* section, especially *Runing in Standalone mode*. More complex configuration is covered in *Advanced settings*.
 
-## Requirements
+## Getting Started
+
+### Requirements
 Minimal requirements:
 
 * Linux OS
@@ -20,12 +30,15 @@ Minimal requirements:
 
 For distributed mode, you should use Spark 2.4.3.
 
-## Output formats
-Currently two output formats are supported:
+### Output formats
+Currently two files output formats are supported:
+
 * CSV file
 * JSON file - each line has separated JSON object, so it is easy to load data in stream line by line
 
-## Running in Standalone mode
+Additionally it is possible to index metadata directly to [Apache Solr](http://lucene.apache.org/solr/) (one of the most popular Full-Text Search Engine), instead of writing results to file.
+
+### Running in Standalone mode
 To get current distribution, please go to releases tab and download zipped 0.1.1 version and unpack it. There you will have run-metadata-digger.sh script and two sample configuration files (`json.config.properties` and `csv.config.properties`) with examples for JSON and CSV output format. Pick one, open it and change two settings:
 
 * `input.paths` - paths to directories with files you want to process. You can set multiple paths delimited by comma
@@ -33,22 +46,90 @@ To get current distribution, please go to releases tab and download zipped 0.1.1
 
 Optional settings:
 
-* `output.format` - currently you can set `csv` or `json`
+* `output.format` - currently you can set `csv`, `json` or `solr`
 * `processing.maxMemoryGB` - memory in GB that will be used by Metadata Digger.
-* `output.filesNumber` - number of files where Metadata Digger will save results.
-* `processing.cores` - number of cores that will be used to parallel processing. If you do not set it, MD will automatically use max cores/threads your machine has - 1.
-* `filter.allowedMetadataDirectories` - comma delimited list of allowed directories/groups of tags, e.g. ExifIFD0,ExifSubIFD,JPEG,GPS. If you do not set it, MD will retrieve all existing
-* `processing.partitions` - advance property, leave it if you do not know Spark.
+* `output.filesNumber` [optional] - number of files where Metadata Digger will save results.
+* `processing.cores` [optional] - number of cores that will be used to parallel processing. If you do not set it, MD will automatically use max cores/threads your machine has - 1.
+* `filter.allowedMetadataDirectories` [optional] - comma delimited list of allowed directories/groups of tags, e.g. ExifIFD0,ExifSubIFD,JPEG,GPS. If you do not set it, MD will retrieve all existing
+* `processing.partitions` [optional] - advance property, leave it if you do not know Spark.
 
 When you adjust your config, run the following command (where `<path_to_config>` is path to adjusted configuration file):
 ```
 sh run-metadata-digger.sh <path_to_config>
 ```
 
-## Running in distributed mode
+### Running in distributed mode
 See above information about running in standalone mode to download release and adjust configuration.
-Currently there is not script that runs Metadata Digger on Spark cluster, so please use spark-submit command with provided JAR and main class - `ai.datahunters.md.launcher.DistributedBasicExtractor`. There is only one argument - path to configuration file.
+Currently there is not script that runs Metadata Digger on Spark cluster, so please use spark-submit command with provided JAR and main class - `ai.datahunters.md.launcher.BasicExtractorLauncher`. There is only one argument - path to configuration file.
 
+
+## Advanced settings
+
+Metadata Digger is built as Processing Pipeline with configurable blocks called Processors. Input to the Pipeline is handled by Reader/Source and output by Writer/Sink. All things related to different input formats and types of storage are responisibility of Reader. The same is for Writer. To configure Metadata Digger with another source than Local File System, S3 for instance, you have to know which properties of Reader have to be set. When we talk about properties, parameters, configs, we mean key-value pairs placed in config.properties file which path has to be passed as an argument of Metadata Digger starting script.
+
+### Reader configuration
+First thing we have to decide before we start configuring Reader is type of storage. Currently we support the following:
+
+* Local File System - your local disk, avoid using it in Distributed mode on multiple machines because every machine has to have access to the data and output will be misleading (multiple files spread across all servers).
+* [Hadoop Distributed File System](https://en.wikipedia.org/wiki/Apache_Hadoop#Hadoop_distributed_file_system) (HDFS)
+* [Amazon Simple Storage Service](https://aws.amazon.com/s3/) (S3)
+* [Digital Ocean Spaces](https://www.digitalocean.com/products/spaces/) (Spaces Object Storage)
+
+
+
+#### Common Reader properties
+The following table presents properties that are common for each type of storage.
+
+| Property | Default | Description |
+| -------- | ------- | ----------- |
+| `input.paths` | | Paths to directories delimited by comma |
+| `input.storage.name` | file | Name of storage |
+| `input.partitions` | -1 |  Number of Spark partitions. Default value will let Spark decide how many partitions should be used and for most cases, it is recommended. To understand what is partition, you should dive a little bit more into Spark technical details but basically, partition is some part of data (e.g. content of X files loaded on input) that can be processed in parallel with other parts. Let's suppose we have 500 input files with images, 10 CPU cores reserved for calculations and we decided to use 10 partitions. Spark will divide all those files into 10 packages (they will not be ideally equal). All those partitions will be calculated in parallel, each partition per one core. It is of course simplification but generally it is how Spark works with partitions. |
+
+#### Local File System
+This is default storage and to force it for some reason you can just set **file** value to `input.storage.name` property.
+
+#### Hadoop Distributed File System
+Spark works pretty well with HDFS by default, so if you run Metadata Digger in Distributed mode on your cluster, you can set **file** value to `input.storage.name` property and all your input paths will be treated as HDFS paths.
+For now we do not support passing custom HDFS configuration for external Hadoop cluster. However, you can do this manually if you know Spark.
+
+#### Amazon S3
+One of the most popular Service providing Storage in Cloud. If you keep your files on S3, you can easily configure Metadata Digger to load them. First thing you should do is setting `input.storage.name` to **s3**. Reade below table for other properties.
+
+
+| Property | Default | Description |
+| -------- | ------- | ----------- |
+| `storage.s3.accessKey` |  | S3 Access Key |
+| `storage.s3.secretKey` |  | S3 Secret Key |
+| `storage.s3.endpoint`  |  | Endpoint including Region. In most cases it will have the following formt: *s3.[REGION].amazonaws.com*, e.g. *s3.eu-central-1.amazonaws.com*. Currently it is possible to load only from one region. |
+| `storage.s3.credsProvided` | true | Flag determining if credentials (Access Key and Secret Key) are provided in main Metadata Digger config file. This is default and the easiest way. However, it is not the most secure because it can happen that credentials will be visible in internal Metadata Digger logs (on your machines of course, we are not sending anything on external servers). To configure S3 in the most secure way, you should follow Hadoop instruction (e.g. [Cloudera Guide](https://docs.cloudera.com/documentation/enterprise/6/6.3/topics/spark_s3.html)). |
+
+Paths to particular directories on S3 should be set in the following format: *s3a://[BUCKET_NAME]/[PATH_TO_DIRECTORY]* or just: *[BUCKET_NAME]/[PATH_TO_DIRECTORY]*. **Do not use `s3://` prefix because it is the old and not supported format**.
+
+#### Digital Ocean Spaces
+Less popular but similar to S3 service providing Storage in Cloud. It is young but general idea of Digital Ocean - "*Developer Cloud - We make it simple to launch in the cloud and scale up as you grow – with an intuitive control panel, predictable pricing, team accounts, and more*" makes this service quite good place for individual OSINT researchers (if you can upload your files on cloud of course...). Setup is very quick, simple and they have API compatible with Amazon S3, so people can [offically use Amazon S3 client libraries](https://developers.digitalocean.com/documentation/spaces/) to connect to Digital Ocean Spaces. If  you want to load your files from this storage, use S3 properties as follows:
+
+
+| Property | Default | Description |
+| -------- | ------- | ----------- |
+| `storage.s3.accessKey` |  | Digital Ocean Spaces Access Key |
+| `storage.s3.secretKey` |  | Digital Ocean Spaces Secret Key |
+| `storage.s3.endpoint`  |  | Endpoint including Region. In most cases it will have the following formt: *https://[REGION].digitaloceanspaces.com*, e.g. *https://nyc3.digitaloceanspaces.com*. Currently it is possible to load only from one region. |
+| `storage.s3.credsProvided` | true | Flag determining if credentials (Access Key and Secret Key) are provided in main Metadata Digger config file. This is default and the easiest way. However, it is not the most secure because it can happen that credentials will be visible in internal Metadata Digger logs (on your machines of course, we are not sending anything on external servers). To configure Digital Ocean Spaces in the most secure way, you should follow Hadoop instruction for S3 (e.g. [Cloudera Guide](https://docs.cloudera.com/documentation/enterprise/6/6.3/topics/spark_s3.html)). |
+
+Paths to particular directories on Spaces should be set in the following format: *s3a://[BUCKET_NAME]/[PATH_TO_DIRECTORY]* or just: *[BUCKET_NAME]/[PATH_TO_DIRECTORY]*. **Do not use `s3://` prefix because it is the old and not supported format**.
+
+## External dependencies
+We use the following libraries in our application:
+
+* [Apache Spark](https://spark.apache.org/) - Apache License 2.0
+* [Metadata Extractor](https://drewnoakes.com/code/exif/) - Apache License 2.0
+* [SolrJ](https://github.com/apache/lucene-solr/) - Apache License 2.0
+* [Apache Hadoop](https://github.com/apache/hadoop/) - Apache License 2.0
+* [AWS SDK for Java](https://github.com/aws/aws-sdk-java/) - Apache License 2.0
+* Other common libraries for Scala, see built.sbt for details
+
+Please read documentation of particular dependencies to check details about licenses and used libraries.
 <br />
 <br />
 <br />

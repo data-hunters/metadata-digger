@@ -99,6 +99,12 @@ object S3ReaderConfig {
     )
   }
 
+  /**
+    * Adjust paths by forcing usage of prefix specified in PathPrefix
+    *
+    * @param paths
+    * @return
+    */
   protected def fixPaths(paths: Seq[String]): Seq[String] = {
     paths.map(p => {
       if (p.startsWith(PathPrefix)) {

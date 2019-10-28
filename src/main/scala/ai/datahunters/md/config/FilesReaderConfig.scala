@@ -35,6 +35,13 @@ object FilesReaderConfig {
     config.getInt(PartitionsNumKey)
   }
 
+  /**
+    * Adjust paths by forcing prefixes related to particular type of storage
+    * @param pathPrefix
+    * @param storageName
+    * @param paths
+    * @return
+    */
   def fixPaths(pathPrefix: String, storageName: String)(paths: Seq[String]): Seq[String] = {
     paths.map(p => {
       if (p.startsWith(PathPrefix)) {

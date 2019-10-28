@@ -24,13 +24,13 @@ object ReaderConfig {
 
   val StorageNameKey = "input.storage.name"
   val SupportedStorages = Seq(
-    FilesReaderConfig.StorageName,
-    "hdfs",
+    LocalFSReaderConfig.StorageName,
+    HDFSReaderConfig.StorageName,
     S3ReaderConfig.StorageName
   )
 
   val Defaults = Map(
-    StorageNameKey -> FilesReaderConfig.StorageName
+    StorageNameKey -> LocalFSReaderConfig.StorageName
   )
 
   /**
@@ -42,8 +42,9 @@ object ReaderConfig {
   def build(config: Config): ReaderConfig = {
     val configWithDefaults = ConfigLoader.assignDefaults(config, Defaults)
     configWithDefaults.getString(StorageNameKey) match {
-      case FilesReaderConfig.StorageName => LocalFSReaderConfig.build(configWithDefaults)
+      case LocalFSReaderConfig.StorageName => LocalFSReaderConfig.build(configWithDefaults)
       case S3ReaderConfig.StorageName => S3ReaderConfig.build(configWithDefaults)
+      case HDFSReaderConfig.StorageName => HDFSReaderConfig.build(configWithDefaults)
       case other => throw new NotSupportedStorageException(s"Not supported storage: $other")
     }
 

@@ -76,7 +76,7 @@ object S3ReaderConfig {
 
   val PathPrefix = "s3a://"
 
-  val Defaults = Map(
+  val Defaults = FilesReaderConfig.Defaults ++ Map(
     CredentialsProvidedInConfigKey -> true,
     AccessKeyKey -> "",
     SecretKeyKey -> "",
@@ -85,13 +85,13 @@ object S3ReaderConfig {
   )
 
   def build(config: Config): S3ReaderConfig = {
-    val configWithDefaults = assignDefaults(config, Defaults)
-    val baseConfig = LocalFSReaderConfig.build(configWithDefaults)
+    val configWithDefaults = ConfigLoader.assignDefaults(config, Defaults)
+    val rawInputPaths = FilesReaderConfig.getInputPaths(configWithDefaults)
     val endpoint = configWithDefaults.getString(EndpointKey)
-    val inputPaths = fixPaths(baseConfig.inputPaths)
+    val inputPaths = fixPaths(rawInputPaths)
     S3ReaderConfig(
       inputPaths,
-      baseConfig.partitionsNum,
+      FilesReaderConfig.getPartitionsNum(configWithDefaults),
       configWithDefaults.getBoolean(CredentialsProvidedInConfigKey),
       configWithDefaults.getString(AccessKeyKey),
       configWithDefaults.getString(SecretKeyKey),

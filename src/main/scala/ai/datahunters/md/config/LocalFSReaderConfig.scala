@@ -15,11 +15,16 @@ object LocalFSReaderConfig {
 
   import FilesReaderConfig._
 
+  val StorageName = "file"
+  val PathPrefix = "file://"
+
   def build(config: Config): FilesReaderConfig = {
     val configWithDefaults = ConfigLoader.assignDefaults(config, Defaults)
+    val rawInputPaths = getInputPaths(configWithDefaults)
+    val inputPaths = FilesReaderConfig.fixPaths(PathPrefix, StorageName)(rawInputPaths)
     LocalFSReaderConfig(
-      configWithDefaults.getString(InputPathsKey).split(ListElementsDelimiter).map(_.trim),
-      configWithDefaults.getInt(PartitionsNumKey)
+      inputPaths,
+      getPartitionsNum(configWithDefaults)
     )
   }
 

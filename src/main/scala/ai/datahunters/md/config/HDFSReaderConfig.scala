@@ -1,8 +1,9 @@
 package ai.datahunters.md.config
 
-import ai.datahunters.md.config.ConfigLoader.assignDefaults
+import ai.datahunters.md.config.FilesReaderConfig.{Defaults, getInputPaths}
 import com.typesafe.config.Config
 import org.apache.spark.sql.SparkSession
+import org.slf4j.LoggerFactory
 
 /**
   * Configuration for HDFS reader.
@@ -14,16 +15,17 @@ import org.apache.spark.sql.SparkSession
   * @param krb5confPath
   */
 case class HDFSReaderConfig(inputPaths: Seq[String],
-                            partitionsNum: Int,
-                            kerberosEnabled: Boolean,
-                            username: Option[String],
-                            keytabPath: Option[String],
-                            krb5confPath: String) extends FilesReaderConfig {
-  override def adjustSparkConfig(sparkSession: SparkSession): Unit = ???
+                            partitionsNum: Int) extends FilesReaderConfig {
+  override def adjustSparkConfig(sparkSession: SparkSession): Unit = {
+
+  }
 }
 
 object HDFSReaderConfig {
 
+  val Logger = LoggerFactory.getLogger(classOf[HDFSReaderConfig])
+
+  val StorageName = "hdfs"
   val DefaultKerberosConfPath = "/etc/krb5.conf"
 
   val KerberosEnabledKey = "input.hdfs.kerberosEnabled"
@@ -31,7 +33,9 @@ object HDFSReaderConfig {
   val KerberosKeytabPathKey = "input.hdfs.keytabPath"
   val KerberosConfPathKey = "input.hdfs.krb5ConfPath"
 
-  val Defaults = Map(
+  val PathPrefix = "hdfs://"
+
+  val Defaults = FilesReaderConfig.Defaults ++ Map(
     KerberosEnabledKey -> false,
     KerberosConfPathKey -> DefaultKerberosConfPath,
     KerberosUserKey -> "",
@@ -39,18 +43,14 @@ object HDFSReaderConfig {
   )
 
   def build(config: Config): HDFSReaderConfig = {
-    val configWithDefaults = assignDefaults(config, Defaults)
-    val baseConfig = LocalFSReaderConfig.build(configWithDefaults)
-    val username = configWithDefaults.getString(KerberosUserKey)
-    val keytabPath = configWithDefaults.getString(KerberosKeytabPathKey)
-
+    val configWithDefaults = ConfigLoader.assignDefaults(config, Defaults)
+    val rawInputPaths = getInputPaths(configWithDefaults)
+    val inputPaths = FilesReaderConfig.fixPaths(PathPrefix, StorageName)(rawInputPaths)
     HDFSReaderConfig(
-      baseConfig.inputPaths,
-      baseConfig.partitionsNum,
-      configWithDefaults.getBoolean(KerberosEnabledKey),
-      Option(username).filter(_.nonEmpty),
-      Option(keytabPath).filter(_.nonEmpty),
-      configWithDefaults.getString(KerberosConfPathKey)
+      inputPaths,
+      FilesReaderConfig.getPartitionsNum(configWithDefaults)
     )
   }
+
+
 }

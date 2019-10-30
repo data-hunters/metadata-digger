@@ -19,6 +19,10 @@ Currently MD is under development but basic functionality is available:
 To provide easy start for OSINT researchers who do not know details of Apache Spark, special Standalone version has been prepared that can utilize many cores of processor on single machine.
 **If you want to try Metadata Digger without going into Big Data/Spark technical details**, read *Getting Started* section, especially *Runing in Standalone mode*. More complex configuration is covered in *Advanced settings*.
 
+<br/>
+<br/>
+![]("https://github.com/data-hunters/metadata-digger/workflows/build/badge.svg)
+<br/>
 ## Getting Started
 
 ### Requirements

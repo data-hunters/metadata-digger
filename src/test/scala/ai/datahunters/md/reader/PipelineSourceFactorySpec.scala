@@ -1,6 +1,6 @@
 package ai.datahunters.md.reader
 
-import ai.datahunters.md.config.{LocalFSReaderConfig, ReaderConfig}
+import ai.datahunters.md.config.reader.{LocalFSReaderConfig, ReaderConfig}
 import ai.datahunters.md.{SparkBaseSpec, UnitSpec}
 
 class PipelineSourceFactorySpec extends UnitSpec with SparkBaseSpec {

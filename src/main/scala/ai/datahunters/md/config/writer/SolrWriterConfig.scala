@@ -1,13 +1,22 @@
-package ai.datahunters.md.config
+package ai.datahunters.md.config.writer
 
+import ai.datahunters.md.config.ConfigLoader
 import com.typesafe.config.Config
+import org.apache.spark.sql.SparkSession
 
 case class SolrWriterConfig(val collection: String,
                             val zkServers: Seq[String],
                             val zkSolrZNode: Option[String]
-                 )
+                 ) extends WriterConfig {
+
+  override def adjustSparkConfig(sparkSession: SparkSession): Unit = {
+
+  }
+}
 
 object SolrWriterConfig {
+
+  val StorageName = "solr"
 
   val CollectionKey = "output.collection"
   val ZKServersKey = "output.zk.servers"

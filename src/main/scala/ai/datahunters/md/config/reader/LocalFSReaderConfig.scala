@@ -1,6 +1,7 @@
-package ai.datahunters.md.config
+package ai.datahunters.md.config.reader
 
-import ai.datahunters.md.config.ConfigLoader.ListElementsDelimiter
+import ai.datahunters.md.config.ConfigLoader
+import ai.datahunters.md.util.FilesHandler
 import com.typesafe.config.Config
 
 /**
@@ -21,7 +22,7 @@ object LocalFSReaderConfig {
   def build(config: Config): FilesReaderConfig = {
     val configWithDefaults = ConfigLoader.assignDefaults(config, Defaults)
     val rawInputPaths = getInputPaths(configWithDefaults)
-    val inputPaths = FilesReaderConfig.fixPaths(PathPrefix, StorageName)(rawInputPaths)
+    val inputPaths = FilesHandler.fixPaths(PathPrefix, StorageName)(rawInputPaths)
     LocalFSReaderConfig(
       inputPaths,
       getPartitionsNum(configWithDefaults)

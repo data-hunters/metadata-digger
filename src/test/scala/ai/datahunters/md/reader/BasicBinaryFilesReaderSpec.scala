@@ -2,7 +2,7 @@ package ai.datahunters.md.reader
 
 import java.nio.file.{Files, Paths}
 
-import ai.datahunters.md.config.LocalFSReaderConfig
+import ai.datahunters.md.config.reader.LocalFSReaderConfig
 import ai.datahunters.md.schema.BinaryInputSchemaConfig
 import ai.datahunters.md.{SparkBaseSpec, UnitSpec}
 import org.apache.spark.sql.DataFrame

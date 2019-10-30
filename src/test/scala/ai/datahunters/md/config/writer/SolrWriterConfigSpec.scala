@@ -1,7 +1,8 @@
-package ai.datahunters.md.config
+package ai.datahunters.md.config.writer
 
 import ai.datahunters.md.UnitSpec
 import com.typesafe.config.ConfigFactory
+
 import scala.collection.JavaConversions.mapAsJavaMap
 
 class SolrWriterConfigSpec extends UnitSpec {

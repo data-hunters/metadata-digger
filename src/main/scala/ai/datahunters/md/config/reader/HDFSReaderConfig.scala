@@ -1,6 +1,7 @@
-package ai.datahunters.md.config
+package ai.datahunters.md.config.reader
 
-import ai.datahunters.md.config.FilesReaderConfig.{Defaults, getInputPaths}
+import ai.datahunters.md.config.ConfigLoader
+import ai.datahunters.md.util.FilesHandler
 import com.typesafe.config.Config
 import org.apache.spark.sql.SparkSession
 import org.slf4j.LoggerFactory
@@ -44,8 +45,8 @@ object HDFSReaderConfig {
 
   def build(config: Config): HDFSReaderConfig = {
     val configWithDefaults = ConfigLoader.assignDefaults(config, Defaults)
-    val rawInputPaths = getInputPaths(configWithDefaults)
-    val inputPaths = FilesReaderConfig.fixPaths(PathPrefix, StorageName)(rawInputPaths)
+    val rawInputPaths = FilesReaderConfig.getInputPaths(configWithDefaults)
+    val inputPaths = FilesHandler.fixPaths(PathPrefix, StorageName)(rawInputPaths)
     HDFSReaderConfig(
       inputPaths,
       FilesReaderConfig.getPartitionsNum(configWithDefaults)

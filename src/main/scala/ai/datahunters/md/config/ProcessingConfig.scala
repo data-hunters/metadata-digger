@@ -27,7 +27,7 @@ object ProcessingConfig {
     AllowedTagsKey -> All,
     ColumnsNamingConventionKey -> "camelCase",
     MetadataColumnsPrefixKey -> "",
-    IncludeDirectoriesInTagNamesKey -> false
+    IncludeDirectoriesInTagNamesKey -> true
   )
 
   def build(config: Config): ProcessingConfig = {

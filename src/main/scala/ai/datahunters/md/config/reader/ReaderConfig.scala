@@ -1,26 +1,16 @@
-package ai.datahunters.md.config
+package ai.datahunters.md.config.reader
 
-import com.typesafe.config.{Config, ConfigFactory}
-import org.apache.spark.sql.SparkSession
+import ai.datahunters.md.config.GeneralConfig.NotSupportedStorageException
+import ai.datahunters.md.config._
+import com.typesafe.config.Config
 
 /**
   * Base class for all config classes related to readers.
   */
-abstract class ReaderConfig {
-
-  /**
-    * Applies all necessary config adjustments related to Spark and Hadoop.
-    * All classes extending ReaderConfig should set all config specific to the reader.
-    *
-    * @param sparkSession
-    */
-  def adjustSparkConfig(sparkSession: SparkSession)
-
-}
+abstract class ReaderConfig extends GeneralConfig
 
 object ReaderConfig {
 
-  case class NotSupportedStorageException(msg: String) extends RuntimeException
 
   val StorageNameKey = "input.storage.name"
   val SupportedStorages = Seq(

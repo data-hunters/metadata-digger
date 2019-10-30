@@ -8,7 +8,6 @@ class FlattenColumnSpec extends UnitSpec with SparkBaseSpec {
   import FlattenColumnSpec._
 
   "A FlattenColumn" should "move all embedded column on root level in schema" in {
-
     val processor = FlattenColumn("SomeEmbeddedCol")
     val rdd = sparkSession.sparkContext.parallelize(Data)
     val df = sparkSession.createDataFrame(rdd, Schema)

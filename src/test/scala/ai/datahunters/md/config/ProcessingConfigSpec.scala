@@ -11,7 +11,7 @@ class ProcessingConfigSpec extends UnitSpec {
     val inputConfig = Map[String, AnyVal]()
     val config = ConfigFactory.parseMap(inputConfig)
     val outputConfig = ProcessingConfig.build(config)
-    assert(outputConfig.includeDirsInTags === false)
+    assert(outputConfig.includeDirsInTags === true)
     assert(outputConfig.metadataColumnsPrefix === "")
     assert(outputConfig.namingConvention === "camelCase")
     assert(outputConfig.allowedDirectories === None)

@@ -1,6 +1,6 @@
 package ai.datahunters.md.reader
 
-import ai.datahunters.md.config.{FilesReaderConfig, ReaderConfig}
+import ai.datahunters.md.config.reader.{FilesReaderConfig, ReaderConfig}
 import org.apache.spark.sql.SparkSession
 
 /**

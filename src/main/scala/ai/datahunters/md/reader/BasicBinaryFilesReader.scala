@@ -1,5 +1,6 @@
 package ai.datahunters.md.reader
-import ai.datahunters.md.config.{FilesReaderConfig, GeneralConfig}
+import ai.datahunters.md.config.GeneralConfig
+import ai.datahunters.md.config.reader.FilesReaderConfig
 import ai.datahunters.md.schema.{BinaryInputSchemaConfig, SchemaConfig}
 import com.amazonaws.regions.Region
 import org.apache.spark.rdd.RDD

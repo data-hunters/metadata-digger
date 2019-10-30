@@ -1,7 +1,7 @@
-package ai.datahunters.md.config
+package ai.datahunters.md.config.reader
 
 import ai.datahunters.md.config.ConfigLoader.ListElementsDelimiter
-import ai.datahunters.md.config.HDFSReaderConfig.{Logger, PathPrefix}
+import ai.datahunters.md.config.GeneralConfig
 import ai.datahunters.md.util.TextUtils
 import com.typesafe.config.Config
 import org.apache.spark.sql.SparkSession
@@ -33,25 +33,6 @@ object FilesReaderConfig {
 
   def getPartitionsNum(config: Config): Int = {
     config.getInt(PartitionsNumKey)
-  }
-
-  /**
-    * Adjust paths by forcing prefixes related to particular type of storage
-    * @param pathPrefix
-    * @param storageName
-    * @param paths
-    * @return
-    */
-  def fixPaths(pathPrefix: String, storageName: String)(paths: Seq[String]): Seq[String] = {
-    paths.map(p => {
-      if (p.startsWith(PathPrefix)) {
-        p
-      } else {
-        val correctPath = s"$pathPrefix$p"
-        Logger.warn(s"Path has to start with $pathPrefix for ${TextUtils.camelCase(storageName)} Storage, changing path from $p to $correctPath")
-        correctPath
-      }
-    })
   }
 
 }

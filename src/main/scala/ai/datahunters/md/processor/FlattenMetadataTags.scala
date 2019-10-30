@@ -1,5 +1,6 @@
 package ai.datahunters.md.processor
 
+import ai.datahunters.md.config.ProcessingConfig
 import ai.datahunters.md.schema.MetadataSchemaConfig.{MetadataCol, MetadataContentCol}
 import ai.datahunters.md.schema._
 import ai.datahunters.md.udf.Extractors
@@ -24,6 +25,7 @@ case class FlattenMetadataTags(colPrefix: String,
 
   override def execute(inputDF: DataFrame): DataFrame = {
     val selectedTags = retrieveTags(inputDF)
+    checkColumnsUniqueness(selectedTags)
     val columns = SchemaConfig.dfExistingColumns(inputDF, Seq(MetadataCol)) ++ Seq(s"${MetadataCol}.*")
     val selectMetadataTagsUDF = selectMetadataTagsFromDirs(colPrefix, includeDirName, selectedTags)
 
@@ -33,11 +35,19 @@ case class FlattenMetadataTags(colPrefix: String,
     selectFinalColumns(transformedDF)
   }
 
+  private def checkColumnsUniqueness(columns: Seq[String]): Unit = {
+    val lowercased = columns.map(_.toLowerCase)
+    if (lowercased.distinct.size < lowercased.size) {
+      throw new TheSameTagNamesException(s"Two different Metadata Directories contain the same tag name, please set property - ${ProcessingConfig.IncludeDirectoriesInTagNamesKey} to true to avoid this problem.")
+    }
+  }
+
   private def selectFinalColumns(df: DataFrame): DataFrame = if (removeArrays) {
     val simpleFields = df.schema
       .fields
       .filter(f => !f.dataType.isInstanceOf[ArrayType] && !f.dataType.isInstanceOf[StructType] )
       .map(fn => col(fn.name))
+
     df.select(simpleFields:_*)
   } else {
     df
@@ -63,6 +73,8 @@ case class FlattenMetadataTags(colPrefix: String,
 }
 
 object FlattenMetadataTags {
+
+  case class TheSameTagNamesException(msg: String) extends RuntimeException(msg)
 
   private val TempTagCol = "Tag"
   private val TempTagsCol = "Tags"

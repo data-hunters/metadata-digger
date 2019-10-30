@@ -23,7 +23,6 @@ To provide easy start for OSINT researchers who do not know details of Apache Sp
 
 ![](https://github.com/data-hunters/metadata-digger/workflows/build/badge.svg)
 
-<br/>
 
 
 ## Getting Started

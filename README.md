@@ -20,9 +20,12 @@ To provide easy start for OSINT researchers who do not know details of Apache Sp
 **If you want to try Metadata Digger without going into Big Data/Spark technical details**, read *Getting Started* section, especially *Runing in Standalone mode*. More complex configuration is covered in *Advanced settings*.
 
 <br/>
+
+![](https://github.com/data-hunters/metadata-digger/workflows/build/badge.svg)
+
 <br/>
-![]("https://github.com/data-hunters/metadata-digger/workflows/build/badge.svg)
-<br/>
+
+
 ## Getting Started
 
 ### Requirements

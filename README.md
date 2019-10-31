@@ -93,14 +93,14 @@ The following table presents properties that are common for each type of storage
 | `input.partitions` | -1 |  Number of Spark partitions. Default value will let Spark decide how many partitions should be used and for most cases, it is recommended. To understand what is partition, you should dive a little bit more into Spark technical details but basically, partition is some part of data (e.g. content of X files loaded on input) that can be processed in parallel with other parts. Let's suppose we have 500 input files with images, 10 CPU cores reserved for calculations and we decided to use 10 partitions. Spark will divide all those files into 10 packages (they will not be ideally equal). All those partitions will be calculated in parallel, each partition per one core. It is of course simplification but generally it is how Spark works with partitions. |
 
 #### Local File System
-This is default storage and to force it for some reason you can just set **file** value to `input.storage.name` property.
+This is default storage and to force it for some reason you can just set `file` value to `input.storage.name` property.
 
 #### Hadoop Distributed File System
-Spark works pretty well with HDFS by default, so if you run Metadata Digger in Distributed mode on your cluster, you can set **file** value to `input.storage.name` property and all your input paths will be treated as HDFS paths.
+Spark works pretty well with HDFS by default, so if you run Metadata Digger in Distributed mode on your cluster, you can set `hdfs` value to `input.storage.name` property and all your input paths will be treated as HDFS paths.
 For now we do not support passing custom HDFS configuration for external Hadoop cluster. However, you can do this manually if you know Spark.
 
 #### Amazon S3
-One of the most popular Service providing Storage in Cloud. If you keep your files on S3, you can easily configure Metadata Digger to load them. First thing you should do is setting `input.storage.name` to **s3**. Reade below table for other properties.
+One of the most popular Service providing Storage in Cloud. If you keep your files on S3, you can easily configure Metadata Digger to load them. First thing you should do is setting `input.storage.name` to `s3`. Read below table for other properties.
 
 
 | Property | Default | Description |
@@ -130,16 +130,64 @@ Processing part contains all actions between Reader (loading data) and Writer (s
 
 | Property | Default | Description |
 | -------- | ------- | ----------- |
-| `filter.allowedMetadataDirectories` | * | Comma delimited list of Tags' Directories (Groups), e.g. GPS, JPEG that will be included in output. **Metadata are categorized into groups called Directories* and using this property you can specify which one you want to have. By default all of them will be included. |
-| `output.columns.includeDirsInTags` | true | Applicable only for flat output structures like CSV or Solr. Flag determining if final tag name should include Directory name at the beginning or not. In most cases it is recommended to set this value to **true** because there are chances that two different Directories contains tag with the same name and in such case Metadata Digger will stop working with error: TheSameTagNamesException. |
+| `filter.allowedMetadataDirectories` | * | Comma delimited list of Tags' Directories (Groups), e.g. GPS, JPEG that will be included in output. **Metadata are categorized into groups called Directories** and using this property you can specify which one you want to have. By default all of them will be included. |
+| `output.columns.includeDirsInTags` | true | Applicable only for flat output structures like CSV or Solr. Flag determining if final tag name should include Directory name at the beginning or not. In most cases it is recommended to set this value to `true` because there are chances that two different Directories contains tag with the same name and in such case Metadata Digger will stop working with error: TheSameTagNamesException. |
 | `output.columns.metadataPrefix` |  | Prefix that will be added to all tag names. Final output contains some additional fields like file path, so adding prefix to tag colums will be helpful in selecting only metadata from output in your system. **Prefix will be added only in case of flat structures like CSV or Solr**. JSON output contains nested structure where metadata fields have separated object so it does not make sense to add prefix in such case. |
-| `output.columns.namingConvention` | camelCase | Naming convention that will be applied on all output field/column names. Possible values: **camelCase** (e.g. "GPS Latitude" field will be converted to "GPSLatitute"), **snakeCase** (e.g. "GPS Latitude" to "gps_latitude"). |
+| `output.columns.namingConvention` | camelCase | Naming convention that will be applied on all output field/column names. Possible values: `camelCase` (e.g. "GPS Latitude" field will be converted to "GPSLatitute"), `snakeCase` (e.g. "GPS Latitude" to "gps_latitude"). |
 | `processing.cores` | [available cores - 1] | Number detrmining how many cores will be used for whole processing. If you do not set it, Metadata Digger will retrieve how many cores your machine has and left one core free. **This property is used only in Standalone mode**. |
 | `processing.maxMemoryGB` | 2 | How many memory should be reserved for processing (in GB). If you receive errors in logs like this: *"OutOfMemory: Java heap space"* or *"GC Overhead Limit Exceeded Error"*, you should try to increase this value but remember to left some memory. You should check your total RAM before you set this property. |
 
 
 ### Writer configuration
+Writer contains similar properties to Reader. The first one we have to set is `output.storage.name`. Currently we support the following:
 
+* Local File System - your local disk, avoid using it in Distributed mode on multiple machines because every machine has to have access to the data and output will be misleading (multiple files spread across all servers).
+* <a href="https://en.wikipedia.org/wiki/Apache_Hadoop#Hadoop_distributed_file_system" target="_blank">Hadoop Distributed File System</a> (HDFS)
+* <a href="https://aws.amazon.com/s3/" target="_blank">Amazon Simple Storage Service</a> (S3)
+* <a href="https://www.digitalocean.com/products/spaces/" target="_blank">Digital Ocean Spaces</a> (Spaces Object Storage)
+* [Apache Solr](http://lucene.apache.org/solr/) - Full Text Search engine.
+
+#### Common Files Writer properties
+The following table presents properties that are common for all files' types of storage.
+
+| Property | Default | Description |
+| -------- | ------- | ----------- |
+| `output.directoryPath` | | Path to directory where all output files will be written. Spark uses this directory also to write temporary files (like status of operations), so to avoid potential issues **Spark will not start processing if the directory exist**.  |
+| `output.storage.name` | file | Name of storage |
+| `output.format` |  | Format of output file(s). Available values: `json`, `csv`. |
+| `output.filesNumber` | -1 |  Number of output files. Default value will be equal to the number of Spark partitions (see *Reader configuration* section for more information about partitions) because each partition is processing separately by Spark and writes output to file. If you want to have specific number of output files, you can set this value to some number more than 0. However, keep in mind that in case of huge volumes of data there are chances that application **fails due to memory issues**. Let's suppose we set `output.filesNumber` to 1. Spark has to move results of processing from all servers to one machine and then write result to file. This is memory expensive operation and can also slow down whole process if network in your cluster is not very fast. **For demo purposes** we have provided configuration in Standalone mode that instructs application to write result to single file by default. |
+
+Spark writes empty _SUCCESS file to output directory after successfull completion of job. 
+Names of actual output files consists of numbers. It is not very human readable, so we decided to add mechanism (**currently only for Local File System in Standalone mode**) that will change those names to use name of output directory, so if you set `output.directoryPath` to */some/path/to/my_output*, `output.filesNumber` to *2* and `output.format` to *csv*, Metadata Digger will remove all temporary files and produce the following:
+
+* `/some/path/to/my_output/my_output_1.csv`
+* `/some/path/to/my_output/my_output_2.csv`
+
+
+#### Local File System
+This is default storage and to force it for some reason you can just set `file` value to `output.storage.name` property.
+
+#### Hadoop Distributed File System
+Spark works pretty well with HDFS by default, so if you run Metadata Digger in Distributed mode on your cluster, you can set `hdfs` value to `output.storage.name` property and all your output paths will be treated as HDFS paths.
+For now we do not support passing custom HDFS configuration for external Hadoop cluster. However, you can do this manually if you know Spark.
+
+#### Amazon S3
+Currently we support only case when Reader and Writer use the same S3 credentials and endpoint. It does not mean you have to use S3 for Reader and Writer but you cannot use different S3 configurtion to load data and to write. Please read section: *Reader configuration/Amazon S3* because it is almost the same for Writer. One thing different is that you should set to `s3` property `output.storage.name` instead of `input.storage.name`.
+
+#### Digital Ocean Spaces
+Currently we support only case when Reader and Writer use the same Digital Ocean Spaces credentials and endpoint. It does not mean you have to use Digital Ocean Spaces for Reader and Writer but you cannot use different configurtion to load data and to write. Please read section: *Reader configuration/Digital Ocean Spaces* because it is almost the same for Writer. One thing different is that you should set to `s3` property `output.storage.name` instead of `input.storage.name`.
+
+#### Apache Solr
+According to [official Solr site](http://lucene.apache.org/solr/): *"Solr is highly reliable, scalable and fault tolerant, providing distributed indexing, replication and load-balanced querying, automated failover and recovery, centralized configuration and more. Solr powers the search and navigation features of many of the world's largest internet sites. "*. In simple words, it is system that allows for effective text search. Solr has many builtin mechanisms like searching by synonyms, returning similar documents, advanced filtering and grouping, graph queries etc. It is stable solution (over 15 years) and currently it is common practice to use it with Hadoop ecosystem. We have added support for Solr mostly because we are developing our own Web Application that uses Solr as main backend Full-Text Search engine. 
+If you want to write result to Solr, you have to set `output.storage.name` to `solr` and configure the following properties:
+
+| Property | Default | Description |
+| -------- | ------- | ----------- |
+| `output.collection` |  | Name of Solr collection when results will be written. |
+| `output.zk.servers` |  | List of Solr ZooKeeper servers, e.g. *host1.com:2181,host2.com:2181*. |
+| `output.zk.znode` |  | ZooKeeper ZNode that keeps Solr configuration. Leave empty if you keep Solr data in ZooKeeper root. |
+
+Metadata Digger sends commit request immediately after indexing all results to Solr.
 
 ## External dependencies
 We use the following libraries in our application:
@@ -155,5 +203,6 @@ Please read documentation of particular dependencies to check details about lice
 <br />
 <br />
 <br />
+
 
 ![DataHunters](http://datahunters.ai/assets/images/logo_full_small.png)

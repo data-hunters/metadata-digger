@@ -145,7 +145,7 @@ Writer contains similar properties to Reader. The first one we have to set is `o
 * <a href="https://en.wikipedia.org/wiki/Apache_Hadoop#Hadoop_distributed_file_system" target="_blank">Hadoop Distributed File System</a> (HDFS)
 * <a href="https://aws.amazon.com/s3/" target="_blank">Amazon Simple Storage Service</a> (S3)
 * <a href="https://www.digitalocean.com/products/spaces/" target="_blank">Digital Ocean Spaces</a> (Spaces Object Storage)
-* Apache Solr - Full Text Search engine.
+* [Apache Solr](http://lucene.apache.org/solr/) - Full Text Search engine.
 
 #### Common Files Writer properties
 The following table presents properties that are common for all files' types of storage.

@@ -6,6 +6,8 @@ version := "0.1.1"
 
 scalaVersion := "2.11.12"
 
+maintainer := "contact@datahunters.ai"
+
 val sparkV = "2.4.3"
 val metadataExtractorV = "2.12.0"
 val scalaTestV = "3.0.8"
@@ -47,7 +49,6 @@ assemblyMergeStrategy in assembly := {
     case _ => MergeStrategy.first
 }
 assemblyJarName in assembly := s"${name.value}-${version.value}.jar"
-
 
 testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-y", "org.scalatest.FlatSpec")
 logBuffered in Test := false

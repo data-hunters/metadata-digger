@@ -6,7 +6,10 @@ version := "0.1.1"
 
 scalaVersion := "2.11.12"
 
-maintainer := "contact@datahunters.ai"
+organization := "ai.datahunters"
+
+organizationHomepage := Some(url("http://datahunters.ai"))
+
 
 val sparkV = "2.4.3"
 val metadataExtractorV = "2.12.0"

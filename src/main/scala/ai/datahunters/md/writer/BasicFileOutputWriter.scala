@@ -23,9 +23,9 @@ case class BasicFileOutputWriter(sparkSession: SparkSession,
       logger.warn("Changing number of partitions to achieve specific number of output files.")
       data.repartition(config.outputFilesNum)
     } else data
-    outputDF.write
+    val df = outputDF.write
       .format(config.format)
-      .option("header", true)
+      .options(Options.get(config.format).getOrElse(Map()))
       .save(config.outputDirPath)
   }
 
@@ -41,4 +41,12 @@ object BasicFileOutputWriter {
     FileOutputWriter.CsvFormat,
     FileOutputWriter.JsonFormat
   )
+
+  val Options = Map(
+    FileOutputWriter.CsvFormat -> Map(
+      "header" -> "true",
+      "quoteAll" -> "true"
+    )
+  )
+
 }

@@ -5,19 +5,20 @@ import ai.datahunters.md.schema.{BinaryInputSchemaConfig, SchemaConfig}
 import com.amazonaws.regions.Region
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.{DataFrame, Row, SparkSession}
+import org.slf4j.LoggerFactory
 
 /**
   * Read binary files to DataFrame including columns described in {@link BinaryInputSchemaConfig}.
   *
   * @param sparkSession
-  * @param partitionsNum Number of partitions. If > 0, it will make repartition. Be careful with this operation especially
-  *                      in case of distributed computing.
   * @param paths All paths to directories where binary files are located.
   */
 case class BasicBinaryFilesReader(sparkSession: SparkSession,
                                   config: FilesReaderConfig) extends BinaryFilesReader {
 
   import BinaryFilesReader._
+  import BasicBinaryFilesReader.Logger
+
   val schemaConfig: SchemaConfig = BinaryInputSchemaConfig()
   val partitionsNum = config.partitionsNum
   val paths = config.inputPaths
@@ -34,6 +35,10 @@ case class BasicBinaryFilesReader(sparkSession: SparkSession,
       .map(readToRDD)
     val allRDDs = sparkSession.sparkContext
       .union(rdds)
+
+    val partitions = allRDDs.partitions.length
+    Logger.info(s"Number of partitions after RDDs initialization: $partitions")
+
     val outputDF = sparkSession.createDataFrame(allRDDs, schemaConfig.schema())
     if (partitionsNum > 0) outputDF.repartition(partitionsNum) else outputDF
   }
@@ -51,3 +56,7 @@ case class BasicBinaryFilesReader(sparkSession: SparkSession,
 
 }
 
+object BasicBinaryFilesReader {
+  val Logger = LoggerFactory.getLogger(classOf[BasicBinaryFilesReader])
+
+}

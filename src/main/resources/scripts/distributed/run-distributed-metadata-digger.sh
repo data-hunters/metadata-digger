@@ -49,7 +49,9 @@ then
 fi
 . "./$MD_ENV_FILE"
 
+MD_VERSION=0.1.1
 MD_CONFIG_PATH=$1
+MD_JAR=metadata-digger-$MD_VERSION.jar
 
 if [ ! -f "$MD_CONFIG_PATH" ]
 then
@@ -66,6 +68,6 @@ spark-submit --class ai.datahunters.md.launcher.BasicExtractorLauncher \
     --executor-memory $EXECUTOR_MEMORY \
     --executor-cores $EXECUTOR_CORES \
     --queue $QUEUE \
-    --conf spark.files=$1 \
-    metadata-digger-0.1.1.jar \
-    $1
+    --conf spark.files=$MD_CONFIG \
+    $MD_JAR \
+    $MD_CONFIG

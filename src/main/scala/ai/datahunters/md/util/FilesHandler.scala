@@ -86,8 +86,14 @@ object FilesHandler {
   def fixPath(pathPrefix: String, storageName: String)(path: String): String = if (path.startsWith(pathPrefix)) {
     path
   } else {
-    val correctPath = s"$pathPrefix$path"
+    val correctPath = if (!path.startsWith(File.separator)) {
+      s"$pathPrefix${currentDir()}$path"
+    } else {
+      s"$pathPrefix$path"
+    }
     Logger.warn(s"Path has to start with $pathPrefix for ${TextUtils.camelCase(storageName)} Storage, changing path from $path to $correctPath")
     correctPath
   }
+
+  private def currentDir(): String = System.getProperty("user.dir") + File.separator
 }

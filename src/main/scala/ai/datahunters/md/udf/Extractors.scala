@@ -107,7 +107,7 @@ object Extractors {
         Row.fromTuple(tags, dirs, tagsCount, fileType)
       } catch {
         case e: Exception => {
-          Logger.warn(s"Error occurred during metadata extraction for image: $path. Ignoring file...", e)
+          Logger.warn(s"Error occurred during metadata extraction for image: $path (Message: {}). Ignoring file...", e.getMessage)
           Row.fromTuple(Map(), Seq(), 0, FileType.Unknown.toString)
         }
       }

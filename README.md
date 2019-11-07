@@ -61,13 +61,18 @@ Optional settings:
 
 When you adjust your config, run the following command (where `<path_to_config>` is path to adjusted configuration file):
 ```
-sh run-metadata-digger.sh <path_to_config>
+sh run-standalone-metadata-digger.sh <path_to_config>
 ```
 
 ### Running in distributed mode
 See above information about running in standalone mode to download release and adjust configuration.
-Currently there is not script that runs Metadata Digger on Spark cluster, so please use spark-submit command with provided JAR and main class - `ai.datahunters.md.launcher.BasicExtractorLauncher`. There is only one argument - path to configuration file.
+To run Metadata Digger in Distribute mode you need a cluster. It could be one of systems [supported by Spark](https://spark.apache.org/docs/latest/cluster-overview.html#cluster-manager-types). After adjusting your config.properties file you will have to set right values in `metadata-digger-env.sh` file. When you do this, you can just run the following script:
 
+```
+sh run-distributed-metadata-digger.sh <path_to_config>
+```
+
+Above script has been tested on YARN cluster (HDP 3.1.4) which is probably the most common case but this script is just `spark-submit` command with appropriate parameters, so if you have different cluster and you know some Spark basics, it will be easy to adjust it.
 
 ## Advanced settings
 

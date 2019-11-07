@@ -17,8 +17,12 @@ import org.slf4j.LoggerFactory
   */
 case class HDFSReaderConfig(inputPaths: Seq[String],
                             partitionsNum: Int) extends FilesReaderConfig {
-  override def adjustSparkConfig(sparkSession: SparkSession): Unit = {
+  import HDFSReaderConfig._
 
+  override def adjustSparkConfig(sparkSession: SparkSession): Unit = {
+    val hadoopConf = sparkSession.sparkContext.hadoopConfiguration
+    hadoopConf.set(HiveSubdirectoriesKey,"true")
+    hadoopConf.set(HadoopDirRecursiveKey,"true")
   }
 }
 
@@ -28,6 +32,9 @@ object HDFSReaderConfig {
 
   val StorageName = "hdfs"
   val DefaultKerberosConfPath = "/etc/krb5.conf"
+
+  val HadoopDirRecursiveKey = "hadoop.mapreduce.input.fileinputformat.input.dir.recursive"
+  val HiveSubdirectoriesKey = "hive.mapred.supports.subdirectories"
 
   val KerberosEnabledKey = "input.hdfs.kerberosEnabled"
   val KerberosUserKey = "input.hdfs.user"

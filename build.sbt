@@ -1,3 +1,6 @@
+
+import ai.datahunters.sbtrelease.ReleaseTasks
+import ai.datahunters.sbtrelease.ReleaseTasks._
 import sbt.Provided
 
 name := "metadata-digger"
@@ -22,16 +25,15 @@ val hadoopAWSV = hadoopV
 val awsSDKV = "1.11.656"
 
 
-
 lazy val sparkDependencies = Seq(
   "org.apache.spark" %% "spark-sql" % sparkV % Provided,
   "org.apache.spark" %% "spark-mllib" % sparkV % Provided
 )
 
 lazy val externalConnectors = Seq(
-  "org.apache.solr" % "solr-solrj" % solrV,
-  "org.apache.hadoop" % "hadoop-aws" % hadoopAWSV exclude("com.fasterxml.jackson.core", "*") exclude("com.amazonaws", "*"),
-  "com.amazonaws" % "aws-java-sdk" % awsSDKV
+  "org.apache.solr" % "solr-solrj" % solrV exclude("org.slf4j", "*"),
+  "org.apache.hadoop" % "hadoop-aws" % hadoopAWSV % Provided exclude("com.fasterxml.jackson.core", "*") exclude("com.amazonaws", "*"),
+  "com.amazonaws" % "aws-java-sdk" % awsSDKV % Provided
 )
 
 lazy val utilsDependencies = Seq(
@@ -51,8 +53,36 @@ assemblyMergeStrategy in assembly := {
     case PathList("META-INF", "MANIFEST.MF") => MergeStrategy.discard
     case _ => MergeStrategy.first
 }
-assemblyJarName in assembly := s"${name.value}-${version.value}.jar"
 
+
+assemblyOption in assembly := (assemblyOption in assembly).value.copy(includeScala = false)
+
+assemblyOutputPath in assembly := target.value / s"${name.value}-${version.value}.jar"
+
+
+lazy val root = project.in(file("."))
+  .configs(DistStandaloneConfig, AWSDepsConfig)
+  .settings(
+    ReleaseTasks.build(assembly),
+    inConfig(AWSDepsConfig)(Classpaths.ivyBaseSettings),
+    inConfig(DistStandaloneConfig)(Classpaths.ivyBaseSettings)
+  )
+
+libraryDependencies in DistStandaloneConfig := Seq(
+  "org.apache.spark" %% "spark-sql" % sparkV,
+  "org.apache.spark" %% "spark-mllib" % sparkV,
+  "org.scala-lang" % "scala-compiler" % scalaVersion.value,
+  "org.scala-lang" % "scala-library" % scalaVersion.value,
+  "org.scala-lang" % "scala-reflect" % scalaVersion.value
+)
+
+libraryDependencies in AWSDepsConfig := Seq(
+  "org.apache.hadoop" % "hadoop-aws" % hadoopAWSV exclude("com.fasterxml.jackson.core", "*") exclude("com.amazonaws", "*"),
+  "com.amazonaws" % "aws-java-sdk" % awsSDKV
+)
+
+
+// Configuration for Tests
 testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-y", "org.scalatest.FlatSpec")
 logBuffered in Test := false
 parallelExecution in Test := false

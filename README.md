@@ -140,7 +140,7 @@ Processing part contains all actions between Reader (loading data) and Writer (s
 | `output.columns.metadataPrefix` |  | Prefix that will be added to all tag names. Final output contains some additional fields like file path, so adding prefix to tag colums will be helpful in selecting only metadata from output in your system. **Prefix will be added only in case of flat structures like CSV or Solr**. JSON output contains nested structure where metadata fields have separated object so it does not make sense to add prefix in such case. |
 | `output.columns.namingConvention` | camelCase | Naming convention that will be applied on all output field/column names. Possible values: `camelCase` (e.g. "GPS Latitude" field will be converted to "GPSLatitute"), `snakeCase` (e.g. "GPS Latitude" to "gps_latitude"). |
 | `processing.cores` | [available cores - 1] | Number detrmining how many cores will be used for whole processing. If you do not set it, Metadata Digger will retrieve how many cores your machine has and left one core free. **This property is used only in Standalone mode**. |
-| `processing.maxMemoryGB` | 2 | How many memory should be reserved for processing (in GB). If you receive errors in logs like this: *"OutOfMemory: Java heap space"* or *"GC Overhead Limit Exceeded Error"*, you should try to increase this value but remember to left some memory. You should check your total RAM before you set this property. |
+| `processing.maxMemoryGB` | 2 | How many memory should be reserved for processing (in GB). If you receive errors in logs like this: *"OutOfMemory: Java heap space"* or *"GC Overhead Limit Exceeded Error"*, you should try to increase this value but remember to left some memory. You should check your total RAM before you set this property. **This property is used only in Standalone mode**. |
 
 
 ### Writer configuration
@@ -190,6 +190,7 @@ If you want to write result to Solr, you have to set `output.storage.name` to `s
 | -------- | ------- | ----------- |
 | `output.collection` |  | Name of Solr collection when results will be written. |
 | `output.zk.servers` |  | List of Solr ZooKeeper servers, e.g. *host1.com:2181,host2.com:2181*. |
+| `output.format` |  | Use `solr` |
 | `output.zk.znode` |  | ZooKeeper ZNode that keeps Solr configuration. Leave empty if you keep Solr data in ZooKeeper root. |
 | `output.solr.conversion.integerTags` |  | List of tag names that has to be converted into integers to adjust output to Solr Schema. If you use Metadata Digger Solr Schema, use the following value: `md_jpeg_image_width,md_jpeg_image_height,md_exif_subifd_exif_image_width,md_exif_subifd_exif_image_height,md_gps_gps_satellites`. |
 | `output.solr.conversion.dateTimeTags` |  | List of tag names that has to be converted into Solr date time format. If you use Metadata Digger Solr Schema use the following: `md_jpeg_image_width,md_jpeg_image_height,md_exif_subifd_exif_image_width,md_exif_subifd_exif_image_height,md_gps_gps_satellites`. |

@@ -15,9 +15,14 @@ object TextUtils {
   }
 
   def camelCase(v: String): String = v.split(" ")
+    .flatMap(_.split("-"))
     .map(_.capitalize).mkString("")
 
   def snakeCase(v: String): String = v.replace(" ", "_")
+    .replace("-", "_")
     .toLowerCase
 
+  def isEmpty(str: String): Boolean = (str == null || str.isEmpty)
+
+  def notEmpty(str: String): Boolean = !isEmpty(str)
 }

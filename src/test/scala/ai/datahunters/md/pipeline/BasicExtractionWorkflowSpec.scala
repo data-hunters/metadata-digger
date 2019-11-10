@@ -2,7 +2,7 @@ package ai.datahunters.md.pipeline
 
 import java.nio.file.{Files, Paths}
 
-import ai.datahunters.md.config.ProcessingConfig
+import ai.datahunters.md.config.processing.ProcessingConfig
 import ai.datahunters.md.processor.Processor
 import ai.datahunters.md.reader.PipelineSource
 import ai.datahunters.md.schema.BinaryInputSchemaConfig

@@ -2,6 +2,7 @@ package ai.datahunters.md.config.writer
 
 import ai.datahunters.md.config.ConfigLoader
 import com.typesafe.config.Config
+import org.apache.spark.sql.SparkSession
 
 trait FilesWriterConfig extends WriterConfig {
 
@@ -9,6 +10,7 @@ trait FilesWriterConfig extends WriterConfig {
   def format: String
   def outputFilesNum: Int
 
+  override def adjustSparkConfig(sparkSession: SparkSession): Unit = {}
 }
 
 object FilesWriterConfig {

@@ -73,6 +73,7 @@ case class ProcessingPipeline(inputDF: DataFrame) {
     for (step <- steps) {
       bufferDF = step.execute(bufferDF)
     }
+
     bufferDF = formatAdjustmentProcessor.map(_.execute(bufferDF)).getOrElse(bufferDF)
     bufferDF = namesConverter.map(_.execute(bufferDF)).getOrElse(bufferDF)
     bufferDF.printSchema()

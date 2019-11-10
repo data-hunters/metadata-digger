@@ -29,7 +29,7 @@ object ReaderConfig {
     * @param config
     * @return
     */
-  def build(config: Config): ReaderConfig = {
+  def apply(config: Config): ReaderConfig = {
     val configWithDefaults = ConfigLoader.assignDefaults(config, Defaults)
     configWithDefaults.getString(StorageNameKey) match {
       case LocalFSReaderConfig.StorageName => LocalFSReaderConfig.build(configWithDefaults)

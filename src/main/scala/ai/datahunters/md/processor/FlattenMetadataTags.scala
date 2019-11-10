@@ -1,6 +1,6 @@
 package ai.datahunters.md.processor
 
-import ai.datahunters.md.config.ProcessingConfig
+import ai.datahunters.md.config.processing.ProcessingConfig
 import ai.datahunters.md.schema.MetadataSchemaConfig.{MetadataCol, MetadataContentCol}
 import ai.datahunters.md.schema._
 import ai.datahunters.md.udf.Extractors

@@ -26,7 +26,7 @@ object WriterConfig {
     * @param config
     * @return
     */
-  def build(config: Config): WriterConfig = {
+  def apply(config: Config): WriterConfig = {
     val configWithDefaults = ConfigLoader.assignDefaults(config, Defaults)
     configWithDefaults.getString(StorageNameKey) match {
       case LocalFSWriterConfig.StorageName => LocalFSWriterConfig.build(configWithDefaults)
@@ -35,6 +35,6 @@ object WriterConfig {
       case S3WriterConfig.StorageName => S3WriterConfig.build(configWithDefaults)
       case other => throw new NotSupportedStorageException(s"Not supported storage: $other")
     }
-
   }
+
 }

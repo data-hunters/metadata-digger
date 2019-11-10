@@ -1,6 +1,7 @@
 package ai.datahunters.md.launcher
 
 import ai.datahunters.md.config._
+import ai.datahunters.md.config.processing.ProcessingConfig
 import ai.datahunters.md.config.reader.ReaderConfig
 import ai.datahunters.md.config.writer.WriterConfig
 import ai.datahunters.md.pipeline.{BasicExtractionWorkflow, SessionCreator}
@@ -23,11 +24,11 @@ object BasicExtractorLauncher {
     val config: Config = ConfigLoader.load(args(0))
     val sessionCreator = new SessionCreator(SessionConfig.build(config), localMode, AppName)
     val sparkSession = sessionCreator.create()
-    val reader = PipelineSourceFactory.create(ReaderConfig.build(config), sparkSession)
-    val writer = PipelineSinkFactory.create(WriterConfig.build(config), sparkSession)
+    val reader = PipelineSourceFactory.create(ReaderConfig(config), sparkSession)
+    val writer = PipelineSinkFactory.create(WriterConfig(config), sparkSession)
     val format = config.getString(Writer.OutputFormatKey)
     val processingConfig = ProcessingConfig.build(config)
-    val formatAdjustmentProcessor = FormatAdjustmentProcessorFactory.create(format, processingConfig.includeDirsInTags, processingConfig.metadataColumnsPrefix)
+    val formatAdjustmentProcessor = FormatAdjustmentProcessorFactory.create(processingConfig)
     new BasicExtractionWorkflow(processingConfig, sparkSession, reader, writer, formatAdjustmentProcessor).run()
   }
 

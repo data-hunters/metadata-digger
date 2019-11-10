@@ -1,22 +1,18 @@
 package ai.datahunters.md.processor
 import ai.datahunters.md.util.TextUtils
 import org.apache.spark.sql.DataFrame
-import org.apache.spark.sql.types.{DataType, StructField, StructType}
+import org.apache.spark.sql.types.{DataType, MapType, StructField, StructType}
 
 /**
   * Convert names of all columns according to specific naming convention.
   *
   * @param namingConvention Function converting name from original form to the target
   */
-case class ColumnNamesConverter(namingConvention: (String) => String, removeSpecialChars: Boolean = true) extends Processor {
+case class ColumnNamesConverter(namingConvention: (String) => String) extends Processor {
 
   import org.apache.spark.sql.functions._
 
-  protected def nc(name: String): String = if (removeSpecialChars) {
-    TextUtils.safeName(namingConvention(name))
-  } else {
-    namingConvention(name)
-  }
+  protected def nc(name: String): String = TextUtils.safeName(namingConvention(name))
 
   override def execute(inputDF: DataFrame): DataFrame = {
     val fields = inputDF.schema.fields
@@ -41,7 +37,7 @@ case class ColumnNamesConverter(namingConvention: (String) => String, removeSpec
   private def processType(field: StructField): DataType = {
     field.dataType match {
       case structType: StructType =>
-        StructType(structType.fields.map(
+         StructType(structType.fields.map(
           f => processField(f)))
       case baseType => baseType
     }

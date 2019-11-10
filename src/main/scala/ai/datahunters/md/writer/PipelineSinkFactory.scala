@@ -26,7 +26,7 @@ object PipelineSinkFactory {
       .setZKSolrChroot(config.zkSolrZNode)
       .setZKServers(config.zkServers)
       .build()
-    val foreachWriter = SolrForeachWriter(config.zkServers, config.zkSolrZNode, config.collection)
+    val foreachWriter = SolrForeachWriter(config)
     SolrWriter(foreachWriter, client)
   }
 }

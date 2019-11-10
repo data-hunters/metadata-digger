@@ -13,7 +13,7 @@ class WriterConfigSpec extends UnitSpec {
       OutputFormatKey -> "json"
     )
     val config = ConfigFactory.parseMap(inputConfig)
-    val outputConfig = WriterConfig.build(config).asInstanceOf[FilesWriterConfig]
+    val outputConfig = WriterConfig(config).asInstanceOf[FilesWriterConfig]
     assert(outputConfig.outputDirPath === "file:///some/path")
     assert(outputConfig.format === "json")
     assert(outputConfig.outputFilesNum === 1)
@@ -26,7 +26,7 @@ class WriterConfigSpec extends UnitSpec {
       StorageNameKey -> HDFSWriterConfig.StorageName
     )
     val config = ConfigFactory.parseMap(inputConfig)
-    val outputConfig = WriterConfig.build(config).asInstanceOf[FilesWriterConfig]
+    val outputConfig = WriterConfig(config).asInstanceOf[FilesWriterConfig]
     assert(outputConfig.outputDirPath === "hdfs:///some/path")
     assert(outputConfig.format === "json")
     assert(outputConfig.outputFilesNum === 1)
@@ -40,7 +40,7 @@ class WriterConfigSpec extends UnitSpec {
       SolrWriterConfig.ZKServersKey -> "localhost:2181"
     )
     val config = ConfigFactory.parseMap(inputConfig)
-    val outputConfig = WriterConfig.build(config).asInstanceOf[SolrWriterConfig]
+    val outputConfig = WriterConfig(config).asInstanceOf[SolrWriterConfig]
     assert(outputConfig.collection === "col1")
     assert(outputConfig.zkServers === Seq("localhost:2181"))
     assert(outputConfig.zkSolrZNode === None)

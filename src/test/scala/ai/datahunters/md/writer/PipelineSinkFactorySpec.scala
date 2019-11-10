@@ -16,7 +16,7 @@ class PipelineSinkFactorySpec extends UnitSpec with SparkBaseSpec {
       StorageNameKey -> LocalFSWriterConfig.StorageName
     )
     val config = ConfigFactory.parseMap(configMap)
-    val sink = PipelineSinkFactory.create(WriterConfig.build(config), sparkSession)
+    val sink = PipelineSinkFactory.create(WriterConfig(config), sparkSession)
     assert(sink.isInstanceOf[BasicFileOutputWriter])
   }
 
@@ -28,7 +28,7 @@ class PipelineSinkFactorySpec extends UnitSpec with SparkBaseSpec {
       StorageNameKey -> LocalFSWriterConfig.StorageName
     )
     val config = ConfigFactory.parseMap(configMap)
-    val sink = PipelineSinkFactory.create(WriterConfig.build(config), sparkSession)
+    val sink = PipelineSinkFactory.create(WriterConfig(config), sparkSession)
     assert(sink.isInstanceOf[BasicFileOutputWriter])
   }
 
@@ -40,7 +40,7 @@ class PipelineSinkFactorySpec extends UnitSpec with SparkBaseSpec {
       StorageNameKey -> SolrWriterConfig.StorageName
     )
     val config = ConfigFactory.parseMap(configMap)
-    val sink = PipelineSinkFactory.create(WriterConfig.build(config), sparkSession)
+    val sink = PipelineSinkFactory.create(WriterConfig(config), sparkSession)
     assert(sink.isInstanceOf[SolrWriter])
   }
 }

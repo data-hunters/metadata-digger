@@ -1,16 +1,20 @@
 package ai.datahunters.md.config.writer
 
 import ai.datahunters.md.config.ConfigLoader
+import ai.datahunters.md.util.TextUtils
 import com.typesafe.config.Config
 import org.apache.spark.sql.SparkSession
 
-case class SolrWriterConfig(val collection: String,
-                            val zkServers: Seq[String],
-                            val zkSolrZNode: Option[String]
-                 ) extends WriterConfig {
+case class SolrWriterConfig(dateTimeTags: Seq[String],
+                            integerTags: Seq[String],
+                            collection: String,
+                            zkServers: Seq[String],
+                            zkSolrZNode: Option[String]) extends WriterConfig {
+
+  import SolrWriterConfig._
+
 
   override def adjustSparkConfig(sparkSession: SparkSession): Unit = {
-
   }
 }
 
@@ -18,6 +22,11 @@ object SolrWriterConfig {
 
   val StorageName = "solr"
 
+  case class TooManyGeoTagsException(msg: String) extends RuntimeException(msg)
+
+
+  val IntegerTagsKey = "output.solr.conversion.integerTags"
+  val DateTimeTagsKeys = "output.solr.conversion.dateTimeTags"
   val CollectionKey = "output.collection"
   val ZKServersKey = "output.zk.servers"
   val ZKSolrZNodeKey = "output.zk.znode"
@@ -27,7 +36,9 @@ object SolrWriterConfig {
   val Defaults = Map(
     IgnoredDirectoriesKey -> "",
     IgnoredTagsKey -> "",
-    ZKSolrZNodeKey -> ""
+    ZKSolrZNodeKey -> "",
+    DateTimeTagsKeys -> "",
+    IntegerTagsKey -> ""
   )
   import ConfigLoader._
 
@@ -36,11 +47,12 @@ object SolrWriterConfig {
     val znode = configWithDefaults.getString(ZKSolrZNodeKey)
     val znodeOpt = if (znode.isEmpty) None else Some(znode)
     SolrWriterConfig(
+      configWithDefaults.getString(DateTimeTagsKeys).split(ListElementsDelimiter),
+      configWithDefaults.getString(IntegerTagsKey).split(ListElementsDelimiter),
       configWithDefaults.getString(CollectionKey),
       configWithDefaults.getString(ZKServersKey).split(ListElementsDelimiter),
       znodeOpt
     )
   }
-
 
 }

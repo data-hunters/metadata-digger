@@ -1,5 +1,6 @@
 package ai.datahunters.md.processor
 
+import ai.datahunters.md.processor.FlattenMetadataTags.TheSameTagNamesException
 import ai.datahunters.md.schema.MetadataSchemaConfig.MetadataContentCol
 import ai.datahunters.md.schema.{BinaryInputSchemaConfig, MetadataTagsSchemaConfig}
 import ai.datahunters.md.{SparkBaseSpec, UnitSpec}
@@ -27,6 +28,15 @@ class FlattenMetadataTagsSpec extends UnitSpec with SparkBaseSpec {
     val outputFields = outputDF.schema.fields.map(_.name).sorted
     assert(Array(FilePathCol, MetadataContentCol, "Number", "tag1", "tag2").sorted === outputFields)
   }
+
+  it should "throw exception in case of the same tag names" in {
+    val processor = FlattenMetadataTags("", false, true)
+    val rdd = sparkSession.sparkContext.parallelize(InvalidData)
+    val df = sparkSession.createDataFrame(rdd, Schema)
+    intercept[TheSameTagNamesException] {
+      processor.execute(df)
+    }
+  }
 }
 
 object FlattenMetadataTagsSpec {
@@ -35,6 +45,10 @@ object FlattenMetadataTagsSpec {
     Row.fromTuple(1, "some/path", Row.fromTuple(Map("tag1" -> "val1"), Map("tag2" -> "val2"))),
     Row.fromTuple(6, "some/path", Row.fromTuple(Map("tag1" -> "val1"), Map("tag4" -> "val4"))),
     Row.fromTuple(3, "some/path", Row.fromTuple(Map("tag2" -> "val1"), Map("tag3" -> "val2")))
+  )
+
+  val InvalidData = Seq(
+    Row.fromTuple(6, "some/path", Row.fromTuple(Map("tag1" -> "val1"), Map("Tag1" -> "val1")))
   )
 
   val Schema = StructType(Array(

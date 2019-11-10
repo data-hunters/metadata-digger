@@ -1,13 +1,14 @@
-package ai.datahunters.md.config
+package ai.datahunters.md.config.processing
 
-import ai.datahunters.md.config.ConfigLoader.assignDefaults
+import ai.datahunters.md.config.{ConfigLoader, Writer}
 import com.typesafe.config.Config
 
-case class ProcessingConfig(val allowedDirectories: Option[Seq[String]],
-                            val allowedTags: Option[Seq[String]],
-                            val namingConvention: String,
-                            val metadataColumnsPrefix: String,
-                            val includeDirsInTags: Boolean) {
+case class ProcessingConfig(allowedDirectories: Option[Seq[String]],
+                            allowedTags: Option[Seq[String]],
+                            namingConvention: String,
+                            metadataColumnsPrefix: String,
+                            includeDirsInTags: Boolean,
+                            outputFormat: String) {
 
 }
 
@@ -19,7 +20,8 @@ object ProcessingConfig {
   val MetadataColumnsPrefixKey = "output.columns.metadataPrefix"
   val ColumnsNamingConventionKey = "output.columns.namingConvention"
 
-  import ConfigLoader.{All, strToSeq}
+
+  import ConfigLoader._
 
 
   val Defaults = Map(
@@ -37,7 +39,8 @@ object ProcessingConfig {
       configWithDefaults.getString(AllowedTagsKey),
       configWithDefaults.getString(ColumnsNamingConventionKey),
       configWithDefaults.getString(MetadataColumnsPrefixKey),
-      configWithDefaults.getBoolean(IncludeDirectoriesInTagNamesKey)
+      configWithDefaults.getBoolean(IncludeDirectoriesInTagNamesKey),
+      configWithDefaults.getString(Writer.OutputFormatKey)
     )
   }
 

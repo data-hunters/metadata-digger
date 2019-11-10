@@ -1,9 +1,11 @@
 package ai.datahunters.md.writer.solr
 
 import java.util
-import java.util.Optional
+import java.util.{Date, Optional}
 
+import ai.datahunters.md.config.writer.SolrWriterConfig
 import ai.datahunters.md.schema.SchemaConfig
+import ai.datahunters.md.util.{DateTimeUtils, TextUtils}
 import org.apache.solr.client.solrj.impl.CloudSolrClient
 import org.apache.solr.common.SolrInputDocument
 import org.apache.spark.api.java.function.ForeachPartitionFunction
@@ -22,18 +24,18 @@ import scala.collection.mutable.ArrayBuffer
   * @param collection
   * @param putBatchSize
   */
-case class SolrForeachWriter(val zkServers: Seq[String],
-                        val zkSolrChroot: Option[String],
-                        val collection: String,
-                        val putBatchSize: Int = 1000) extends ForeachPartitionFunction[Row] {
+case class SolrForeachWriter(config: SolrWriterConfig,
+                             private val strToIntHandler: (String, SolrInputDocument) => (String) => Unit = Converters.addInt,
+                             private val strToDateTimeHandler: (String, SolrInputDocument) => (String) => Unit = Converters.addDatetime,
+                             private val putBatchSize: Int = 1000) extends ForeachPartitionFunction[Row] {
 
 
   private val logger = LoggerFactory.getLogger(classOf[SolrForeachWriter])
 
   override def call(partitionRows: util.Iterator[Row]): Unit = {
-    val client = SolrClientBuilder().setZKServers(zkServers)
-        .setZKSolrChroot(zkSolrChroot)
-        .setDefaultCollection(collection)
+    val client = SolrClientBuilder().setZKServers(config.zkServers)
+        .setZKSolrChroot(config.zkSolrZNode)
+        .setDefaultCollection(config.collection)
         .build()
     val docsBuffer = ArrayBuffer[SolrInputDocument]()
     processAll(partitionRows, client)
@@ -70,11 +72,17 @@ case class SolrForeachWriter(val zkServers: Seq[String],
             doc.addField(name, el)
           })
         } else {
-          doc.addField(name, row.getAs[Any](name))
+          if (config.dateTimeTags.contains(name)) {
+            strToDateTimeHandler(name, doc)(row.getAs(name))
+          } else if (config.integerTags.contains(name)) {
+            strToIntHandler(name, doc)(row.getAs(name))
+          } else {
+            doc.addField(name, row.getAs[Any](name))
+          }
         }
       }
-
     })
+    doc.addField(FixedFields.ProcessingDateTimeField, new Date())
     doc
   }
 
@@ -82,9 +90,10 @@ case class SolrForeachWriter(val zkServers: Seq[String],
     val name = f.name
     return if (f.dataType == StringType) {
       val strV = row.getAs[String](name)
-      (strV == null || strV.isEmpty)
+      (TextUtils.isEmpty(strV))
     } else {
       row.isNullAt(row.schema.fieldIndex(name))
     }
   }
 }
+

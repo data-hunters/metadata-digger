@@ -36,7 +36,7 @@ class ExtractorsSpec extends UnitSpec {
     assert(dirs.isEmpty)
     assert(tags.isEmpty)
     assert(tagsCount === 0)
-    assert(fileType === Extractors.Transformations.UnknownType)
+    assert(fileType === MetadataExtractor.UnknownType)
 
   }
 

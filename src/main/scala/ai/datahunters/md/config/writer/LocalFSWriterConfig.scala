@@ -8,10 +8,7 @@ import org.apache.spark.sql.SparkSession
 
 case class LocalFSWriterConfig(val outputDirPath: String,
                                val format: String,
-                               val outputFilesNum: Int) extends FilesWriterConfig {
-
-  override def adjustSparkConfig(sparkSession: SparkSession): Unit = {}
-}
+                               val outputFilesNum: Int) extends FilesWriterConfig
 
 object LocalFSWriterConfig {
 

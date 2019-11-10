@@ -1,10 +1,13 @@
 package ai.datahunters.md.udf
 
 import java.io.ByteArrayInputStream
+import java.util.Date
 
 import ai.datahunters.md.schema._
 import ai.datahunters.md.util.StructuresTransformations
 import com.drew.imaging.{FileType, FileTypeDetector, ImageMetadataReader}
+import com.drew.lang.GeoLocation
+import com.drew.metadata.exif.GpsDirectory
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.expressions.UserDefinedFunction
 import org.apache.spark.sql.functions.udf
@@ -82,29 +85,11 @@ object Extractors {
     * Contains methods implementing actual UDF transformations.
     */
   object Transformations {
-    import ai.datahunters.md.util.TextUtils._
     val Logger = LoggerFactory.getLogger(Transformations.getClass)
-    val FileTypeDir = "File Type"
-    val FileTypeTag = "Detected File Type Name"
-    val UnknownType = FileType.Unknown.toString
 
     def extractMetadataT()(path:String, file: Array[Byte]): Row = {
       try {
-        val metadata = ImageMetadataReader.readMetadata(new ByteArrayInputStream(file))
-        import scala.collection.JavaConversions._
-        val dirs = metadata.getDirectories.toSeq.map(_.getName)
-        var tagsCount = 0
-        val tags = metadata.getDirectories.map(directory => {
-          val dirTags = directory.getTags.map(tag => {
-            tagsCount += 1
-            (tag.getTagName -> tag.getDescription)
-          }).toMap
-          (directory.getName -> dirTags)
-        }).toMap
-        val fileType = tags.get(FileTypeDir)
-          .map(_.get(FileTypeTag).getOrElse(UnknownType))
-          .getOrElse(UnknownType)
-        Row.fromTuple(tags, dirs, tagsCount, fileType)
+        new MetadataExtractor().extract(file)
       } catch {
         case e: Exception => {
           Logger.warn(s"Error occurred during metadata extraction for image: $path (Message: {}). Ignoring file...", e.getMessage)

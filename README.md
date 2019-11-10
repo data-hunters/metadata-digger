@@ -1,8 +1,8 @@
 # Metadata Digger
-Main goal of Metadata Digger is to provide better insights into Metadata extracted from binary files (like images).
+Main goal of Metadata Digger is to provide better insights into Metadata extracted from binary files (currently images).
 MD is built on top of <a href="https://spark.apache.org/" target="_blank">Apache Spark</a> - one of the most popular Big Data processing engine - to take advantage of distributed computing.
 
-Currently MD is under development but basic functionality is available:
+Features:
 
 * Extracting Metadata from files located in multiple directories, from the following sources:
 
@@ -11,13 +11,15 @@ Currently MD is under development but basic functionality is available:
     * Amazon Simple Storage Service (S3)
     * Digital Ocean Spaces (Spaces Object Storage)
 
-* Basic filtering - you can provide list of allowed groups/directories of tags (e.g.: ExifIFD0, ExifSubIFD, JPEG, GPS) or particular tags.
+* Basic filtering - you can provide list of allowed groups/directories of tags (e.g.: ExifIFD0, ExifSubIFD, JPEG, GPS).
 * Scaling extraction process to multiple machines and cores, so you can work with huge volumes of data
 * Saving output in CSV and JSON formats
 * Indexing results to <a href="http://lucene.apache.org/solr/" target="_blank">Apache Solr</a> (Full-Text Search Engine)
 
 To provide easy start for OSINT researchers who do not know details of Apache Spark, special Standalone version has been prepared that can utilize many cores of processor on single machine.
 **If you want to try Metadata Digger without going into Big Data/Spark technical details**, read *Getting Started* section, especially *Runing in Standalone mode*. More complex configuration is covered in *Advanced settings*.
+
+Metadata Digger is under development. We are also working on Web Appliction that will allow searching and analysing processed metadata.
 
 <br/>
 
@@ -32,9 +34,9 @@ Minimal requirements:
 
 * Linux OS
 * Java 8
-* Memory - at least 2GB
+* Memory - at least 1GB
 
-For distributed mode, you should use Spark 2.4.3.
+For distributed mode, you should use Spark 2.4.3, however it should also work with other 2.x versions.
 
 ### Output formats
 Currently two files output formats are supported:
@@ -45,7 +47,7 @@ Currently two files output formats are supported:
 Additionally it is possible to index metadata directly to  <a href="http://lucene.apache.org/solr/" target="_blank">Apache Solr</a> (one of the most popular Full-Text Search Engine), instead of writing results to file.
 
 ### Running in Standalone mode
-To get current distribution, please go to releases tab and download zipped 0.1.1 version and unpack it. There you will have run-metadata-digger.sh script and two sample configuration files (`json.config.properties` and `csv.config.properties`) with examples for JSON and CSV output format. Pick one, open it and change two settings:
+To get current distribution, please go to releases tab, download `standalone-0.1.2.zip` file and unpack it. There you will have run-metadata-digger.sh script and two sample configuration files (`json.config.properties` and `csv.config.properties`) with examples for JSON and CSV output format. Pick one, open it and change two settings:
 
 * `input.paths` - paths to directories with files you want to process. You can set multiple paths delimited by comma
 * `output.directoryPath` - path to output directory where files with metadata will be written. *Make sure this directory does not exist before you start processing*. Metadata Digger will create it and write there files.
@@ -65,7 +67,7 @@ sh run-standalone-metadata-digger.sh <path_to_config>
 ```
 
 ### Running in distributed mode
-See above information about running in standalone mode to download release and adjust configuration.
+See above information about running in standalone mode to download release and adjust configuration (just choose `distributed-0.1.2.zip` file).
 To run Metadata Digger in Distribute mode you need a cluster. It could be one of systems [supported by Spark](https://spark.apache.org/docs/latest/cluster-overview.html#cluster-manager-types). After adjusting your config.properties file you will have to set right values in `metadata-digger-env.sh` file. When you do this, you can just run the following script:
 
 ```
@@ -73,6 +75,7 @@ sh run-distributed-metadata-digger.sh <path_to_config>
 ```
 
 Above script has been tested on YARN cluster (HDP 3.1.4) which is probably the most common case but this script is just `spark-submit` command with appropriate parameters, so if you have different cluster and you know some Spark basics, it will be easy to adjust it.
+On most Hadoop Clusters Amazon AWS libraries (for connecting to S3) are available, so we are not including them in our package. However, we know that there are many differences between particular distributions of Hadoop, so in case of lack of AWS SDK, we put it in aws_libs directory.
 
 ## Advanced settings
 
@@ -193,7 +196,7 @@ If you want to write result to Solr, you have to set `output.storage.name` to `s
 | `output.format` |  | Use `solr` |
 | `output.zk.znode` |  | ZooKeeper ZNode that keeps Solr configuration. Leave empty if you keep Solr data in ZooKeeper root. |
 | `output.solr.conversion.integerTags` |  | List of tag names that has to be converted into integers to adjust output to Solr Schema. If you use Metadata Digger Solr Schema, use the following value: `md_jpeg_image_width,md_jpeg_image_height,md_exif_subifd_exif_image_width,md_exif_subifd_exif_image_height,md_gps_gps_satellites`. |
-| `output.solr.conversion.dateTimeTags` |  | List of tag names that has to be converted into Solr date time format. If you use Metadata Digger Solr Schema use the following: `md_jpeg_image_width,md_jpeg_image_height,md_exif_subifd_exif_image_width,md_exif_subifd_exif_image_height,md_gps_gps_satellites`. |
+| `output.solr.conversion.dateTimeTags` |  | List of tag names that has to be converted into Solr date time format. If you use Metadata Digger Solr Schema use the following: `md_exif_ifd0_datetime,md_icc_profile_profile_datetime,md_gps_datetime,md_exif_subifd_datetime_original`. |
 
 Metadata Digger sends commit request immediately after indexing all results to Solr.
 

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+MD_VERSION=0.1.2
+
 DH="
 
                                                ||
@@ -30,6 +32,7 @@ DH="
                    Contact: dev@datahunters.ai
 
                          Metadata Digger
+                             v.$MD_VERSION
                         [Standalone Mode]
                        Apache License 2.0
 
@@ -37,7 +40,6 @@ DH="
 
 echo "$DH"
 
-MD_VERSION=0.1.1
 MD_CONFIG_PATH=$1
 MD_JAR=metadata-digger-$MD_VERSION.jar
 MD_LIBS=libs/*

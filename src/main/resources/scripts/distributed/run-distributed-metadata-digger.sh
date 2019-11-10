@@ -3,6 +3,8 @@
 # Only one argument is needed - path to Metadata Digger configuration file.
 # Sample execution: sh run-distributed-metadata-digger.sh csv.config.properties
 
+MD_VERSION=0.1.2
+
 DH="
 
                                                ||
@@ -33,7 +35,8 @@ DH="
                    Contact: dev@datahunters.ai
 
                          Metadata Digger
-                       [Distributed Mode]
+                             v.$MD_VERSION
+                        [Standalone Mode]
                        Apache License 2.0
 
 "
@@ -49,7 +52,6 @@ then
 fi
 . "./$MD_ENV_FILE"
 
-MD_VERSION=0.1.1
 MD_CONFIG_PATH=$1
 MD_JAR=metadata-digger-$MD_VERSION.jar
 
@@ -57,6 +59,16 @@ if [ ! -f "$MD_CONFIG_PATH" ]
 then
   echo "Error: First argument has to be path to existing configuration file!"
   exit 1
+fi
+
+CLUSTER_MODE=$(grep "DEPLOY_MODE=cluster" $MD_ENV_FILE)
+if [ -z $CLUSTER_MODE ] # If empty - it means we have client mode
+then
+  echo "Client mode."
+  MD_CONFIG_FNAME=$MD_CONFIG_PATH
+else
+  echo "Cluster mode."
+  MD_CONFIG_FNAME=$(basename $MD_CONFIG_PATH)
 fi
 
 spark-submit --class ai.datahunters.md.launcher.BasicExtractorLauncher \
@@ -68,6 +80,7 @@ spark-submit --class ai.datahunters.md.launcher.BasicExtractorLauncher \
     --executor-memory $EXECUTOR_MEMORY \
     --executor-cores $EXECUTOR_CORES \
     --queue $QUEUE \
-    --conf spark.files=$MD_CONFIG \
+    --files $MD_CONFIG_PATH \
     $MD_JAR \
-    $MD_CONFIG
+    $MD_CONFIG_FNAME
+

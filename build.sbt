@@ -5,7 +5,7 @@ import sbt.Provided
 
 name := "metadata-digger"
 
-version := "0.1.1"
+version := "0.1.2"
 
 scalaVersion := "2.11.12"
 

@@ -37,9 +37,8 @@ case class ColumnNamesConverter(namingConvention: (String) => String) extends Pr
   private def processType(field: StructField): DataType = {
     field.dataType match {
       case structType: StructType =>
-        val r = StructType(structType.fields.map(
+         StructType(structType.fields.map(
           f => processField(f)))
-        r
       case baseType => baseType
     }
   }

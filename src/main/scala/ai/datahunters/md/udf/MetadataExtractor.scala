@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream
 
 import ai.datahunters.md.util.DateTimeUtils.MainDateTimeFormatter
 import com.drew.imaging.{FileType, ImageMetadataReader}
+import com.drew.metadata.{Directory, Tag}
 import com.drew.metadata.exif.GpsDirectory
 import org.apache.spark.sql.Row
 
@@ -23,7 +24,10 @@ class MetadataExtractor {
       }
       val dirTags = directory.getTags.map(tag => {
         tagsCount += 1
-        (tag.getTagName -> tag.getDescription)
+        val tagVal = if (tag.getDescription != null) {
+          tag.getDescription.replace("\n", "\\n")
+        } else handleNullVal(directory, tag)
+        (tag.getTagName -> tagVal)
       }) ++ customTags
       (directory.getName -> dirTags.toMap)
     }).toMap
@@ -41,6 +45,23 @@ object MetadataExtractor {
   val UnknownType = FileType.Unknown.toString
   val GpsLocationFieldTag = "Location"
   val GpsLocationDateTimeTag = "DateTime"
+
+  /**
+    * Very special cases where metadata-extractor lib cannot determine string representation of value
+    *
+    * @param directory
+    * @param tag
+    * @return
+    */
+  private def handleNullVal(directory: Directory, tag: Tag): String = directory.getObject(tag.getTagType) match {
+    case v: Array[Int] => {
+      // Weird case where metadata-extractor cannot determine double value because it is represented as two-element
+      // array. It's for instance in case of Exif SubIFD Exif Image Width
+      if (v.length > 2) v.mkString(",") else if (v.length > 0) v(0).toString else null
+    }
+    case v: Array[Double] => v.mkString(" ")
+    case other => null
+  }
 
   private def parseCustomGeolocation(dir: GpsDirectory): Seq[(String, String)] = {
     val location = if (dir.getGeoLocation != null){

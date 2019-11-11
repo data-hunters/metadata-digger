@@ -1,10 +1,10 @@
 package ai.datahunters.md.pipeline
 
-import ai.datahunters.md.config.BaseConfig
-import ai.datahunters.md.listener.OutputFilesCleanupListener
-import ai.datahunters.md.processor.{FlattenMetadataDirectories, MetadataExtractor}
-import ai.datahunters.md.reader.BasicBinaryFilesReader
-import ai.datahunters.md.writer.BasicFileOutputWriter
+import ai.datahunters.md.config.processing.ProcessingConfig
+import ai.datahunters.md.processor.{ColumnNamesConverterFactory, FlattenMetadataDirectories, MetadataExtractor, Processor}
+import ai.datahunters.md.reader.PipelineSource
+import ai.datahunters.md.writer.PipelineSink
+import org.apache.spark.sql.SparkSession
 
 /**
   * Basic workflow which run the following steps:
@@ -17,23 +17,26 @@ import ai.datahunters.md.writer.BasicFileOutputWriter
   * @param config
   * @param sessionCreator
   */
-class BasicExtractionWorkflow(config: BaseConfig, sessionCreator: SessionCreator) extends Workflow {
+class BasicExtractionWorkflow(config: ProcessingConfig,
+                              sparkSession: SparkSession,
+                              reader: PipelineSource,
+                              writer: PipelineSink,
+                              formatAdjustmentProcessor: Option[Processor] = None
+                             ) extends Workflow {
 
 
   override def run(): Unit = {
-    val sparkSession = sessionCreator.create()
-    if (config.isStandalone()) {
-      sparkSession.sparkContext.addSparkListener(new OutputFilesCleanupListener(sparkSession, config.outputDirPath, config.format))
-    }
-    val rawInputDF = BasicBinaryFilesReader(sparkSession, config.partitionsNum).read(config.inputPaths)
 
+    val columnNamesConverter = ColumnNamesConverterFactory.create(config.namingConvention)
+    val rawInputDF = reader.load()
     val extractedDF = ProcessingPipeline(rawInputDF)
-      .setFormatAdjustmentProcessor(FormatAdjustmentProcessorFactory(config.format))
+      .setFormatAdjustmentProcessor(formatAdjustmentProcessor)
+      .setColumnNamesConverter(Some(columnNamesConverter))
       .addProcessor(MetadataExtractor())
       .addProcessor(FlattenMetadataDirectories(config.allowedDirectories))
       .run()
 
-    BasicFileOutputWriter(sparkSession, config.format, config.outputFilesNum).write(extractedDF, config.outputDirPath)
+    writer.write(extractedDF)
   }
 
 

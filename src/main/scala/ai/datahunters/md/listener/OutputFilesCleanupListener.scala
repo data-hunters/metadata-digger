@@ -2,6 +2,8 @@ package ai.datahunters.md.listener
 
 import java.nio.file.{Files, Path, Paths}
 
+import ai.datahunters.md.config.Writer
+import ai.datahunters.md.config.writer.{FilesWriterConfig, LocalFSWriterConfig}
 import ai.datahunters.md.util.FilesHandler
 import org.apache.spark.scheduler.{SparkListener, SparkListenerApplicationEnd}
 import org.apache.spark.sql.SparkSession
@@ -16,12 +18,13 @@ import org.slf4j.LoggerFactory
   * @param outputDirPath
   * @param format
   */
-class OutputFilesCleanupListener(sparkSession: SparkSession, outputDirPath: String, format: String, filesHandler: FilesHandler = new FilesHandler) extends SparkListener {
+class OutputFilesCleanupListener(sparkSession: SparkSession, outputDir: String, format: String, filesHandler: FilesHandler = new FilesHandler) extends SparkListener {
 
    if (!sparkSession.sparkContext.isLocal) {
     throw new RuntimeException("This output listener cannot be used in other than local mode!")
   }
 
+  private val outputDirPath = outputDir.replace(LocalFSWriterConfig.PathPrefix, "")
   private val logger = LoggerFactory.getLogger(classOf[OutputFilesCleanupListener])
   private val extension = s".$format"
   private val outputDirName = Paths.get(outputDirPath)
@@ -64,7 +67,7 @@ class OutputFilesCleanupListener(sparkSession: SparkSession, outputDirPath: Stri
   }
 
   private def buildFileName(index: Option[Int] = None): String = {
-    val baseName = outputDirPath
+    val baseName = outputDirName
     index.map(i => s"${baseName}_${i}${extension}")
       .orElse(Some(s"${baseName}${extension}"))
       .get

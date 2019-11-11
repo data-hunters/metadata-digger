@@ -1,6 +1,7 @@
 package ai.datahunters.md.processor
 import ai.datahunters.md.schema.{BinaryInputSchemaConfig, EmbeddedMetadataSchemaConfig}
 import ai.datahunters.md.udf.Extractors
+import com.drew.imaging.FileType
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.functions.col
 
@@ -10,36 +11,19 @@ import org.apache.spark.sql.functions.col
   */
 case class MetadataExtractor(dropFileColumn: Boolean = true) extends Processor {
 
+  import Extractors.extractMetadata
+
   override def execute(inputDF: DataFrame): DataFrame = {
-    val extractMetadataUDF = Extractors.extractMetadata()
-    val outputDF = inputDF.withColumn(EmbeddedMetadataSchemaConfig.MetadataCol, extractMetadataUDF(col(BinaryInputSchemaConfig.FileCol)))
+    val extractMetadataUDF = extractMetadata()
+    val outputDF = inputDF.withColumn(
+      EmbeddedMetadataSchemaConfig.MetadataCol,
+      extractMetadataUDF(col(BinaryInputSchemaConfig.FilePathCol), col(BinaryInputSchemaConfig.FileCol))
+    )
+      .withColumn(EmbeddedMetadataSchemaConfig.FileTypeCol, col(EmbeddedMetadataSchemaConfig.FullFileTypeCol))
+      .filter(col(EmbeddedMetadataSchemaConfig.FullFileTypeCol).notEqual(FileType.Unknown.toString))
     if (dropFileColumn)
-      outputDF.drop(BinaryInputSchemaConfig.FileCol)
+      outputDF.drop(BinaryInputSchemaConfig.FileCol).cache()
     else
-      outputDF
+      outputDF.cache()
   }
-}
-
-object MetadataExtractor {
-
-  val AllowedDirs = Seq(
-    "JPEG",
-    "Exif IFD0",
-    "Exif SubIFD",
-    "Nikon Makernote",
-    "Olympus Makernote",
-    "Canon Makernote",
-    "Panasonic Makernote",
-    "PrintIM",
-    "Interoperability",
-    "GPS",
-    "Exif Thumbnail",
-    "Huffman",
-    "File Type",
-    "MP4",
-    "MP4 Video",
-    "MP4 Sound"
-  )
-
-
 }

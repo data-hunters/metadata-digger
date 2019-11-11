@@ -14,11 +14,11 @@ class FlattenMetadataDirectoriesSpec extends UnitSpec with SparkBaseSpec {
     val df = sparkSession.createDataFrame(rdd, Schema).repartition(1)
     val outputDF = processor.execute(df)
     val outputFields = outputDF.schema.fields.map(_.name)
-    assert(outputFields === Array("Path", MetadataTagsSchemaConfig.MetadataCol))
+    assert( Array("Path", MetadataTagsSchemaConfig.MetadataCol, EmbeddedMetadataSchemaConfig.DirectoriesCol) === outputFields)
     val row1 = outputDF.collect()(0)
     val mdField = row1.getStruct(row1.fieldIndex(MetadataTagsSchemaConfig.MetadataCol))
     val mdFieldNames = mdField.schema.fields.map(_.name)
-    assert(mdFieldNames === Array("dir1", "dir2"))
+    assert(Array("dir1", "dir2") === mdFieldNames)
   }
 
   it should "extract selected embedded directories to root level" in {

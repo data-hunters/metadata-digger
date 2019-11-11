@@ -7,13 +7,15 @@ case class FlattenMetadataDirectories(allowedDirectories: Option[Seq[String]] = 
   import EmbeddedMetadataSchemaConfig._
   import org.apache.spark.sql.functions._
   import FlattenMetadataDirectories._
+  import Extractors.selectMetadata
 
   override def execute(inputDF: DataFrame): DataFrame = {
     val selectedDirs = retrieveDirectories(inputDF)
-    val selectMetadataUDF = Extractors.selectMetadata(selectedDirs)
-    inputDF.withColumn(MetadataSchemaConfig.MetadataCol, selectMetadataUDF(
-      col(EmbeddedMetadataSchemaConfig.FullTagsCol)
-    ))
+    val selectMetadataUDF = selectMetadata(selectedDirs)
+    inputDF.withColumn(EmbeddedMetadataSchemaConfig.DirectoriesCol, col(EmbeddedMetadataSchemaConfig.FullDirectoriesCol))
+      .withColumn(MetadataSchemaConfig.MetadataCol, selectMetadataUDF(
+        col(EmbeddedMetadataSchemaConfig.FullTagsCol)
+      ))
   }
 
   private def retrieveDirectories(inputDF: DataFrame): Seq[String] = {

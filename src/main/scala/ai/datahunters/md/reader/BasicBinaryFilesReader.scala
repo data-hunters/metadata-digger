@@ -1,33 +1,62 @@
 package ai.datahunters.md.reader
-import java.nio.file.{Path, Paths}
-
+import ai.datahunters.md.config.GeneralConfig
+import ai.datahunters.md.config.reader.FilesReaderConfig
 import ai.datahunters.md.schema.{BinaryInputSchemaConfig, SchemaConfig}
+import com.amazonaws.regions.Region
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.{DataFrame, Row, SparkSession}
+import org.slf4j.LoggerFactory
 
-case class BasicBinaryFilesReader(sparkSession: SparkSession, partitionsNum: Int, schemaConfig: SchemaConfig = BinaryInputSchemaConfig()) extends BinaryFilesReader {
+/**
+  * Read binary files to DataFrame including columns described in {@link BinaryInputSchemaConfig}.
+  *
+  * @param sparkSession
+  * @param paths All paths to directories where binary files are located.
+  */
+case class BasicBinaryFilesReader(sparkSession: SparkSession,
+                                  config: FilesReaderConfig) extends BinaryFilesReader {
 
   import BinaryFilesReader._
+  import BasicBinaryFilesReader.Logger
 
-  override def read(path: String): DataFrame = {
-    read(Seq(path))
-  }
+  val schemaConfig: SchemaConfig = BinaryInputSchemaConfig()
+  val partitionsNum = config.partitionsNum
+  val paths = config.inputPaths
 
-  override def read(paths: Seq[String]): DataFrame = {
+  /**
+    * Build DataFrame
+    *
+    * @return
+    */
+  override def load(): DataFrame = {
+    config.adjustSparkConfig(sparkSession)
+
     val rdds = paths
-      .map(path => (path, md5sum(path)))
-      .map(pathInfo => readToRDD(pathInfo._1, pathInfo._2)).toSeq
+      .map(readToRDD)
     val allRDDs = sparkSession.sparkContext
       .union(rdds)
-    sparkSession.createDataFrame(allRDDs, schemaConfig.schema())
+
+    val partitions = allRDDs.partitions.length
+    Logger.info(s"Number of partitions after RDDs initialization: $partitions")
+
+    val outputDF = sparkSession.createDataFrame(allRDDs, schemaConfig.schema())
+    if (partitionsNum > 0) outputDF.repartition(partitionsNum) else outputDF
   }
 
-  private def readToRDD(path: String, pathID: String): RDD[Row] = {
+  private def readToRDD(path: String): RDD[Row] = {
     sparkSession.sparkContext
-      .binaryFiles(path, partitionsNum)
-      .map(r => Row.fromTuple(path, pathID, r._1, r._2.toArray()))
+      .binaryFiles(path)
+      .map(r => {
+        val content = r._2.toArray()
+        val contentHash: String = md5sum(content)
+        Row.fromTuple(contentHash, path, r._1, content)
+      })
   }
 
 
 }
 
+object BasicBinaryFilesReader {
+  val Logger = LoggerFactory.getLogger(classOf[BasicBinaryFilesReader])
+
+}

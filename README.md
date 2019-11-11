@@ -47,7 +47,7 @@ Currently two files output formats are supported:
 Additionally it is possible to index metadata directly to  <a href="http://lucene.apache.org/solr/" target="_blank">Apache Solr</a> (one of the most popular Full-Text Search Engine), instead of writing results to file.
 
 ### Running in Standalone mode
-To get current distribution, please go to releases tab, download `standalone-0.1.2.zip` file and unpack it. There you will have run-metadata-digger.sh script and two sample configuration files (`json.config.properties` and `csv.config.properties`) with examples for JSON and CSV output format. Pick one, open it and change two settings:
+To get current distribution, please go to releases tab, download `metadata-digger-0.1.2_standalone.zip` file and unpack it. There you will have run-metadata-digger.sh script and two sample configuration files (`json.config.properties` and `csv.config.properties`) with examples for JSON and CSV output format. Pick one, open it and change two settings:
 
 * `input.paths` - paths to directories with files you want to process. You can set multiple paths delimited by comma
 * `output.directoryPath` - path to output directory where files with metadata will be written. *Make sure this directory does not exist before you start processing*. Metadata Digger will create it and write there files.
@@ -67,7 +67,7 @@ sh run-standalone-metadata-digger.sh <path_to_config>
 ```
 
 ### Running in distributed mode
-See above information about running in standalone mode to download release and adjust configuration (just choose `distributed-0.1.2.zip` file).
+See above information about running in standalone mode to download release and adjust configuration (just choose `metadata-digger-0.1.2_distributed.zip` file).
 To run Metadata Digger in Distribute mode you need a cluster. It could be one of systems [supported by Spark](https://spark.apache.org/docs/latest/cluster-overview.html#cluster-manager-types). After adjusting your config.properties file you will have to set right values in `metadata-digger-env.sh` file. When you do this, you can just run the following script:
 
 ```

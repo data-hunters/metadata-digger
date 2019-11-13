@@ -59,12 +59,12 @@ Optional settings:
 * `output.filesNumber` [optional] - number of files where Metadata Digger will save results.
 * `processing.cores` [optional] - number of cores that will be used to parallel processing. If you do not set it, MD will automatically use max cores/threads your machine has - 1.
 * `filter.allowedMetadataDirectories` [optional] - comma delimited list of allowed directories/groups of tags, e.g. ExifIFD0,ExifSubIFD,JPEG,GPS. If you do not set it, MD will retrieve all existing
-* `processing.partitions` [optional] - advance property, leave it if you do not know Spark.
 
 When you adjust your config, run the following command (where `<path_to_config>` is path to adjusted configuration file):
 ```
-sh run-standalone-metadata-digger.sh <path_to_config>
+sh run-standalone-metadata-digger.sh <path_to_config> [--includeAWS]
 ```
+Second argument `--includeAWS` is optional but it has to be used if you specified in your configuration that MD loads data from or write to Amazon S3/Digital Ocean Spaces.
 
 ### Running in distributed mode
 See above information about running in standalone mode to download release and adjust configuration (just choose `metadata-digger-0.1.2_distributed.zip` file).

@@ -64,7 +64,7 @@ When you adjust your config, run the following command (where `<path_to_config>`
 ```
 sh run-standalone-metadata-digger.sh <path_to_config> [--includeAWS]
 ```
-Second argument `--includeAWS` is optional but it has to be used if you specified in your configuration that MD loads data from or write to Amazon S3, Digital Ocean Spaces.
+Second argument `--includeAWS` is optional but it has to be used if you specified in your configuration that MD loads data from or write to Amazon S3/Digital Ocean Spaces.
 
 ### Running in distributed mode
 See above information about running in standalone mode to download release and adjust configuration (just choose `metadata-digger-0.1.2_distributed.zip` file).

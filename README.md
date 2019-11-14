@@ -89,6 +89,32 @@ sh run-distributed-metadata-digger.sh describe <path_to_config>
 ```
 In case of Distributed mode you should use default value for `DEPLOY_MODE` variable (`client`). This variable is set in `metadata-digger-env.sh` file. If you have experience with Spark, you probably know the difference (if not, read more [here](https://spark.apache.org/docs/latest/cluster-overview.html#glossary)) but basically in this case `client` deploy mode is better because you will have logs (including whole list of tags) visible in output of above script.
 
+Sample output of describe action:
+```
++--------------------------------------+
+|Metadata Directory and Tag Name       |
++--------------------------------------+
+|File Type.Detected File Type Long Name|
+|File Type.Detected File Type Name     |
+|File Type.Detected MIME Type          |
+|File Type.Expected File Name Extension|
+|Huffman.Number of Tables              |
+|JFIF.Resolution Units                 |
+|JFIF.Thumbnail Height Pixels          |
+|JFIF.Thumbnail Width Pixels           |
+|JFIF.Version                          |
+|JFIF.X Resolution                     |
+|JFIF.Y Resolution                     |
+|JPEG.Component 1                      |
+|JPEG.Component 2                      |
+|JPEG.Component 3                      |
+|JPEG.Compression Type                 |
+|JPEG.Data Precision                   |
+|JPEG.Image Height                     |
+|JPEG.Image Width                      |
+|JPEG.Number of Components             |
++--------------------------------------+
+```
 
 
 ## Advanced settings

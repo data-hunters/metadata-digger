@@ -54,6 +54,7 @@ fi
 
 MD_CONFIG_PATH=$1
 MD_JAR=metadata-digger-$MD_VERSION.jar
+MD_ACTION=$2
 
 if [ ! -f "$MD_CONFIG_PATH" ]
 then
@@ -71,7 +72,19 @@ else
   MD_CONFIG_FNAME=$(basename $MD_CONFIG_PATH)
 fi
 
-spark-submit --class ai.datahunters.md.launcher.BasicExtractorLauncher \
+case "$MD_ACTION" in
+    "extract")
+        MAIN_CLASS=ai.datahunters.md.launcher.BasicExtractorLauncher ;;
+    "describe")
+        MAIN_CLASS=ai.datahunters.md.launcher.MetadataPrinterLauncher ;;
+    *)
+        echo "Action $MD_ACTION not supported!"
+        exit 1
+esac
+
+echo "Action: $MD_ACTION"
+
+spark-submit --class $MAIN_CLASS \
     --master $SPARK_MASTER \
     --deploy-mode $DEPLOY_MODE \
     --conf spark.driver.userClassPathFirst=true \

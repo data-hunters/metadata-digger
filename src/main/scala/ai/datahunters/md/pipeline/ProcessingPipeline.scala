@@ -76,7 +76,6 @@ case class ProcessingPipeline(inputDF: DataFrame) {
 
     bufferDF = formatAdjustmentProcessor.map(_.execute(bufferDF)).getOrElse(bufferDF)
     bufferDF = namesConverter.map(_.execute(bufferDF)).getOrElse(bufferDF)
-    bufferDF.printSchema()
     bufferDF
   }
 

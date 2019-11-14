@@ -51,7 +51,9 @@ object Extractors {
     * @param includeDirName
     * @return
     */
-  def selectMetadataTagNames(includeDirName: Boolean): UserDefinedFunction = udf(selectMetadataTagNamesT(includeDirName) _)
+  def selectMetadataTagNames(includeDirName: Boolean, dirTagNameSeparator: Option[String] = None): UserDefinedFunction = {
+    udf(selectMetadataTagNamesT(includeDirName, dirTagNameSeparator) _)
+  }
 
   /**
     * UDF retrieving tags from all columns passed in input Row.
@@ -105,11 +107,14 @@ object Extractors {
       Row.fromSeq(orderedMetadata)
     }
 
-    def selectMetadataTagNamesT(includeDirName: Boolean)(directories: Row): Seq[String] = {
+    def selectMetadataTagNamesT(includeDirName: Boolean, dirTagNameSeparator: Option[String] = None)(directories: Row): Seq[String] = {
       val columns = SchemaConfig.rowExistingColumns(directories)
       val tags: Map[String, Map[String, String]] = directories.getValuesMap(columns)
       if (includeDirName) {
-        StructuresTransformations.concatKeysToSeq(tags)
+        import StructuresTransformations.concatKeysToSeq
+        dirTagNameSeparator
+          .map(separator => concatKeysToSeq(tags, separator))
+          .getOrElse(concatKeysToSeq(tags))
       } else {
         tags.flatMap(_._2.keySet).toSeq
       }

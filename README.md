@@ -58,11 +58,11 @@ Optional settings:
 * `processing.maxMemoryGB` - memory in GB that will be used by Metadata Digger.
 * `output.filesNumber` [optional] - number of files where Metadata Digger will save results.
 * `processing.cores` [optional] - number of cores that will be used to parallel processing. If you do not set it, MD will automatically use max cores/threads your machine has - 1.
-* `filter.allowedMetadataDirectories` [optional] - comma delimited list of allowed directories/groups of tags, e.g. ExifIFD0,ExifSubIFD,JPEG,GPS. If you do not set it, MD will retrieve all existing
+* `filter.allowedMetadataDirectories` [optional] - comma delimited list of allowed directories/groups of tags, e.g. Exif IFD0,Exif Sub IFD,JPEG,GPS. If you do not set it, MD will retrieve all existing. See section *Displaying available Tags* for instruction how to check exac names of directories.
 
 When you adjust your config, run the following command (where `<path_to_config>` is path to adjusted configuration file):
 ```
-sh run-standalone-metadata-digger.sh <path_to_config> [--includeAWS]
+sh run-standalone-metadata-digger.sh extract <path_to_config> [--includeAWS]
 ```
 Second argument `--includeAWS` is optional but it has to be used if you specified in your configuration that MD loads data from or write to Amazon S3/Digital Ocean Spaces.
 
@@ -71,11 +71,25 @@ See above information about running in standalone mode to download release and a
 To run Metadata Digger in Distribute mode you need a cluster. It could be one of systems [supported by Spark](https://spark.apache.org/docs/latest/cluster-overview.html#cluster-manager-types). After adjusting your config.properties file you will have to set right values in `metadata-digger-env.sh` file. When you do this, you can just run the following script:
 
 ```
-sh run-distributed-metadata-digger.sh <path_to_config>
+sh run-distributed-metadata-digger.sh extract <path_to_config>
 ```
 
 Above script has been tested on YARN cluster (HDP 3.1.4) which is probably the most common case but this script is just `spark-submit` command with appropriate parameters, so if you have different cluster and you know some Spark basics, it will be easy to adjust it.
 On most Hadoop Clusters Amazon AWS libraries (for connecting to S3) are available, so we are not including them in our package. However, we know that there are many differences between particular distributions of Hadoop, so in case of lack of AWS SDK, we put it in aws_libs directory.
+
+### Displaying available Tags
+If you have many different files, there are chances that not all of tags you want to have in output. Currently you can decide which directories you want to include in output (property `filter.allowedMetadataDirectories`) but to know what is exact name you can run Metadata Digger with special command `describe`.
+Standalone:
+```
+sh run-standalone-metadata-digger.sh describe <path_to_config>
+```
+Distributed:
+```
+sh run-distributed-metadata-digger.sh describe <path_to_config>
+```
+In case of Distributed mode you should use default value for `DEPLOY_MODE` variable (`client`). This variable is set in `metadata-digger-env.sh` file. If you have experience with Spark, you probably know the difference (if not, read more [here](https://spark.apache.org/docs/latest/cluster-overview.html#glossary)) but basically in this case `client` deploy mode is better because you will have logs (including whole list of tags) visible in output of above script.
+
+
 
 ## Advanced settings
 

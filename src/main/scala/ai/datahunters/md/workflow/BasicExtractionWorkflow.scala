@@ -1,6 +1,7 @@
-package ai.datahunters.md.pipeline
+package ai.datahunters.md.workflow
 
 import ai.datahunters.md.config.processing.ProcessingConfig
+import ai.datahunters.md.pipeline.ProcessingPipeline
 import ai.datahunters.md.processor.{ColumnNamesConverterFactory, FlattenMetadataDirectories, MetadataExtractor, Processor}
 import ai.datahunters.md.reader.PipelineSource
 import ai.datahunters.md.writer.PipelineSink

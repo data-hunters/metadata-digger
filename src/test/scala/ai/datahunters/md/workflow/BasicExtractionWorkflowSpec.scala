@@ -1,4 +1,4 @@
-package ai.datahunters.md.pipeline
+package ai.datahunters.md.workflow
 
 import java.nio.file.{Files, Paths}
 
@@ -9,9 +9,9 @@ import ai.datahunters.md.schema.BinaryInputSchemaConfig
 import ai.datahunters.md.writer.PipelineSink
 import ai.datahunters.md.{SparkBaseSpec, UnitSpec}
 import org.apache.spark.sql.Row
+import org.mockito.ArgumentMatchers.any
 import org.mockito.InOrder
 import org.mockito.Mockito._
-import org.mockito.ArgumentMatchers.any
 
 class BasicExtractionWorkflowSpec extends UnitSpec with SparkBaseSpec {
 

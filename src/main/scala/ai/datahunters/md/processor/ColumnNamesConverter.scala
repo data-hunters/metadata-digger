@@ -12,7 +12,7 @@ case class ColumnNamesConverter(namingConvention: (String) => String) extends Pr
 
   import org.apache.spark.sql.functions._
 
-  protected def nc(name: String): String = TextUtils.safeName(namingConvention(name))
+  protected def nc(name: String): String = namingConvention(name)
 
   override def execute(inputDF: DataFrame): DataFrame = {
     val fields = inputDF.schema.fields

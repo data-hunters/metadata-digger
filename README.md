@@ -6,8 +6,8 @@ Features:
 
 * Extracting Metadata from files located in multiple directories, from the following sources:
 
-    * Local File System or on HDFS
-    * HDFS
+    * Local File System
+    * Hadoop Distributed File System
     * Amazon Simple Storage Service (S3)
     * Digital Ocean Spaces (Spaces Object Storage)
 

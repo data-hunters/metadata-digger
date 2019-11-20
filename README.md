@@ -1,4 +1,7 @@
-# Metadata Digger
+![metadata-digger logo](http://datahunters.ai/assets/images/metadata-digger-logo.png)
+
+[![metadata-digger build status](https://github.com/data-hunters/metadata-digger/workflows/build/badge.svg)](https://github.com/data-hunters/metadata-digger/actions?query=workflow%3Abuild)
+
 Main goal of Metadata Digger is to provide better insights into Metadata extracted from binary files (currently images).
 MD is built on top of <a href="https://spark.apache.org/" target="_blank">Apache Spark</a> - one of the most popular Big Data processing engine - to take advantage of distributed computing.
 
@@ -23,7 +26,7 @@ Metadata Digger is under development. We are also working on Web Appliction that
 
 <br/>
 
-![](https://github.com/data-hunters/metadata-digger/workflows/build/badge.svg)
+
 
 
 
@@ -211,9 +214,11 @@ We use the following libraries in our application:
 * Other common libraries for Scala, see built.sbt for details
 
 Please read documentation of particular dependencies to check details about licenses and used libraries.
-<br />
-<br />
-<br />
 
 
-![DataHunters](http://datahunters.ai/assets/images/logo_full_small.png)
+## Logo
+Metadata Digger logo has been created by Dominik Koślin. Thanks Domin!
+<br />
+<br />
+<br />
+[![DataHunters](http://datahunters.ai/assets/images/logo_full_small.png)](http://datahunters.ai)

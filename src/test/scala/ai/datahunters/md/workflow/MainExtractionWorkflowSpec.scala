@@ -13,9 +13,9 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.InOrder
 import org.mockito.Mockito._
 
-class BasicExtractionWorkflowSpec extends UnitSpec with SparkBaseSpec {
+class MainExtractionWorkflowSpec extends UnitSpec with SparkBaseSpec {
 
-  import BasicExtractionWorkflowSpec._
+  import MainExtractionWorkflowSpec._
 
   "A BasicExtractionWorkflow" should "run all elements in appropriate order" in {
     val imgBytes = Files.readAllBytes(Paths.get(imgPath(ImagePath)))
@@ -32,7 +32,7 @@ class BasicExtractionWorkflowSpec extends UnitSpec with SparkBaseSpec {
     val writer = mock[PipelineSink]
     val formatAdjustmentProcessor = mock[Processor]
     when(formatAdjustmentProcessor.execute(any())).thenReturn(readerOutputDF)
-    val workflow = new BasicExtractionWorkflow(processingConfig, sparkSession, reader, writer, Some(formatAdjustmentProcessor))
+    val workflow = new MainExtractionWorkflow(processingConfig, sparkSession, reader, writer, Some(formatAdjustmentProcessor))
     workflow.run()
     val inOrderExecution: InOrder = org.mockito.Mockito.inOrder(reader, formatAdjustmentProcessor, writer)
     inOrderExecution.verify(reader).load()
@@ -41,6 +41,6 @@ class BasicExtractionWorkflowSpec extends UnitSpec with SparkBaseSpec {
   }
 }
 
-object BasicExtractionWorkflowSpec {
+object MainExtractionWorkflowSpec {
   val ImagePath = "landscape-4518195_960_720_pixabay_license.jpg"
 }

@@ -91,7 +91,8 @@ object Extractors {
 
     def extractMetadataT()(path:String, file: Array[Byte]): Row = {
       try {
-        new MetadataExtractor().extract(file)
+        val mdInfo = MetadataExtractor.extract(file)
+        Row.fromTuple(mdInfo.tags, mdInfo.dirs, mdInfo.tagsCount, mdInfo.fileType)
       } catch {
         case e: Exception => {
           Logger.warn(s"Error occurred during metadata extraction for image: $path (Message: {}). Ignoring file...", e.getMessage)

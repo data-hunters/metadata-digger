@@ -2,20 +2,26 @@ package ai.datahunters.md.udf
 
 import java.io.ByteArrayInputStream
 
+import ai.datahunters.md.MetadataInfo
 import ai.datahunters.md.util.DateTimeUtils.MainDateTimeFormatter
 import ai.datahunters.md.util.TextUtils
 import com.drew.imaging.{FileType, ImageMetadataReader}
-import com.drew.metadata.{Directory, StringValue, Tag}
 import com.drew.metadata.exif.GpsDirectory
-import com.drew.metadata.exif.makernotes.PanasonicMakernoteDirectory
+import com.drew.metadata.{Directory, StringValue, Tag}
 import org.apache.spark.sql.Row
 import org.slf4j.LoggerFactory
 
-class MetadataExtractor {
+object MetadataExtractor {
 
-  import MetadataExtractor._
 
-  def extract(file: Array[Byte]): Row = {
+  val FileTypeDir = "File Type"
+  val FileTypeTag = "Detected File Type Name"
+  val UnknownType = FileType.Unknown.toString
+  val GpsLocationFieldTag = "Location"
+  val GpsLocationDateTimeTag = "DateTime"
+  private val Logger = LoggerFactory.getLogger(MetadataExtractor.getClass)
+
+  def extract(file: Array[Byte]): MetadataInfo = {
     val metadata = ImageMetadataReader.readMetadata(new ByteArrayInputStream(file))
     import scala.collection.JavaConversions._
     val dirs = metadata.getDirectories.toSeq.map(_.getName)
@@ -37,18 +43,8 @@ class MetadataExtractor {
     val fileType = tags.get(FileTypeDir)
       .map(_.get(FileTypeTag).getOrElse(UnknownType))
       .getOrElse(UnknownType)
-    Row.fromTuple(tags, dirs, tagsCount, fileType)
+    MetadataInfo(tags, dirs, tagsCount, fileType)
   }
-}
-
-object MetadataExtractor {
-
-  val FileTypeDir = "File Type"
-  val FileTypeTag = "Detected File Type Name"
-  val UnknownType = FileType.Unknown.toString
-  val GpsLocationFieldTag = "Location"
-  val GpsLocationDateTimeTag = "DateTime"
-  private val Logger = LoggerFactory.getLogger(classOf[MetadataExtractor])
 
   /**
     * Very special cases where metadata-extractor lib cannot determine string representation of value

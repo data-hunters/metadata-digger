@@ -2,6 +2,39 @@
 
 [![metadata-digger build status](https://github.com/data-hunters/metadata-digger/workflows/build/badge.svg)](https://github.com/data-hunters/metadata-digger/actions?query=workflow%3Abuild)
 
+<!-- toc -->
+
+- [Overview](#overview)
+- [Getting Started](#getting-started)
+  * [Requirements](#requirements)
+  * [Output formats](#output-formats)
+  * [Running in Standalone mode](#running-in-standalone-mode)
+  * [Running in distributed mode](#running-in-distributed-mode)
+  * [Displaying available Tags](#displaying-available-tags)
+  * [Finding similar images based on metadata](#finding-similar-images-based-on-metadata)
+  * [Displaying Metadata of single file](#displaying-metadata-of-single-file)
+- [Advanced settings](#advanced-settings)
+  * [Reader configuration](#reader-configuration)
+    + [Common Reader properties](#common-reader-properties)
+    + [Local File System](#local-file-system)
+    + [Hadoop Distributed File System](#hadoop-distributed-file-system)
+    + [Amazon S3](#amazon-s3)
+    + [Digital Ocean Spaces](#digital-ocean-spaces)
+  * [Processing configuration](#processing-configuration)
+  * [Writer configuration](#writer-configuration)
+    + [Common Files Writer properties](#common-files-writer-properties)
+    + [Local File System](#local-file-system-1)
+    + [Hadoop Distributed File System](#hadoop-distributed-file-system-1)
+    + [Amazon S3](#amazon-s3-1)
+    + [Digital Ocean Spaces](#digital-ocean-spaces-1)
+    + [Apache Solr](#apache-solr)
+- [External dependencies](#external-dependencies)
+- [Logo](#logo)
+
+<!-- tocstop -->
+
+## Overview
+
 Main goal of Metadata Digger is to provide better insights into Metadata extracted from binary files (currently images).
 MD is built on top of <a href="https://spark.apache.org/" target="_blank">Apache Spark</a> - one of the most popular Big Data processing engine - to take advantage of distributed computing.
 

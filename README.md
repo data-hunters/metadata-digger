@@ -116,6 +116,55 @@ Sample output of describe action:
 +--------------------------------------+
 ```
 
+**Important!** - Names of tags could be a bit different than other tools (like Exiftool) provide. We use the same names as [Metadata-Extractor](https://drewnoakes.com/code/exif/) but additionally remove special characters like `,.":;'()`. In some cases it is useful to have tag's values in two (or three) different formats (e.g. for filtering purposes). In such case we add custom tag with `MD` prefix, for instance: `GPS.MD Location Long F` has float format like: 11.884539. The same value for original tag `GPS.GPS Longitude` will be: 11° 53' 4.34". First value could be easily compared during filtering process but second is better for human.
+
+
+### Finding similar images based on metadata
+Let's suppose you have image with some specific set of tags that is for some reason interesting for you. You noticed that specific device or application adds those tags with such values in specific circumstances, so we can say it is kind of fingerprint of device, photo's author or author of modifications applied on image, etc. In short - you can identify someone or something by those set of tag values. 
+This functionality allows you to find all images that are similar. In the simplest scenario to determine if photo A is similar to B all tags from list specified in configuration have to have the same values for A and B. However, in real life there could be some small differences between values caused by many things (e.g. geolocation - very rare situation where you have exactly the same values even if someone is in the same place). To add toleration to algorithm for such cases we have added two things:
+
+* Converting values to types for further filtering. Currently supported types:
+    * `STRING` - just text
+    * `INT` - integer value between -2147483648 and 2147483647. Metadata Digger before making any comparison, removes all characters that are not numbers, `-` and `.` (to be able to treat values like `640 pixels` as integer `640`).
+    * `LONG` - integer value between -9223372036854775808 and 9223372036854775807. The same cleansing process as for INT.
+    * `FLOAT` - float value (e.g. for GPS locations comparison) between -3.4028235E38 and 3.4028235E38. The same cleansing process as for INT.
+* Difference value for every tag. Default is 0 which means that values has to be equal to be treated as similar. However you can increase this value to make comparison algorithm more tolerant:
+    * `INT`, `LONG`, `FLOAT` - here situation is very simple. Let's suppose we have a tag with number of GPS Sattelites equals `5` and we want to find also `4` and `6`. Just set difference to 1.
+    * `STRING` - here you have the most complicated case because difference between two strings is calculating with [Levenshtein Distance](https://en.wikipedia.org/wiki/Levenshtein_distance). This measure shows how many changes have to be made for string A to make it B. Let's suppose you have metatag with Device Model name and it is "NIKON D500" and you want to find images made with the same model but also similar like: "NIKON D610". In such case you can set difference to 2 because you have to change two characters `50` to `61` to change value from "NIKON D500" to "NIKON D610". Keep in mind that it will also match other cases like "**R**IKON D500", "NIKO**D** D500", which in this situation are rare but still possible.
+
+To specify list of tags that have to be compared, you have to define them with key `analytics.similar.tags` in the following format:
+```
+analytics.similar.tags=DIR1_NAME:TAG1_NAME:TYPE:MAX_DIFFERENCE,DIR2_NAME:TAG2_NAME:TYPE:MAX_DIFFERENCE,DIR3_NAME:TAG3_NAME:TYPE:MAX_DIFFERENCE
+```
+Example for Camera model and GPS location:
+```
+analytics.similar.tags=Exif IFD0.Model:STRING,GPS.MD Location Lat F:FLOAT:0.1,GPS.MD Location Long F:FLOAT:0.1
+```
+Above configuration will inform Metadata Digger to find all images where:
+
+* Tag `Exif IFD0.Model` has string that cannot be different (default MAX_DIFFERENCE value is 0)
+* GPS Location (latitude and longitude) could be different max by 0.1
+
+There is also one additional config property: `analytics.similar.minPassingConditions`. It determines how many conditions described in `analytics.similar.tag` have to be passed to classify image as similar. By default all conditions have to be fulfilled.
+
+When you set properties, it's time to find similar images by running one of the following commands (depends on your needs):
+
+Standalone:
+```
+sh run-standalone-metadata-digger.sh find_similar <path_to_config> <path_to_base_image_file>
+```
+Distributed:
+```
+sh run-distributed-metadata-digger.sh find_similar <path_to_config> <path_to_base_image_file>
+```
+where <path_to_base_image_file> **has to point to image on Local File System**.
+
+### Displaying Metadata of single file
+Sometimes you just need to display Metatags for single file from Local File System. Metadata Digger provides such utility without starting Spark, so it is faster way than running `extract` action on one file. The main difference is that this action just display tags on the screen without writing to file. The action is supported only in script for Standalone mode and you do not need here configuration file:
+```
+sh run-standalone-metadata-digger.sh extract_single <path_to_image_file>
+```
+
 
 ## Advanced settings
 

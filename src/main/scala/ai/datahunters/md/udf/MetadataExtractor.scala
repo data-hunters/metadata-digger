@@ -17,8 +17,10 @@ object MetadataExtractor {
   val FileTypeDir = "File Type"
   val FileTypeTag = "Detected File Type Name"
   val UnknownType = FileType.Unknown.toString
-  val GpsLocationFieldTag = "Location"
-  val GpsLocationDateTimeTag = "DateTime"
+  val GpsLocationFieldTag = "MD Location"
+  val GpsLongitudeFieldTag = "MD Location Long F"
+  val GpsLatitudeFieldTag = "MD Location Lat F"
+  val GpsLocationDateTimeTag = "MD DateTime"
   private val Logger = LoggerFactory.getLogger(MetadataExtractor.getClass)
 
   def extract(file: Array[Byte]): MetadataInfo = {
@@ -73,7 +75,11 @@ object MetadataExtractor {
 
   private def parseCustomGeolocation(dir: GpsDirectory): Seq[(String, String)] = {
     val location = if (dir.getGeoLocation != null){
-      Seq((GpsLocationFieldTag -> s"${dir.getGeoLocation.getLatitude},${dir.getGeoLocation.getLongitude}"))
+      Seq(
+        (GpsLocationFieldTag -> s"${dir.getGeoLocation.getLatitude},${dir.getGeoLocation.getLongitude}"),
+        (GpsLatitudeFieldTag -> dir.getGeoLocation.getLatitude.toString),
+        (GpsLongitudeFieldTag -> dir.getGeoLocation.getLongitude.toString)
+      )
     } else Seq()
     val dt = if (dir.getGpsDate != null) {
       Seq((GpsLocationDateTimeTag -> s"${MainDateTimeFormatter.format(dir.getGpsDate)}"))

@@ -25,7 +25,22 @@ package object md {
 
 //  case class MetatagSimilarityInfo[T](definition: MetatagSimilarityDefinition, value: T)
 
-  case class MetadataInfo(tags: Map[String, Map[String, String]], dirs: Seq[String], tagsCount: Int, fileType: String)
+  case class MetadataInfo(tags: Map[String, Map[String, String]], dirs: Seq[String], tagsCount: Int, fileType: String) {
+
+    def show(): Unit = {
+      println()
+      println(s"Number of Metadata Directories: ${dirs.size}")
+      println(s"Number of Metadata Tags: ${tagsCount}")
+      println()
+      tags.foreach(dir => {
+        println(s"${dir._1}:")
+        dir._2.foreach(tag => {
+          println(s"\t${tag._1}: ${tag._2}")
+        })
+        println("------------------------------------------------")
+      })
+    }
+  }
 
   object TagValueType extends Enumeration {
     type TagValueType = Value

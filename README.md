@@ -14,7 +14,10 @@ Features:
     * Amazon Simple Storage Service (S3)
     * Digital Ocean Spaces (Spaces Object Storage)
 
-* Basic filtering - you can provide list of allowed groups/directories of tags (e.g.: ExifIFD0, ExifSubIFD, JPEG, GPS).
+* Basic filtering - you can provide list of allowed groups/directories of tags (e.g.: Exif IFD0, Exif SubIFD, JPEG, GPS).
+* Displaying all detected Metatags in provided dataset of files.
+* Finding similar images based on specified set of Metatags.
+* Displaying Metadata for single file without running Spark.
 * Scaling extraction process to multiple machines and cores, so you can work with huge volumes of data
 * Saving output in CSV and JSON formats
 * Indexing results to <a href="http://lucene.apache.org/solr/" target="_blank">Apache Solr</a> (Full-Text Search Engine)

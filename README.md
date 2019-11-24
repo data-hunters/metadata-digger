@@ -9,7 +9,7 @@
   * [Requirements](#requirements)
   * [Output formats](#output-formats)
   * [Running in Standalone mode](#running-in-standalone-mode)
-  * [Running in distributed mode](#running-in-distributed-mode)
+  * [Running in Distributed mode](#running-in-distributed-mode)
   * [Displaying available Tags](#displaying-available-tags)
   * [Finding similar images based on metadata](#finding-similar-images-based-on-metadata)
   * [Displaying Metadata of single file](#displaying-metadata-of-single-file)
@@ -105,7 +105,7 @@ sh run-standalone-metadata-digger.sh extract <path_to_config> [--includeAWS]
 ```
 Third argument `--includeAWS` is optional but it has to be used if you specified in your configuration that MD loads data from or write to Amazon S3/Digital Ocean Spaces.
 
-### Running in distributed mode
+### Running in Distributed mode
 See above information about running in standalone mode to download release and adjust configuration (just choose `metadata-digger-0.1.2_distributed.zip` file).
 To run Metadata Digger in Distribute mode you need a cluster. It could be one of systems [supported by Spark](https://spark.apache.org/docs/latest/cluster-overview.html#cluster-manager-types). After adjusting your config.properties file you will have to set right values in `metadata-digger-env.sh` file. When you do this, you can just run the following script:
 

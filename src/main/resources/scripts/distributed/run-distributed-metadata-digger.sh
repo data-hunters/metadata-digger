@@ -106,6 +106,6 @@ spark-submit --class $MAIN_CLASS \
     --queue $QUEUE \
     --files $MD_CONFIG_PATH \
     $MD_JAR \
-    $MD_CONFIG_FNAME
-    $MD_STANDALONE
+    $MD_CONFIG_FNAME \
+    $MD_STANDALONE \
     $BASE_IMG_FILE

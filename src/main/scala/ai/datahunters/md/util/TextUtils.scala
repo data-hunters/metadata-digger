@@ -32,6 +32,7 @@ object TextUtils {
     * @return
     */
   def levenshteinDistance(s1: String, s2: String): Int = {
+    if (s1.equals(s2)) return 0
     val dist = Array.tabulate(s2.length + 1, s1.length + 1) { (j, i) => if (j == 0) i else if (i == 0) j else 0 }
 
     @inline

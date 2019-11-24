@@ -69,10 +69,6 @@ case class ProcessingPipeline(inputDF: DataFrame) {
     * @return Output DataFrame.
     */
   def run(): DataFrame = {
-//    var bufferDF = inputDF
-//    for (step <- steps) {
-//      bufferDF = step.execute(bufferDF)
-//    }
     val outputDF = steps.foldLeft(inputDF)((previousDF, step) => step.execute(previousDF))
 
     val adjustedDF = formatAdjustmentProcessor.map(_.execute(outputDF)).getOrElse(outputDF)

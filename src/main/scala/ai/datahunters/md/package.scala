@@ -23,8 +23,6 @@ package object md {
 
   }
 
-//  case class MetatagSimilarityInfo[T](definition: MetatagSimilarityDefinition, value: T)
-
   case class MetadataInfo(tags: Map[String, Map[String, String]], dirs: Seq[String], tagsCount: Int, fileType: String) {
 
     def show(): Unit = {

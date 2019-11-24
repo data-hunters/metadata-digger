@@ -69,7 +69,7 @@ object SimilarImagesConfig {
         case e: Exception => throw new RuntimeException(s"Maximum Difference value - $maxDiffStr couldn't be parsed for tag: $tagInfo", e)
       }
     } else {
-      throw new RuntimeException(s"Type of tag has not been specified properly in: $tagInfo (example: File Type.Detected File Type Name:String:2)")
+      throw new RuntimeException(s"Type of tag has not been specified properly in: $tagInfo (example: File Type.Detected File Type Name:STRING:2)")
     }
     MetatagSimilarityDefinition(dirName, tagName, tagValueType, maxDifference)
   }

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # Starting script for Metadata Digger Basic Extractor Job
 # Only one argument is needed - path to Metadata Digger configuration file.
 # Sample execution: sh run-distributed-metadata-digger.sh csv.config.properties

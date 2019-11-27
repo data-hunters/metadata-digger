@@ -18,6 +18,7 @@ class ProcessingConfigSpec extends UnitSpec {
     assert(outputConfig.namingConvention == "camelCase")
     assert(outputConfig.allowedTags === None)
     assert(outputConfig.includeDirsInTags === true)
+    assert(outputConfig.mandatoryTags === None)
   }
 
   it should "create default CommontProcessingConfig for CSV" in {
@@ -31,6 +32,7 @@ class ProcessingConfigSpec extends UnitSpec {
     assert(outputConfig.namingConvention == "camelCase")
     assert(outputConfig.allowedTags === None)
     assert(outputConfig.includeDirsInTags === true)
+    assert(outputConfig.mandatoryTags === None)
   }
 
   it should "create default SolrProcessingConfig" in {
@@ -44,5 +46,6 @@ class ProcessingConfigSpec extends UnitSpec {
     assert(outputConfig.namingConvention == "camelCase")
     assert(outputConfig.allowedTags === None)
     assert(outputConfig.includeDirsInTags === true)
+    assert(outputConfig.mandatoryTags === None)
   }
 }

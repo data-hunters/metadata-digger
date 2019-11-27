@@ -25,11 +25,11 @@ class MainExtractionWorkflow(config: ProcessingConfig,
                              reader: PipelineSource,
                              writer: PipelineSink,
                              formatAdjustmentProcessor: Option[Processor] = None,
+                             mandatoryTagsFilter: Option[Filter] = None,
                              analyticsFilters: Seq[Filter] = Seq()) extends Workflow {
 
 
   override def run(): Unit = {
-
     val columnNamesConverter = ColumnNamesConverterFactory.create(config.namingConvention)
     val rawInputDF = reader.load()
     val pipeline = ProcessingPipeline(rawInputDF)
@@ -37,13 +37,12 @@ class MainExtractionWorkflow(config: ProcessingConfig,
       .setColumnNamesConverter(Some(columnNamesConverter))
       .addProcessor(MetadataExtractor())
     analyticsFilters.foreach(pipeline.addFilter)
-    val extractedDF = pipeline.addProcessor(FlattenMetadataDirectories(config.allowedDirectories))
-      .run()
+    pipeline.addProcessor(FlattenMetadataDirectories(config.allowedDirectories))
+    mandatoryTagsFilter.foreach(pipeline.addFilter)
+    val extractedDF = pipeline.run()
 
     writer.write(extractedDF)
   }
-
-
 
 
 }

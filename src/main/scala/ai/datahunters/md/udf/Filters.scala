@@ -6,4 +6,8 @@ object Filters {
 
   val notEmptyMapUDF = udf((inputMap: Map[String, String]) => !inputMap.isEmpty)
 
+
+  def notEmptyValueUDF(mandatoryTags: Seq[String]) =
+    udf((inputSeq: Seq[String]) => inputSeq.intersect(mandatoryTags).nonEmpty)
+
 }

@@ -27,6 +27,7 @@ class MainExtractionWorkflowSpec extends UnitSpec with SparkBaseSpec {
     val processingConfig = mock[ProcessingConfig]
     when(processingConfig.namingConvention).thenReturn("snakeCase")
     when(processingConfig.allowedDirectories).thenReturn(None)
+    when(processingConfig.mandatoryTags).thenReturn(None)
     val reader = mock[PipelineSource]
     when(reader.load()).thenReturn(readerOutputDF)
     val writer = mock[PipelineSink]

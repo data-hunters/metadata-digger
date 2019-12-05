@@ -18,7 +18,7 @@ class MainExtractionWorkflowSpec extends UnitSpec with SparkBaseSpec {
   import MainExtractionWorkflowSpec._
 
   "A BasicExtractionWorkflow" should "run all elements in appropriate order" in {
-    val imgBytes = Files.readAllBytes(Paths.get(imgPath(ImagePath)))
+    val imgBytes = Files.readAllBytes(Paths.get("C:\\Users\\Dawid\\Desktop\\Kurs\\metadata-digger\\target\\scala-2.11\\test-classes\\images\\landscape-4518195_960_720_pixabay_license.jpg"))
     val inputData = Seq(
       Row.fromTuple("somehash", "some/path", "some/path/img.jpg", imgBytes)
     )
@@ -27,7 +27,7 @@ class MainExtractionWorkflowSpec extends UnitSpec with SparkBaseSpec {
     val processingConfig = mock[ProcessingConfig]
     when(processingConfig.namingConvention).thenReturn("snakeCase")
     when(processingConfig.allowedDirectories).thenReturn(None)
-    when(processingConfig.mandatoryTags).thenReturn(None)
+    when(processingConfig.mandatoryTags).thenReturn("")
     val reader = mock[PipelineSource]
     when(reader.load()).thenReturn(readerOutputDF)
     val writer = mock[PipelineSink]

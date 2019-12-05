@@ -53,4 +53,7 @@ package object md {
     }
   }
 
+
+  case class MandatoryTag(directory: String, tag: String)
+  
 }

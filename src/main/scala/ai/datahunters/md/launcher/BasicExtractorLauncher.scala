@@ -4,7 +4,7 @@ import ai.datahunters.md.config._
 import ai.datahunters.md.config.processing.ProcessingConfig
 import ai.datahunters.md.config.reader.ReaderConfig
 import ai.datahunters.md.config.writer.WriterConfig
-import ai.datahunters.md.filter.{Filter, NotEmptyTagFilter}
+import ai.datahunters.md.filter.Filter
 import ai.datahunters.md.pipeline.SessionCreator
 import ai.datahunters.md.reader.{PipelineSource, PipelineSourceFactory}
 import ai.datahunters.md.workflow.{MainExtractionWorkflow, Workflow}
@@ -41,9 +41,8 @@ object BasicExtractorLauncher {
     val format = config.getString(Writer.OutputFormatKey)
     val processingConfig = loadProcessingConfig(config)
     val formatAdjustmentProcessor = FormatAdjustmentProcessorFactory.create(processingConfig)
-    val mandatoryTagsFilter = processingConfig.mandatoryTags.filter(s => s.nonEmpty).map(s => new NotEmptyTagFilter(s))
 
-    new MainExtractionWorkflow(processingConfig, sparkSession, reader, writer, formatAdjustmentProcessor,mandatoryTagsFilter, analyticsFilters)
+    new MainExtractionWorkflow(processingConfig, sparkSession, reader, writer, formatAdjustmentProcessor, analyticsFilters)
   }
 
 }

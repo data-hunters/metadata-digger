@@ -5,13 +5,11 @@ import com.typesafe.config.Config
 
 case class ProcessingConfig(allowedDirectories: Option[Seq[String]],
                             allowedTags: Option[Seq[String]],
-                            mandatoryTags: Option[Seq[String]],
+                            mandatoryTags: String,
                             namingConvention: String,
                             metadataColumnsPrefix: String,
                             includeDirsInTags: Boolean,
-                            outputFormat: String) {
-
-}
+                            outputFormat: String)
 
 object ProcessingConfig {
 
@@ -31,7 +29,7 @@ object ProcessingConfig {
     ColumnsNamingConventionKey -> "camelCase",
     MetadataColumnsPrefixKey -> "",
     IncludeDirectoriesInTagNamesKey -> true,
-    MandatoryTagsKey -> All
+    MandatoryTagsKey -> ""
   )
 
   def build(config: Config): ProcessingConfig = {

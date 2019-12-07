@@ -8,7 +8,7 @@ class BinaryInputSchemaConfigSpec extends UnitSpec {
 
   "An BinaryInputSchemaConfigSpec" should "keep info about input schema for binary files" in {
     val schemaConfig = BinaryInputSchemaConfig()
-    assert(schemaConfig.columns() === Seq(ContentHash, BasePathCol, FilePathCol, FileCol))
+    assert(schemaConfig.columns() === Seq(ID, BasePathCol, FilePathCol, FileCol))
   }
 
 }

@@ -18,6 +18,7 @@ import org.apache.spark.sql.types.{ArrayType, StructType}
 case class FlattenMetadataTags(colPrefix: String,
                                includeDirName: Boolean = false,
                                removeArrays: Boolean = false,
+                               includeMetadataContent: Boolean = false,
                                allowedTags: Option[Seq[String]] = None) extends Processor {
   import org.apache.spark.sql.functions._
   import FlattenMetadataTags._
@@ -29,9 +30,13 @@ case class FlattenMetadataTags(colPrefix: String,
     val columns = SchemaConfig.dfExistingColumns(inputDF, Seq(MetadataCol)) ++ Seq(s"${MetadataCol}.*")
     val selectMetadataTagsUDF = selectMetadataTagsFromDirs(colPrefix, includeDirName, selectedTags)
 
-    val transformedDF = inputDF.withColumn(MetadataCol, selectMetadataTagsUDF(col(MetadataCol)))
+    val flattenDF = inputDF.withColumn(MetadataCol, selectMetadataTagsUDF(col(MetadataCol)))
       .select(columns.head, columns.tail:_*)
-      .withColumn(MetadataContentCol, concat_ws(" ", buildConcatTagList(selectedTags, colPrefix):_*))
+    val transformedDF = if (includeMetadataContent) {
+      flattenDF.withColumn(MetadataContentCol, concat_ws(" ", buildConcatTagList(selectedTags, colPrefix):_*))
+    } else {
+      flattenDF
+    }
     selectFinalColumns(transformedDF)
   }
 

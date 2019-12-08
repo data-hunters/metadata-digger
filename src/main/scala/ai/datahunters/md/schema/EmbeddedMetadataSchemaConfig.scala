@@ -10,15 +10,14 @@ case class EmbeddedMetadataSchemaConfig() extends SchemaConfig {
 
   import EmbeddedMetadataSchemaConfig._
 
-  override def columns(): Seq[String] = Seq(
-    TagsCol,
-    DirectoriesCol,
-    TagsCountCol
-  )
+  override def columns(): Seq[String] = schema().fields
+    .map(_.name)
+    .toSeq
 
   override def schema(): StructType = new SchemaBuilder()
       .addEmbeddedMap(TagsCol)
-      .addStringArrayField(DirectoriesCol)
+      .addStringArrayField(DirectoryNames)
+      .addStringArrayField(TagNamesCol)
       .addIntField(TagsCountCol)
       .addStringField(FileTypeCol)
       .build()
@@ -38,9 +37,14 @@ object EmbeddedMetadataSchemaConfig {
   val TagsCol = "Tags"
 
   /**
-    * Name of column keeping list of all existing (for this row) directories/groups of tags.
+    * Name of column keeping list of all existing (for this row) directory/group names of tags.
     */
-  val DirectoriesCol = "Directories"
+  val DirectoryNames = "Directory Names"
+
+  /**
+    * Name of column keeping list of all existing (for this row) tag names.
+    */
+  val TagNamesCol = "Tag Names"
 
   /**
     * Number of all tags for this row
@@ -53,7 +57,8 @@ object EmbeddedMetadataSchemaConfig {
   val FileTypeCol = "File Type"
 
   val FullTagsCol = s"${MetadataCol}.${TagsCol}"
-  val FullDirectoriesCol = s"${MetadataCol}.${DirectoriesCol}"
+  val FullDirectoriesCol = s"${MetadataCol}.${DirectoryNames}"
+  val FullTagNamesCol = s"${MetadataCol}.${TagNamesCol}"
   val FullTagsCountCol = s"${MetadataCol}.${TagsCountCol}"
   val FullFileTypeCol = s"${MetadataCol}.${FileTypeCol}"
 }

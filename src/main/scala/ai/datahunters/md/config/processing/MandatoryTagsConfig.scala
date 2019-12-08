@@ -4,37 +4,28 @@ import ai.datahunters.md.MandatoryTag
 
 /**
   * Configuration for mandatory tags filter. Include String to MandatoryTag model parser.
+  *
   * @param dirTags Optional sequence of MandatoryTag class which includes dir and tag String fields.
   */
-case class MandatoryTagsConfig(dirTags: Option[Seq[MandatoryTag]])
+case class MandatoryTagsConfig(dirTags: Option[Seq[MandatoryTag]] = None)
 
 object MandatoryTagsConfig {
 
   val DirTagDelimiter = "\\."
-  var MandatoryTagDelimiter = ","
 
 
   def build(config: ProcessingConfig): MandatoryTagsConfig = {
     val tags = config.mandatoryTags
-    if (tags.isEmpty) {
-      MandatoryTagsConfig(None)
-    } else {
-      val parsedTags = parseMandatoryTag(tags)
-      MandatoryTagsConfig(Option(parsedTags))
-    }
+    MandatoryTagsConfig(getMandatoryTagSeq(tags))
   }
 
-  def parseMandatoryTag(tags: String): Seq[MandatoryTag] = {
-    tags.split(MandatoryTagDelimiter)
-      .map(parseTag)
-      .toSeq
+  def getMandatoryTagSeq(tags: Option[Seq[String]]): Option[Seq[MandatoryTag]] = {
+    tags.map(s => s.filter(s=>s.nonEmpty).map(parseTag))
   }
 
   def parseTag(dirTag: String): MandatoryTag = {
-    val tagInfo = dirTag.split(DirTagDelimiter)
-    val dir = tagInfo(0)
-    val tag = tagInfo(1)
-    MandatoryTag(dir, tag)
+    val dirTagArray = dirTag.split(DirTagDelimiter)
+    MandatoryTag(dirTagArray(0), dirTagArray(1))
   }
 
 }

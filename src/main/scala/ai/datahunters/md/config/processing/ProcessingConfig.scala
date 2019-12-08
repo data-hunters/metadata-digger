@@ -5,7 +5,7 @@ import com.typesafe.config.Config
 
 case class ProcessingConfig(allowedDirectories: Option[Seq[String]],
                             allowedTags: Option[Seq[String]],
-                            mandatoryTags: String,
+                            mandatoryTags: Option[Seq[String]],
                             namingConvention: String,
                             metadataColumnsPrefix: String,
                             includeDirsInTags: Boolean,
@@ -29,7 +29,7 @@ object ProcessingConfig {
     ColumnsNamingConventionKey -> "camelCase",
     MetadataColumnsPrefixKey -> "",
     IncludeDirectoriesInTagNamesKey -> true,
-    MandatoryTagsKey -> ""
+    MandatoryTagsKey -> All
   )
 
   def build(config: Config): ProcessingConfig = {

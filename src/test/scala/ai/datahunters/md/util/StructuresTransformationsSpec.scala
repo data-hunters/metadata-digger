@@ -38,16 +38,6 @@ class StructuresTransformationsSpec extends UnitSpec {
     )
     assert(result === expected)
   }
-
-  "A concatKeysToSeqIfValueNotNull" should "produce list where elements are concatenation of root key and nested" +
-    " which value is not empty" in {
-    val result = StructuresTransformations.concatKeysToSeqIfValueNotNull(SampleInputMapWithEmptyValue)
-    val expected = Seq(
-      "mainK1.embeddedK1",
-      "mainK2.embeddedK3"
-    )
-    assert(result === expected)
-  }
 }
 
 object StructuresTransformationsSpec {
@@ -60,17 +50,6 @@ object StructuresTransformationsSpec {
     "mainK2" -> Map(
       "embeddedK3" -> "val3",
       "embeddedK2" -> "val4"
-    )
-  )
-
-  val SampleInputMapWithEmptyValue = Map(
-    "mainK1" -> Map(
-      "embeddedK1" -> "val1",
-      "embeddedK2" -> ""
-    ),
-    "mainK2" -> Map(
-      "embeddedK3" -> "val3",
-      "embeddedK2" -> null
     )
   )
 }

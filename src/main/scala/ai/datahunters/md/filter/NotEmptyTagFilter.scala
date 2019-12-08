@@ -16,10 +16,8 @@ class NotEmptyTagFilter(mandatoryTags: Seq[MandatoryTag]) extends Filter {
   import ai.datahunters.md.udf.Filters._
 
   override def execute(inputDF: DataFrame): DataFrame = {
-    var resultDF = inputDF
-    mandatoryTags.foreach(mt => {
-      resultDF = inputDF.filter(notEmptyTagValueUDF(mt)(col(MetadataCol)))
-    })
-    resultDF
+    mandatoryTags.foldLeft(inputDF)(
+      (previousDF, tag) => previousDF.filter(notEmptyTagValueUDF(tag)(col(MetadataCol)))
+    )
   }
 }

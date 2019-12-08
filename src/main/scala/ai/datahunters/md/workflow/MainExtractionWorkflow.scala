@@ -31,9 +31,7 @@ class MainExtractionWorkflow(config: ProcessingConfig,
 
   override def run(): Unit = {
     val mandatoryTagConfig = MandatoryTagsConfig.build(config)
-    var mandatoryTagsFilter: Option[NotEmptyTagFilter] = None
-    if (mandatoryTagConfig.dirTags.isDefined) mandatoryTagsFilter =
-      Option(new NotEmptyTagFilter(mandatoryTagConfig.dirTags.get))
+    val mandatoryTagsFilter = mandatoryTagConfig.dirTags.map(d => new NotEmptyTagFilter(d))
     val columnNamesConverter = ColumnNamesConverterFactory.create(config.namingConvention)
     val rawInputDF = reader.load()
     val pipeline = ProcessingPipeline(rawInputDF)

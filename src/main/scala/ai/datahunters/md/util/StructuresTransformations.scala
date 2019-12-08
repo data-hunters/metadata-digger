@@ -76,34 +76,4 @@ object StructuresTransformations {
         .map(nestedPair => s"${tagPair._1}${delimiter}${nestedPair._1}")
     }).toSeq
   }
-
-  /**
-    * Retrieve keys of all nested maps and build list where each element with non empty value
-    * is concatenation of main key and nested key with dot sign as delimiter.
-    * Let's suppose we have the following input map:
-    * "mainKey1":
-    *   "nestedKey1": nestedVal1
-    *   "nestedKey2": nestedVal2
-    *   "nestedKey3": nestedVal3(null or empty string)
-    * "mainKey2":
-    *   "nestedKey3": nestedVal4
-    * The following method will produce below list:
-    * "mainKey1 nestedKey1"
-    * "mainKey1 nestedKey2"
-    * "mainKey2 nestedKey3"
-    *
-    * @param nestedMap
-    * @param delimiter
-    * @tparam T
-    * @return
-    */
-  def concatKeysToSeqIfValueNotNull[T](nestedMap: Map[String, Map[String, T]], delimiter: String = "."): Seq[String] = {
-    nestedMap.flatMap(tagPair => {
-      tagPair._2
-        .filter(nestedPair=> nestedPair._2 != null && nestedPair._2 != "")
-        .map(nestedPair => {
-          s"${tagPair._1}${delimiter}${nestedPair._1}"
-        })
-    }).toSeq
-  }
 }

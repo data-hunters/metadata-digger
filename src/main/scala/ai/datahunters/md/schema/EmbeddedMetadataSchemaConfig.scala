@@ -16,7 +16,7 @@ case class EmbeddedMetadataSchemaConfig() extends SchemaConfig {
 
   override def schema(): StructType = new SchemaBuilder()
       .addEmbeddedMap(TagsCol)
-      .addStringArrayField(DirectoryNames)
+      .addStringArrayField(DirectoryNamesCol)
       .addStringArrayField(TagNamesCol)
       .addIntField(TagsCountCol)
       .addStringField(FileTypeCol)
@@ -39,7 +39,7 @@ object EmbeddedMetadataSchemaConfig {
   /**
     * Name of column keeping list of all existing (for this row) directory/group names of tags.
     */
-  val DirectoryNames = "Directory Names"
+  val DirectoryNamesCol = "Directory Names"
 
   /**
     * Name of column keeping list of all existing (for this row) tag names.
@@ -57,7 +57,7 @@ object EmbeddedMetadataSchemaConfig {
   val FileTypeCol = "File Type"
 
   val FullTagsCol = s"${MetadataCol}.${TagsCol}"
-  val FullDirectoriesCol = s"${MetadataCol}.${DirectoryNames}"
+  val FullDirectoriesCol = s"${MetadataCol}.${DirectoryNamesCol}"
   val FullTagNamesCol = s"${MetadataCol}.${TagNamesCol}"
   val FullTagsCountCol = s"${MetadataCol}.${TagsCountCol}"
   val FullFileTypeCol = s"${MetadataCol}.${FileTypeCol}"

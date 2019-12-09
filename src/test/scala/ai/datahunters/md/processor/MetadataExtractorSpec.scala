@@ -26,7 +26,7 @@ class MetadataExtractorSpec extends UnitSpec with SparkBaseSpec {
     val metadata = row.getStruct(row.fieldIndex(EmbeddedMetadataSchemaConfig.MetadataCol))
     val tagsCount = metadata.getAs[Int](EmbeddedMetadataSchemaConfig.TagsCountCol)
     val tags = metadata.getMap[String, Map[String, String]](metadata.fieldIndex(EmbeddedMetadataSchemaConfig.TagsCol))
-    val dirs = metadata.getAs[Seq[String]](EmbeddedMetadataSchemaConfig.DirectoryNames)
+    val dirs = metadata.getAs[Seq[String]](EmbeddedMetadataSchemaConfig.DirectoryNamesCol)
 
     val expectedTagPair = ("Component 3", "Cr component: Quantization table 1, Sampling factors 1 horiz/1 vert")
     val jpegDir = tags.get("JPEG").get

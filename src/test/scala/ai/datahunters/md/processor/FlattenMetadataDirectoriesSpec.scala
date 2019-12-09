@@ -14,7 +14,7 @@ class FlattenMetadataDirectoriesSpec extends UnitSpec with SparkBaseSpec {
     val df = sparkSession.createDataFrame(rdd, Schema).repartition(1)
     val outputDF = processor.execute(df)
     val outputFields = outputDF.schema.fields.map(_.name)
-    assert( Array("Path", MetadataTagsSchemaConfig.MetadataCol, EmbeddedMetadataSchemaConfig.DirectoryNames, EmbeddedMetadataSchemaConfig.TagNamesCol) === outputFields)
+    assert( Array("Path", MetadataTagsSchemaConfig.MetadataCol, EmbeddedMetadataSchemaConfig.DirectoryNamesCol, EmbeddedMetadataSchemaConfig.TagNamesCol) === outputFields)
     val row1 = outputDF.collect()(0)
     val mdField = row1.getStruct(row1.fieldIndex(MetadataTagsSchemaConfig.MetadataCol))
     val mdFieldNames = mdField.schema.fields.map(_.name)
@@ -48,7 +48,7 @@ object FlattenMetadataDirectoriesSpec {
         Array(
           StructField(EmbeddedMetadataSchemaConfig.TagsCountCol, DataTypes.IntegerType),
           StructField(EmbeddedMetadataSchemaConfig.TagsCol, DataTypes.createMapType(DataTypes.StringType, DataTypes.createMapType(DataTypes.StringType, DataTypes.StringType))),
-          StructField(EmbeddedMetadataSchemaConfig.DirectoryNames, DataTypes.createArrayType(DataTypes.StringType)),
+          StructField(EmbeddedMetadataSchemaConfig.DirectoryNamesCol, DataTypes.createArrayType(DataTypes.StringType)),
           StructField(EmbeddedMetadataSchemaConfig.TagNamesCol, DataTypes.createArrayType(DataTypes.StringType))
         )
       )

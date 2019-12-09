@@ -8,6 +8,6 @@ class EmbeddedMetadataSchemaConfigSpec extends UnitSpec {
 
   "An EmbeddedMetadataSchemaConfig" should "keep info about metadata schema where directories and tags are embedded in map" in {
     val cols = EmbeddedMetadataSchemaConfig().columns()
-    val expectedCols = Seq(TagsCol, DirectoryNames, TagNamesCol, TagsCountCol)
+    val expectedCols = Seq(TagsCol, DirectoryNamesCol, TagNamesCol, TagsCountCol)
   }
 }

@@ -37,7 +37,7 @@ object SimilarMetatagsFilterSpec {
         Array(
           StructField(EmbeddedMetadataSchemaConfig.TagsCountCol, DataTypes.IntegerType),
           StructField(EmbeddedMetadataSchemaConfig.TagsCol, DataTypes.createMapType(DataTypes.StringType, DataTypes.createMapType(DataTypes.StringType, DataTypes.StringType))),
-          StructField(EmbeddedMetadataSchemaConfig.DirectoriesCol, DataTypes.createArrayType(DataTypes.StringType))
+          StructField(EmbeddedMetadataSchemaConfig.DirectoryNamesCol, DataTypes.createArrayType(DataTypes.StringType))
         )
       )
       )

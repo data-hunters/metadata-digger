@@ -9,7 +9,10 @@ case class ProcessingConfig(allowedDirectories: Option[Seq[String]],
                             namingConvention: String,
                             metadataColumnsPrefix: String,
                             includeDirsInTags: Boolean,
-                            outputFormat: String)
+                            outputFormat: String,
+                            includeMetadataContent: Boolean) {
+
+}
 
 object ProcessingConfig {
 
@@ -18,6 +21,7 @@ object ProcessingConfig {
   val IncludeDirectoriesInTagNamesKey = "output.columns.includeDirsInTags"
   val MetadataColumnsPrefixKey = "output.columns.metadataPrefix"
   val ColumnsNamingConventionKey = "output.columns.namingConvention"
+  val IncludeMetadataContentKey = "output.columns.includeMetadataContent"
   val MandatoryTagsKey = "filter.mandatoryTags"
 
   import ConfigLoader._
@@ -29,6 +33,7 @@ object ProcessingConfig {
     ColumnsNamingConventionKey -> "camelCase",
     MetadataColumnsPrefixKey -> "",
     IncludeDirectoriesInTagNamesKey -> true,
+    IncludeMetadataContentKey -> false,
     MandatoryTagsKey -> All
   )
 
@@ -41,7 +46,8 @@ object ProcessingConfig {
       configWithDefaults.getString(ColumnsNamingConventionKey),
       configWithDefaults.getString(MetadataColumnsPrefixKey),
       configWithDefaults.getBoolean(IncludeDirectoriesInTagNamesKey),
-      configWithDefaults.getString(Writer.OutputFormatKey)
+      configWithDefaults.getString(Writer.OutputFormatKey),
+      configWithDefaults.getBoolean(IncludeMetadataContentKey)
     )
   }
 

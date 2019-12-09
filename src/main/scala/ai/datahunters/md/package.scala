@@ -23,11 +23,11 @@ package object md {
 
   }
 
-  case class MetadataInfo(tags: Map[String, Map[String, String]], dirs: Seq[String], tagsCount: Int, fileType: String) {
+  case class MetadataInfo(tags: Map[String, Map[String, String]], dirNames: Seq[String], tagNames: Seq[String], tagsCount: Int, fileType: String) {
 
     def show(): Unit = {
       println()
-      println(s"Number of Metadata Directories: ${dirs.size}")
+      println(s"Number of Metadata Directories: ${dirNames.size}")
       println(s"Number of Metadata Tags: ${tagsCount}")
       println()
       tags.foreach(dir => {

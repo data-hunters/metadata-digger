@@ -11,6 +11,8 @@ import com.drew.metadata.{Directory, StringValue, Tag}
 import org.apache.spark.sql.Row
 import org.slf4j.LoggerFactory
 
+import scala.collection.mutable.ArrayBuffer
+
 object MetadataExtractor {
 
 
@@ -27,6 +29,7 @@ object MetadataExtractor {
     val metadata = ImageMetadataReader.readMetadata(new ByteArrayInputStream(file))
     import scala.collection.JavaConversions._
     val dirs = metadata.getDirectories.toSeq.map(_.getName)
+    val tagNames = ArrayBuffer[String]()
     var tagsCount = 0
     val tags = metadata.getDirectories.map(directory => {
       val customTags = directory match {
@@ -38,6 +41,7 @@ object MetadataExtractor {
         val tagVal = if (tag.getDescription != null) {
           tag.getDescription.replace("\n", "\\n")
         } else handleNullVal(directory, tag)
+        tagNames.append(tag.getTagName)
         (TextUtils.safeName(tag.getTagName) -> tagVal)
       }) ++ customTags
       (TextUtils.safeName(directory.getName) -> dirTags.toMap)
@@ -45,7 +49,7 @@ object MetadataExtractor {
     val fileType = tags.get(FileTypeDir)
       .map(_.get(FileTypeTag).getOrElse(UnknownType))
       .getOrElse(UnknownType)
-    MetadataInfo(tags, dirs, tagsCount, fileType)
+    MetadataInfo(tags, dirs, tagNames, tagsCount, fileType)
   }
 
   /**

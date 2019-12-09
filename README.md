@@ -49,6 +49,7 @@ Features:
 
 * Basic filtering - you can provide list of allowed groups/directories of tags (e.g.: Exif IFD0, Exif SubIFD, JPEG, GPS).
 * Displaying all detected Metatags in provided dataset of files.
+* Setting up mandatory tags.
 * Finding similar images based on specified set of Metatags.
 * Displaying Metadata for single file without running Spark.
 * Scaling extraction process to multiple machines and cores, so you can work with huge volumes of data

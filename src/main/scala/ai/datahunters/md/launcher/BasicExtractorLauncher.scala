@@ -34,13 +34,14 @@ object BasicExtractorLauncher {
   private[launcher] def buildWriter(config: Config, sparkSession: SparkSession): PipelineSink = PipelineSinkFactory.create(WriterConfig(config), sparkSession)
 
   private[launcher] def buildWorkflow(appInputArgs: BasicAppArguments, config: Config, analyticsFilters: Seq[Filter] = Seq()): Workflow = {
-    val localMode = appInputArgs.standaloneMode.getOrElse(false)
+    val localMode = appInputArgs.standaloneMode.getOrElse(true)
     val sparkSession = loadSession(AppName, config, localMode)
     val reader = buildReader(config, sparkSession)
     val writer = buildWriter(config, sparkSession)
     val format = config.getString(Writer.OutputFormatKey)
     val processingConfig = loadProcessingConfig(config)
     val formatAdjustmentProcessor = FormatAdjustmentProcessorFactory.create(processingConfig)
+
     new MainExtractionWorkflow(processingConfig, sparkSession, reader, writer, formatAdjustmentProcessor, analyticsFilters)
   }
 

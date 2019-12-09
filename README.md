@@ -157,6 +157,10 @@ Sample output of describe action:
 
 **Important!** - Names of tags could be a bit different than other tools (like Exiftool) provide. We use the same names as [Metadata-Extractor](https://drewnoakes.com/code/exif/) but additionally remove special characters like `,.":;'()`. In some cases it is useful to have tag's values in two (or three) different formats (e.g. for filtering purposes). In such case we add custom tag with `MD` prefix, for instance: `GPS.MD Location Long F` has float format like: 11.884539. The same value for original tag `GPS.GPS Longitude` will be: 11° 53' 4.34". First value could be easily compared during filtering process but second is better for human.
 
+### Setting up mandatory tags
+After getting all available tags you can decide to set mandatory fields with not empty value. To set it up you can add them
+ in specific format(same as printed above e.g. 'JPEG.Component 3') in property named 'filter.mandatoryTags'.
+ In case of require more than one tag, you can split them using ','.
 
 ### Finding similar images based on metadata
 Let's suppose you have image with some specific set of tags that is for some reason interesting for you. You noticed that specific device or application adds those tags with such values in specific circumstances, so we can say it is kind of fingerprint of device, photo's author or author of modifications applied on image, etc. In short - you can identify someone or something by those set of tag values. 

@@ -8,32 +8,32 @@ class HashUtilsSpec extends UnitSpec {
 
   "a HashExecutionMap" should "generate CRC32 checksum" in {
     val crcResult = HashUtils.HashExecutionMap.get("crc32").map(f => f.apply(inputArray))
-    assert(crcResult.get === correctCRC32Val)
+    assert(crcResult.get._2 === correctCRC32Val)
   }
 
   "a HashExecutionMap" should "generate md5" in {
     val crcResult = HashUtils.HashExecutionMap.get("md5").map(f => f.apply(inputArray))
-    assert(crcResult.get === correctMD5Val)
+    assert(crcResult.get._2 === correctMD5Val)
   }
   "a HashExecutionMap" should "generate sha1" in {
     val crcResult = HashUtils.HashExecutionMap.get("sha1").map(f => f.apply(inputArray))
-    assert(crcResult.get === correctSHA1Val)
+    assert(crcResult.get._2 === correctSHA1Val)
   }
   "a HashExecutionMap" should "generate sha224" in {
     val crcResult = HashUtils.HashExecutionMap.get("sha224").map(f => f.apply(inputArray))
-    assert(crcResult.get === correctSHA224Val)
+    assert(crcResult.get._2 === correctSHA224Val)
   }
   "a HashExecutionMap" should "generate sha256" in {
     val crcResult = HashUtils.HashExecutionMap.get("sha256").map(f => f.apply(inputArray))
-    assert(crcResult.get === correctSHA256Val)
+    assert(crcResult.get._2 === correctSHA256Val)
   }
   "a HashExecutionMap" should "generate sha384" in {
     val crcResult = HashUtils.HashExecutionMap.get("sha384").map(f => f.apply(inputArray))
-    assert(crcResult.get === correctSHA384Val)
+    assert(crcResult.get._2 === correctSHA384Val)
   }
   "a HashExecutionMap" should "generate sha512" in {
     val crcResult = HashUtils.HashExecutionMap.get("sha512").map(f => f.apply(inputArray))
-    assert(crcResult.get === correctSHA512Val)
+    assert(crcResult.get._2 === correctSHA512Val)
   }
 
 }

@@ -2,16 +2,27 @@ package ai.datahunters.md.udf.hash
 
 import ai.datahunters.md.util.HashUtils
 import org.apache.spark.sql.functions.udf
-import org.apache.spark.sql.types.StructType
 
 object HashExtractor {
 
-  def generateHashes(hashMethodsList: Seq[String]) = {
-    udf(generateHashFromContent(hashMethodsList) _, new StructType())
+  def generateHashesUDF(hashMethodsList: Seq[String]) = {
+    udf(generateHashesFromContent(hashMethodsList) _)
   }
 
-  private def generateHashFromContent(hashMethodsList: Seq[String])(content: Array[Byte]) = {
-    hashMethodsList.map(a => HashUtils.HashExecutionMap.get(a).map(f => f.apply(content)))
+  def generateHashUDF(hashMethod: String) = {
+    udf(generateHashFromContent(hashMethod) _)
   }
 
+  private def generateHashesFromContent(hashMethodsList: Seq[String])(content: Array[Byte]) = {
+    hashMethodsList
+      .map(hashType => Tuple2(
+        hashType, HashUtils.HashExecutionMap
+          .get(hashType)
+          .map(f => f.apply(content))
+      )).map(_._2.get)
+  }
+
+  private def generateHashFromContent(hashMethod: String)(content: Array[Byte]) = {
+    HashUtils.HashExecutionMap.get(hashMethod).map(f => f.apply(content)).map(_._2)
+  }
 }

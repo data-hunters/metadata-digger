@@ -11,6 +11,8 @@
   * [Running in Standalone mode](#running-in-standalone-mode)
   * [Running in Distributed mode](#running-in-distributed-mode)
   * [Displaying available Tags](#displaying-available-tags)
+  * [Setting up mandatory Tags](#setting-up-mandatory-tags)
+  * [Detecting objects on images - Metadata Enrichment](#detecting-objects-on-images---metadata-enrichment)
   * [Finding similar images based on metadata](#finding-similar-images-based-on-metadata)
   * [Displaying Metadata of single file](#displaying-metadata-of-single-file)
 - [Advanced settings](#advanced-settings)
@@ -21,6 +23,7 @@
     + [Amazon S3](#amazon-s3)
     + [Digital Ocean Spaces](#digital-ocean-spaces)
   * [Processing configuration](#processing-configuration)
+  * [Metadata Enrichment (AI) configuration](#metadata-enrichment-ai-configuration)
   * [Writer configuration](#writer-configuration)
     + [Common Files Writer properties](#common-files-writer-properties)
     + [Local File System](#local-file-system-1)
@@ -48,6 +51,7 @@ Features:
     * Digital Ocean Spaces (Spaces Object Storage)
 
 * Basic filtering - you can provide list of allowed groups/directories of tags (e.g.: Exif IFD0, Exif SubIFD, JPEG, GPS).
+* Metadata Enrichment - retrieving information from image using AI methods, e.g. detecting what kind of objects are on image (person, car, laptop, etc.).
 * Displaying all detected Metatags in provided dataset of files.
 * Setting up mandatory tags.
 * Finding similar images based on specified set of Metatags.
@@ -162,6 +166,35 @@ Sample output of describe action:
 After getting all available tags you can decide to set mandatory fields with not empty value. To set it up you can add them
  in specific format(same as printed above e.g. 'JPEG.Component 3') in property named 'filter.mandatoryTags'.
  In case of require more than one tag, you can split them using ','.
+
+### Detecting objects on images - Metadata Enrichment
+Metadata Digger has dedicated module responsible for recognizing objects on images using AI classification methods, currently - Artificial Neural Networks (ANN). It uses [Analytics Zoo](https://github.com/intel-analytics/analytics-zoo) (with [BigDL](https://github.com/intel-analytics/bigdl) under the hood) framework created by Intel. Core element required in process of recognizing objects is trained ANN model which contain actual "knowledge". You can train your own model using BigDL or Zoo or you can use existing one that we trained during Proof of Concept project. It is available in [metadata-digger-ai](https://github.com/data-hunters/metadata-digger-ai) repository.
+Zoo with BigDL provides AI platform that can utilize many machines on top of Spark cluster. Below properties have to be provided to run it in MD flow:
+
+* `enrichment.classifier.modelPath` - path to BigDL or Zoo model.
+* `enrichment.classifier.mapping` - mapping between outputs of Artificial Neural Network and labels, e.g.: `0:person,1:car,2:truck`. If you use our model, you can copy value of `MD Labels Mapping`.
+
+Running Metadata Digger with AI enabled is similar but we have two options:
+
+* Launching only AI classification - use `detect_categories` option. Recognized categories will be put into `labels` output column/field.
+* Launching AI classification with Metadata extraction process - use `full` option. In such case you will have additional field `labels` on output containing results of AI classifier.
+
+Standalone `detect_categories` and `full`:
+```
+sh run-standalone-metadata-digger.sh detect_categories <path_to_config>
+```
+```
+sh run-standalone-metadata-digger.sh full <path_to_config>
+```
+
+Distributed `detect_categories` and `full`:
+```
+sh run-distributed-metadata-digger.sh detect_categories <path_to_config>
+```
+```
+sh run-distributed-metadata-digger.sh full <path_to_config>
+```
+
 
 ### Finding similar images based on metadata
 Let's suppose you have image with some specific set of tags that is for some reason interesting for you. You noticed that specific device or application adds those tags with such values in specific circumstances, so we can say it is kind of fingerprint of device, photo's author or author of modifications applied on image, etc. In short - you can identify someone or something by those set of tag values. 
@@ -279,6 +312,16 @@ Processing part contains all actions between Reader (loading data) and Writer (s
 | `processing.cores` | [available cores - 1] | Number detrmining how many cores will be used for whole processing. If you do not set it, Metadata Digger will retrieve how many cores your machine has and left one core free. **This property is used only in Standalone mode**. |
 | `processing.maxMemoryGB` | 2 | How many memory should be reserved for processing (in GB). If you receive errors in logs like this: *"OutOfMemory: Java heap space"* or *"GC Overhead Limit Exceeded Error"*, you should try to increase this value but remember to left some memory. You should check your total RAM before you set this property. **This property is used only in Standalone mode**. |
 
+### Metadata Enrichment (AI) configuration
+Current version of Metadata Enrichment Processors supports ANN classifiers in Analytics Zoo and BigDL formats. You can download sample model from [metadata-digger-ai](https://github.com/data-hunters/metadata-digger-ai) repository. Main goal of this module is to retrieve more information from images than Exifs and other metadata provides. Below table presents all options that could be used to configure and tune it:
+
+| Property | Default | Description |
+| -------- | ------- | ----------- |
+| `enrichment.classifier.mapping` | | Mapping between outputs of Artificial Neural Network and labels, e.g.: `0:person,1:car,2:truck`. If you use our model ([metadata-digger-ai](https://github.com/data-hunters/metadata-digger-ai)), you can copy value of `MD Labels Mapping`. |
+| `enrichment.classifier.modelPath` | | Path to model in BigDL or Analytics Zoo format. |
+| `enrichment.classifier.threshold` | 0.5 | Each category in classifier (Neural Network) is represented as single output which could have value from 0 to 1, where 0 means that there is no such object on image and 1 that there is. Threshold determines tolerance of classifier. In most cases 0.5 is reasonable threshold but if you see there are too many false positive results, you could increase it and decrease in opposite situation. |
+| `enrichment.output.labelsDelimiter` | `,` | Labels are represented as a list of strings (names). In case of flat output formats like CSV, it is converted to single string by joining all detected labels with this delimiter. |
+
 
 ### Writer configuration
 Writer contains similar properties to Reader. The first one we have to set is `output.storage.name`. Currently we support the following:
@@ -333,6 +376,9 @@ If you want to write result to Solr, you have to set `output.storage.name` to `s
 | `output.solr.conversion.dateTimeTags` |  | List of tag names that has to be converted into Solr date time format. If you use Metadata Digger Solr Schema use the following: `md_exif_ifd0_datetime,md_icc_profile_profile_datetime,md_gps_datetime,md_exif_subifd_datetime_original`. |
 
 Metadata Digger sends commit request immediately after indexing all results to Solr.
+
+## Building from source
+To build Metadata Digger from source, you need to have SBT.
 
 ## External dependencies
 We use the following libraries in our application:

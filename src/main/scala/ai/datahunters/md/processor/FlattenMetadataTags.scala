@@ -19,7 +19,8 @@ case class FlattenMetadataTags(colPrefix: String,
                                includeDirName: Boolean = false,
                                removeArrays: Boolean = false,
                                includeMetadataContent: Boolean = false,
-                               allowedTags: Option[Seq[String]] = None) extends Processor {
+                               allowedTags: Option[Seq[String]] = None,
+                               flattenArrays: Boolean = false) extends Processor {
   import org.apache.spark.sql.functions._
   import FlattenMetadataTags._
   import Extractors._
@@ -32,11 +33,19 @@ case class FlattenMetadataTags(colPrefix: String,
 
     val flattenDF = inputDF.withColumn(MetadataCol, selectMetadataTagsUDF(col(MetadataCol)))
       .select(columns.head, columns.tail:_*)
-    val transformedDF = if (includeMetadataContent) {
-      flattenDF.withColumn(MetadataContentCol, concat_ws(" ", buildConcatTagList(selectedTags, colPrefix):_*))
+    val arrayFieldsToFlatten = selectArrayColumns(flattenDF)
+    val afterArraysFlatteningDF = if (flattenArrays) {
+      arrayFieldsToFlatten
+        .foldLeft(flattenDF)((previousDF, colName) => previousDF.withColumn(colName, concat_ws(",", col(colName))))
     } else {
       flattenDF
     }
+    val transformedDF = if (includeMetadataContent) {
+      afterArraysFlatteningDF.withColumn(MetadataContentCol, concat_ws(" ", buildConcatTagList(selectedTags, colPrefix):_*))
+    } else {
+      afterArraysFlatteningDF
+    }
+
     selectFinalColumns(transformedDF)
   }
 
@@ -45,6 +54,13 @@ case class FlattenMetadataTags(colPrefix: String,
     if (lowercased.distinct.size < lowercased.size) {
       throw new TheSameTagNamesException(s"Two different Metadata Directories contain the same tag name, please set property - ${ProcessingConfig.IncludeDirectoriesInTagNamesKey} to true to avoid this problem.")
     }
+  }
+
+  private def selectArrayColumns(df: DataFrame): Seq[String] = {
+    df.schema
+      .fields
+      .filter(f => f.dataType.isInstanceOf[ArrayType])
+      .map(_.name)
   }
 
   private def selectFinalColumns(df: DataFrame): DataFrame = if (removeArrays) {

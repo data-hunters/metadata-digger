@@ -15,8 +15,7 @@ object MetadataPrinterLauncher {
     val appInputArgs = AppArguments.parseArgs(args)
     val localMode = appInputArgs.standaloneMode.getOrElse(false)
     val config: Config = ConfigLoader.load(appInputArgs.configPath)
-    val sessionCreator = new SessionCreator(SessionConfig.build(config), localMode, AppName)
-    val sparkSession = sessionCreator.create()
+    val sparkSession = new SessionCreator(SessionConfig.build(config), localMode, AppName).create()
     val reader = PipelineSourceFactory.create(ReaderConfig(config), sparkSession)
     DescribeMetadataWorkflow(reader).run()
   }

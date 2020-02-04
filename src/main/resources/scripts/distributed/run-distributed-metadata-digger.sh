@@ -78,6 +78,10 @@ case "$MD_ACTION" in
         MAIN_CLASS=ai.datahunters.md.launcher.BasicExtractorLauncher ;;
     "describe")
         MAIN_CLASS=ai.datahunters.md.launcher.MetadataPrinterLauncher ;;
+    "detect_categories")
+        MAIN_CLASS=ai.datahunters.md.launcher.MetadataEnrichmentLauncher ;;
+    "full")
+        MAIN_CLASS=ai.datahunters.md.launcher.FullMDLauncher ;;
     "find_similar")
         MAIN_CLASS=ai.datahunters.md.launcher.SimilarMetadataExtractionLauncher
         BASE_IMG_FILE=$3

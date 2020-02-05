@@ -125,7 +125,9 @@ class ImageFeatureUtilsSpec extends UnitSpec with SparkBaseSpec {
     assert(rgbaBI.getData.getNumDataElements === 4)
     val bos = new ByteArrayOutputStream()
     ImageIO.write(rgbaBI, JPGType, bos)
-    val convertedImg = ImageFeatureUtils.convertToRGB(bos.toByteArray, "Image 1")
+    val imgArr = bos.toByteArray
+    print(s"!!!!!!!!!!!! SIZE: ${imgArr.size}")
+    val convertedImg = ImageFeatureUtils.convertToRGB(imgArr, "Image 1")
     val convertedBI = ImageIO.read(new ByteArrayInputStream(convertedImg))
     assert(convertedBI.getData.getNumDataElements === 3)
   }

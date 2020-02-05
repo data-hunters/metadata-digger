@@ -9,7 +9,7 @@ class FlattenArraysSpec extends UnitSpec with SparkBaseSpec {
   import FlattenArraysSpec._
 
   "A FlattenArrays" should "convert array columns to string" in {
-    val processor = FlattenArrays("|", Seq("testCol1"))
+    val processor = FlattenArrays("|")(Seq("testCol1"))
     val rdd = spark.sparkContext.parallelize(SamplData)
     val df = spark.createDataFrame(rdd, Schema)
     val outputDF = processor.execute(df)

@@ -8,7 +8,7 @@ import org.apache.spark.sql.functions._
   * @param delimiter
   * @param columns
   */
-case class FlattenArrays(delimiter: String, columns: Seq[String]) extends Processor {
+case class FlattenArrays(delimiter: String)(columns: Seq[String]) extends Processor {
 
   override def execute(inputDF: DataFrame): DataFrame = {
     columns.foldLeft(inputDF)((previousDF, colName) => previousDF.withColumn(colName, concat_ws(delimiter, col(colName))))

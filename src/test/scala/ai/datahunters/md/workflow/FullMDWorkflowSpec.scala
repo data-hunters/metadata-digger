@@ -32,7 +32,7 @@ class FullMDWorkflowSpec extends UnitSpec with SparkBaseSpec {
     when(processingConfig.mandatoryTags).thenReturn(None)
     val enrichmentConfig = mock[MetadataEnrichmentConfig]
     when(enrichmentConfig.threshold).thenReturn(0.5f)
-    when(enrichmentConfig.labelsOutputDelimiter).thenReturn(",")
+    when(enrichmentConfig.outputLabelsDelimiter).thenReturn(",")
     when(enrichmentConfig.modelPath).thenReturn(modelPath("lenet_based"))
     when(enrichmentConfig.labelsMapping).thenReturn(Map(0 -> "label1", 1 -> "label2"))
     val reader = mock[PipelineSource]

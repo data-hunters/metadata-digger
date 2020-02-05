@@ -18,6 +18,19 @@ object ImageFeatureUtils {
   val JPGType = "jpg"
   private val Logger = LoggerFactory.getLogger(ImageFeatureUtils.getClass)
 
+  /**
+    * Build ImageFrame from DataFrame by creating ImageFeature objects per Row.
+    * Checks if image has appropriate number of channels and convert if not.
+    *
+    * @param inputDF
+    * @param labelsSize
+    * @param featureTransformer
+    * @param idCol
+    * @param fileDataCol
+    * @param basePathCol
+    * @param filePathCol
+    * @return
+    */
   def buildImageFrame(inputDF: DataFrame,
                       labelsSize: Int,
                       featureTransformer: FeatureTransformer,
@@ -28,36 +41,27 @@ object ImageFeatureUtils {
     val inputRDD = inputDF
       .rdd
       .map(row => {
-        val originalImg: Array[Byte] = row.getAs(fileDataCol)
-        val id: String = row.getAs(idCol)
-        val basePath: String = row.getAs(basePathCol)
-        val filePath: String = row.getAs(filePathCol)
-        val label = Tensor(Array.fill(labelsSize)(0.0), Array(labelsSize))
-        try {
-          val bm = OpenCVMat.fromImageBytes(originalImg)
-          val finalBM = if (bm.channels() != 3) {
-            Logger.info(s"Image ${filePath} has not supported size of channel: ${bm.channels()}. Converting to: 3.")
-            val converted = convertToRGB(originalImg, filePath)
-            OpenCVMat.fromImageBytes(converted)
-          } else {
-            bm
-          }
-          val imgFeature = ImageFeature(originalImg, label, filePath)
-          imgFeature.update(ImageFeature.mat, finalBM)
-          imgFeature.update(idCol, id)
-          imgFeature.update(basePathCol, basePath)
-          Some(imgFeature)
-        } catch {
-          case e: Exception => {
-            Logger.warn(s"File ${filePath} could not be recognised as image (message: ${e}). Ignoring...")
-            None
-          }
-        }
+        prepareImageFeature(row.getAs(fileDataCol),
+          row.getAs(idCol),
+          row.getAs(basePathCol),
+          row.getAs(filePathCol),
+          Tensor(Array.fill(labelsSize)(0.0f), Array(labelsSize)),
+          idCol,
+          basePathCol)
       }).filter(_.isDefined)
       .map(_.get)
     ImageFrame.rdd(inputRDD).transform(featureTransformer)
   }
 
+  /**
+    * Convert ImageFeature to Row by retrieving all necessary values using keys.
+    * @param labelsMapping
+    * @param idKey
+    * @param basePathKey
+    * @param threshold
+    * @param imageFeature
+    * @return
+    */
   def imageFeatureToRow(labelsMapping: Map[Int, String],
                         idKey: String = BinaryInputSchemaConfig.IDCol,
                         basePathKey: String = BinaryInputSchemaConfig.BasePathCol,
@@ -75,8 +79,37 @@ object ImageFeatureUtils {
     ))
   }
 
+  private[util] def prepareImageFeature(originalImg: Array[Byte],
+                                        id: String,
+                                        basePath: String,
+                                        filePath: String,
+                                        label: Tensor[Float],
+                                        idCol: String = BinaryInputSchemaConfig.IDCol,
+                                        basePathCol: String = BinaryInputSchemaConfig.BasePathCol): Option[ImageFeature] = {
+    try {
+      val bm = OpenCVMat.fromImageBytes(originalImg)
+      val finalBM = if (bm.channels() != 3) {
+        Logger.info(s"Image ${filePath} has not supported size of channel: ${bm.channels()}. Converting to: 3.")
+        val converted = convertToRGB(originalImg)
+        OpenCVMat.fromImageBytes(converted)
+      } else {
+        bm
+      }
+      val imgFeature = ImageFeature(originalImg, label, filePath)
+      imgFeature.update(ImageFeature.mat, finalBM)
+      imgFeature.update(idCol, id)
+      imgFeature.update(basePathCol, basePath)
+      Some(imgFeature)
+    } catch {
+      case e: Exception => {
+        Logger.warn(s"File ${filePath} could not be recognised as image (message: ${e}). Ignoring...")
+        None
+      }
+    }
+  }
 
-  private[util] def convertToRGB(img: Array[Byte], imageInfo: String): Array[Byte] = {
+
+  private[util] def convertToRGB(img: Array[Byte]): Array[Byte] = {
     val bi = ImageIO.read(new ByteArrayInputStream(img))
     val newBI = new BufferedImage(bi.getWidth, bi.getHeight, BufferedImage.TYPE_INT_RGB)
     val g = newBI.createGraphics()

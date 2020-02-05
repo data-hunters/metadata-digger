@@ -7,7 +7,7 @@ import com.typesafe.config.Config
 case class MetadataEnrichmentConfig(labelsMapping: Map[Int, String],
                                     threshold: Float,
                                     modelPath: String,
-                                    labelsOutputDelimiter: String)
+                                    outputLabelsDelimiter: String)
 
 object MetadataEnrichmentConfig {
 

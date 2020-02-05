@@ -41,7 +41,7 @@ class FormatAdjustmentProcessorFactorySpec extends UnitSpec {
   it should "return FlattenArrays processor for enrichment processing and CSV format" in {
     val enrichmentConfig = mock[MetadataEnrichmentConfig]
     when(enrichmentConfig.labelsMapping).thenReturn(Map[Int, String]())
-    when(enrichmentConfig.labelsOutputDelimiter).thenReturn(",")
+    when(enrichmentConfig.outputLabelsDelimiter).thenReturn(",")
     val processor = FormatAdjustmentProcessorFactory.create(enrichmentConfig, "csv")
     assert(processor.isDefined)
     assert(processor.get.isInstanceOf[FlattenArrays])

@@ -20,10 +20,13 @@ case class FlattenMetadataTags(colPrefix: String,
                                removeArrays: Boolean = false,
                                includeMetadataContent: Boolean = false,
                                allowedTags: Option[Seq[String]] = None,
-                               flattenArrays: Boolean = false) extends Processor {
+                               flattenArrays: Boolean = false,
+                               arraysDelimiter: String = ",") extends Processor {
   import org.apache.spark.sql.functions._
   import FlattenMetadataTags._
   import Extractors._
+
+  private val flattenArraysProcessor = FlattenArrays(arraysDelimiter)(_)
 
   override def execute(inputDF: DataFrame): DataFrame = {
     val selectedTags = retrieveTags(inputDF)
@@ -35,13 +38,12 @@ case class FlattenMetadataTags(colPrefix: String,
       .select(columns.head, columns.tail:_*)
     val arrayFieldsToFlatten = selectArrayColumns(flattenDF)
     val afterArraysFlatteningDF = if (flattenArrays) {
-      arrayFieldsToFlatten
-        .foldLeft(flattenDF)((previousDF, colName) => previousDF.withColumn(colName, concat_ws(",", col(colName))))
+      flattenArraysProcessor(arrayFieldsToFlatten).execute(flattenDF)
     } else {
       flattenDF
     }
     val transformedDF = if (includeMetadataContent) {
-      afterArraysFlatteningDF.withColumn(MetadataContentCol, concat_ws(" ", buildConcatTagList(selectedTags, colPrefix):_*))
+      afterArraysFlatteningDF.withColumn(MetadataContentCol, concat_ws(ColumnsContentDelimiter, buildConcatTagList(selectedTags, colPrefix):_*))
     } else {
       afterArraysFlatteningDF
     }
@@ -99,5 +101,7 @@ object FlattenMetadataTags {
 
   private val TempTagCol = "Tag"
   private val TempTagsCol = "Tags"
+
+  private val ColumnsContentDelimiter = " "
 
 }

@@ -117,7 +117,7 @@ class ImageFeatureUtilsSpec extends UnitSpec with SparkBaseSpec {
     assert(grayBI.getData.getNumDataElements === 1)
     val bos = new ByteArrayOutputStream()
     ImageIO.write(grayBI, JPGType, bos)
-    val convertedImg = ImageFeatureUtils.convertToRGB(bos.toByteArray, "Image 1")
+    val convertedImg = ImageFeatureUtils.convertToRGB(bos.toByteArray)
     val convertedBI = ImageIO.read(new ByteArrayInputStream(convertedImg))
     assert(convertedBI.getData.getNumDataElements === 3)
   }
@@ -127,7 +127,7 @@ class ImageFeatureUtilsSpec extends UnitSpec with SparkBaseSpec {
     val rgbaBI = ImageIO.read(new FileInputStream(alphaImgPath))
     assert(rgbaBI.getData.getNumDataElements === 4)
     val imgArr = Files.readAllBytes(Paths.get(alphaImgPath))
-    val convertedImg = ImageFeatureUtils.convertToRGB(imgArr, "Image 1")
+    val convertedImg = ImageFeatureUtils.convertToRGB(imgArr)
     val convertedBI = ImageIO.read(new ByteArrayInputStream(convertedImg))
     assert(convertedBI.getData.getNumDataElements === 3)
   }

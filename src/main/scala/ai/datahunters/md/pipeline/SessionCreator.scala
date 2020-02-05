@@ -16,7 +16,7 @@ class SessionCreator(config: SessionConfig, localMode: Boolean, appName: String)
 
   def create(sparkConf: SparkConf = NNContext.createSparkConf()): SparkSession = {
     val builder = if (localMode) {
-      createLocalSessioBuilder(sparkConf)
+      createLocalSessionBuilder(sparkConf)
     } else {
       new apache.spark.sql.SparkSession.Builder()
         .config(sparkConf)
@@ -27,7 +27,7 @@ class SessionCreator(config: SessionConfig, localMode: Boolean, appName: String)
       .getOrCreate()
   }
 
-  private def createLocalSessioBuilder(sparkConf: SparkConf): sql.SparkSession.Builder = {
+  private def createLocalSessionBuilder(sparkConf: SparkConf): sql.SparkSession.Builder = {
 
     new spark.sql.SparkSession.Builder()
       .master(s"local[${config.cores}]")

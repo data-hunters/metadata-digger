@@ -10,7 +10,7 @@ case class BasicFileOutputWriter(sparkSession: SparkSession,
 
   import BasicFileOutputWriter._
 
-  private val logger = LoggerFactory.getLogger(classOf[BasicFileOutputWriter])
+    private val logger = LoggerFactory.getLogger(classOf[BasicFileOutputWriter])
 
 
   if (!AllowedFormats.contains(config.format)) {

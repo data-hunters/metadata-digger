@@ -52,6 +52,10 @@ case "$MD_ACTION" in
         MAIN_CLASS=ai.datahunters.md.launcher.BasicExtractorLauncher ;;
     "describe")
         MAIN_CLASS=ai.datahunters.md.launcher.MetadataPrinterLauncher ;;
+    "detect_categories")
+        MAIN_CLASS=ai.datahunters.md.launcher.MetadataEnrichmentLauncher ;;
+    "full")
+        MAIN_CLASS=ai.datahunters.md.launcher.FullMDLauncher ;;
     "find_similar")
         MAIN_CLASS=ai.datahunters.md.launcher.SimilarMetadataExtractionLauncher
         BASE_IMG_FILE=$3
@@ -72,8 +76,15 @@ esac
 
 
 
+
 if [ "$RUN_ON_SPARK" = "1" ] ; then
     MD_CONFIG_PATH=$2
+    MEMORY=$(grep -iR "^processing.maxMemoryGB" $MD_CONFIG_PATH | awk -F "=" '{print $2}')
+    if [ ! -z "$MEMORY" ] ; then
+        MEMORY_OPT="-Xmx${MEMORY}g"
+        echo "Setting memory to value passed in $MD_CONFIG_PATH: $MEMORY"
+    fi
+
     for arg in "$@"
     do
       if [ "$arg" = "--includeAWS" ]; then
@@ -88,7 +99,7 @@ if [ "$RUN_ON_SPARK" = "1" ] ; then
       exit 1
     fi
     # BASE_IMG_FILE exists only for comparison actions
-    java -cp $MD_JAR:$MD_LIBS $MAIN_CLASS $MD_CONFIG_PATH 1 $BASE_IMG_FILE
+    java $MEMORY_OPT -cp $MD_JAR:$MD_LIBS $MAIN_CLASS $MD_CONFIG_PATH 1 $BASE_IMG_FILE
 else
     LOCAL_FILE_PATH=$2
     if [ ! -f "$LOCAL_FILE_PATH" ] ; then

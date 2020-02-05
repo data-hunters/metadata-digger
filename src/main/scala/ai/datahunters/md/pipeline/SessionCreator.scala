@@ -1,9 +1,10 @@
 package ai.datahunters.md.pipeline
 
 import ai.datahunters.md.config.{ConfigLoader, SessionConfig}
+import com.intel.analytics.zoo.common.NNContext
 import org.apache
 import org.apache.spark
-import org.apache.spark.sql
+import org.apache.spark.{SparkConf, sql}
 import org.apache.spark.sql.SparkSession
 
 /**
@@ -13,21 +14,24 @@ import org.apache.spark.sql.SparkSession
   */
 class SessionCreator(config: SessionConfig, localMode: Boolean, appName: String) {
 
-  def create(): SparkSession = {
+  def create(sparkConf: SparkConf = NNContext.createSparkConf()): SparkSession = {
     val builder = if (localMode) {
-      createLocalSessioBuilder()
+      createLocalSessionBuilder(sparkConf)
     } else {
-      new apache.spark.sql.SparkSession.Builder
+      new apache.spark.sql.SparkSession.Builder()
+        .config(sparkConf)
+
     }
     builder
       .appName(appName)
       .getOrCreate()
   }
 
-  private def createLocalSessioBuilder(): sql.SparkSession.Builder = {
+  private def createLocalSessionBuilder(sparkConf: SparkConf): sql.SparkSession.Builder = {
 
     new spark.sql.SparkSession.Builder()
       .master(s"local[${config.cores}]")
+      .config(sparkConf)
       .config(ConfigLoader.SparkDriverMemKey, s"${config.maxMemoryGB}g")
   }
 

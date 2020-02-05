@@ -1,5 +1,6 @@
 package ai.datahunters.md
 
+import com.intel.analytics.bigdl.utils.Engine
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.SparkSession
 import org.scalatest.{BeforeAndAfterAll, Suite}
@@ -13,7 +14,8 @@ trait SparkBaseSpec extends BeforeAndAfterAll {
   override def beforeAll(): Unit = {
     super.beforeAll()
 
-    val conf = new SparkConf()
+
+    val conf = Engine.createSparkConf()
       .setMaster("local[1]")
       .setAppName(this.getClass.getSimpleName)
       .set("spark.sql.shuffle.partitions", "1")

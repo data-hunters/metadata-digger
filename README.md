@@ -31,6 +31,7 @@
     + [Amazon S3](#amazon-s3-1)
     + [Digital Ocean Spaces](#digital-ocean-spaces-1)
     + [Apache Solr](#apache-solr)
+- [Building Metadata Digger from source](#building-metadata-digger-from-source)
 - [External dependencies](#external-dependencies)
 - [Logo](#logo)
 
@@ -377,8 +378,16 @@ If you want to write result to Solr, you have to set `output.storage.name` to `s
 
 Metadata Digger sends commit request immediately after indexing all results to Solr.
 
-## Building from source
-To build Metadata Digger from source, you need to have SBT.
+## Building Metadata Digger from source
+To build Metadata Digger from source, you need to have [SBT](https://www.scala-sbt.org/). We prepared custom SBT task for building Metadata Digger distribution:
+```
+sbt dist
+```
+It will go through all standard steps (including compilation, tests, etc.) and build Standalone and Distributed packages in `target/dist` directory.
+If you want to run just tests, use standard SBT command:
+```
+sbt test
+```
 
 ## External dependencies
 We use the following libraries in our application:

@@ -15,6 +15,8 @@ import javax.imageio.ImageIO
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types._
 
+import scala.io.Source
+
 class ImageFeatureUtilsSpec extends UnitSpec with SparkBaseSpec {
 
   import ImageFeatureUtilsSpec._
@@ -121,12 +123,10 @@ class ImageFeatureUtilsSpec extends UnitSpec with SparkBaseSpec {
   }
 
   it should "convert RGBA image to RGB" in {
-    val rgbaBI = ImageIO.read(new FileInputStream(otherImgPath("ALPHA_landscape-4518195_960_720_pixabay_license.png")))
+    val alphaImgPath = otherImgPath("ALPHA_landscape-4518195_960_720_pixabay_license.png")
+    val rgbaBI = ImageIO.read(new FileInputStream(alphaImgPath))
     assert(rgbaBI.getData.getNumDataElements === 4)
-    val bos = new ByteArrayOutputStream()
-    ImageIO.write(rgbaBI, JPGType, bos)
-    val imgArr = bos.toByteArray
-    print(s"!!!!!!!!!!!! SIZE: ${imgArr.size}")
+    val imgArr = Files.readAllBytes(Paths.get(alphaImgPath))
     val convertedImg = ImageFeatureUtils.convertToRGB(imgArr, "Image 1")
     val convertedBI = ImageIO.read(new ByteArrayInputStream(convertedImg))
     assert(convertedBI.getData.getNumDataElements === 3)

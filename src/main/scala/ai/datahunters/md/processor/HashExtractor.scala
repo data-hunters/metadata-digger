@@ -4,15 +4,25 @@ import ai.datahunters.md.schema.BinaryInputSchemaConfig
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.functions.col
 
-case class HashExtractor(hashTypes: Option[Seq[String]] = None) extends Processor {
+/**
+  * Hash extractor processor invokes processing of all provided(via config file) hash types.
+  * @param hashTypes
+  */
+case class HashExtractor(hashTypes: Seq[String]) extends Processor {
 
+  import ai.datahunters.md.processor.HashExtractor._
   import ai.datahunters.md.udf.hash.HashExtractor._
 
   override def execute(inputDF: DataFrame): DataFrame = {
-    hashTypes.filter(_.nonEmpty)
-      .getOrElse(Seq())
-      .foldLeft(inputDF)(
-        (previousDF, hash) => previousDF.withColumn(hash, generateHashUDF(hash)(col(BinaryInputSchemaConfig.FileCol)))
-      )
+    hashTypes.foldLeft(inputDF)(
+      (previousDF, hash) =>
+        previousDF.withColumn(HASH_COL_PREFIX + hash, generateHashUDF(hash)(col(BinaryInputSchemaConfig.FileCol)))
+    )
   }
 }
+
+object HashExtractor {
+  val HASH_COL_PREFIX = "hash_"
+}
+
+

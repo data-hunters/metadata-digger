@@ -6,6 +6,7 @@ import com.typesafe.config.Config
 case class ProcessingConfig(allowedDirectories: Option[Seq[String]],
                             allowedTags: Option[Seq[String]],
                             mandatoryTags: Option[Seq[String]],
+                            hashList: Option[Seq[String]],
                             namingConvention: String,
                             metadataColumnsPrefix: String,
                             includeDirsInTags: Boolean,
@@ -23,6 +24,7 @@ object ProcessingConfig {
   val ColumnsNamingConventionKey = "output.columns.namingConvention"
   val IncludeMetadataContentKey = "output.columns.includeMetadataContent"
   val MandatoryTagsKey = "filter.mandatoryTags"
+  val HashListKey = "hash.types.list"
 
   import ConfigLoader._
 
@@ -34,7 +36,8 @@ object ProcessingConfig {
     MetadataColumnsPrefixKey -> "",
     IncludeDirectoriesInTagNamesKey -> true,
     IncludeMetadataContentKey -> false,
-    MandatoryTagsKey -> All
+    MandatoryTagsKey -> All,
+    HashListKey -> All
   )
 
   def build(config: Config): ProcessingConfig = {
@@ -43,6 +46,7 @@ object ProcessingConfig {
       configWithDefaults.getString(AllowedDirectoriesKey),
       configWithDefaults.getString(AllowedTagsKey),
       configWithDefaults.getString(MandatoryTagsKey),
+      configWithDefaults.getString(HashListKey),
       configWithDefaults.getString(ColumnsNamingConventionKey),
       configWithDefaults.getString(MetadataColumnsPrefixKey),
       configWithDefaults.getBoolean(IncludeDirectoriesInTagNamesKey),

@@ -40,7 +40,7 @@ object HashUtils {
   }
 
   /**
-    * Method covers generation of hash for CRC32 method:
+    * Method covers generation of hash for CRC32 method.
     *
     * @param algorithm String name of algorithm
     * @param content file

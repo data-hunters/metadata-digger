@@ -24,7 +24,7 @@ object ProcessingConfig {
   val ColumnsNamingConventionKey = "output.columns.namingConvention"
   val IncludeMetadataContentKey = "output.columns.includeMetadataContent"
   val MandatoryTagsKey = "filter.mandatoryTags"
-  val HashListKey = "hash.types.list"
+  val HashListKey = "processing.hash.types"
 
   import ConfigLoader._
 

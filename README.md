@@ -15,6 +15,7 @@
   * [Detecting objects on images - Metadata Enrichment](#detecting-objects-on-images---metadata-enrichment)
   * [Finding similar images based on metadata](#finding-similar-images-based-on-metadata)
   * [Displaying Metadata of single file](#displaying-metadata-of-single-file)
+  * [Hash generation](#hash-generation)
 - [Advanced settings](#advanced-settings)
   * [Reader configuration](#reader-configuration)
     + [Common Reader properties](#common-reader-properties)
@@ -57,6 +58,7 @@ Features:
 * Setting up mandatory tags.
 * Finding similar images based on specified set of Metatags.
 * Displaying Metadata for single file without running Spark.
+* Hash generation with most common algorithms.
 * Scaling extraction process to multiple machines and cores, so you can work with huge volumes of data
 * Saving output in CSV and JSON formats
 * Indexing results to <a href="http://lucene.apache.org/solr/" target="_blank">Apache Solr</a> (Full-Text Search Engine)
@@ -243,6 +245,11 @@ Sometimes you just need to display Metatags for single file from Local File Syst
 sh run-standalone-metadata-digger.sh extract_single <path_to_image_file>
 ```
 
+### Hash generation
+
+There are some moments when you need to verify if different data sets contains same content. 
+As a first step hashes can be generated based on a file using several algorithm.
+Actually Metadata Digger supports: CRC32, MD5, SHA-1, SHA-224, SHA-256, SHA-384, SHA-512.
 
 ## Advanced settings
 
@@ -312,6 +319,7 @@ Processing part contains all actions between Reader (loading data) and Writer (s
 | `output.columns.includeMetadataContent` | false | If true, add column containing concatenation of all tag values. It is useful when you want to have separated field for index/search purposes. |
 | `processing.cores` | [available cores - 1] | Number detrmining how many cores will be used for whole processing. If you do not set it, Metadata Digger will retrieve how many cores your machine has and left one core free. **This property is used only in Standalone mode**. |
 | `processing.maxMemoryGB` | 2 | How many memory should be reserved for processing (in GB). If you receive errors in logs like this: *"OutOfMemory: Java heap space"* or *"GC Overhead Limit Exceeded Error"*, you should try to increase this value but remember to left some memory. You should check your total RAM before you set this property. **This property is used only in Standalone mode**. |
+| `processing.hash.types` |  | Comma delimited list of hashes which will be generated based on file. Actually supporting methods: `crc32`, `md5`, `sha1`, `sha224`, `sha256`, `sha384`, `sha512`. |
 
 ### Metadata Enrichment (AI) configuration
 Current version of Metadata Enrichment Processors supports ANN classifiers in Analytics Zoo and BigDL formats. You can download sample model from [metadata-digger-ai](https://github.com/data-hunters/metadata-digger-ai) repository. Main goal of this module is to retrieve more information from images than Exifs and other metadata provides. Below table presents all options that could be used to configure and tune it:

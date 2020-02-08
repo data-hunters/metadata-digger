@@ -11,7 +11,6 @@
   * [Running in Standalone mode](#running-in-standalone-mode)
   * [Running in Distributed mode](#running-in-distributed-mode)
   * [Displaying available Tags](#displaying-available-tags)
-  * [Setting up mandatory tags](#setting-up-mandatory-tags)
   * [Finding similar images based on metadata](#finding-similar-images-based-on-metadata)
   * [Displaying Metadata of single file](#displaying-metadata-of-single-file)
   * [Hash generation](#hash-generation)

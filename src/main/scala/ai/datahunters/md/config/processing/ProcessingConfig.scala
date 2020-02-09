@@ -7,6 +7,7 @@ import com.typesafe.config.Config
 case class ProcessingConfig(allowedDirectories: Option[Seq[String]],
                             allowedTags: Option[Seq[String]],
                             mandatoryTags: Option[Seq[String]],
+                            hashList: Option[Seq[String]],
                             namingConvention: String,
                             metadataColumnsPrefix: String,
                             includeDirsInTags: Boolean,
@@ -30,6 +31,7 @@ object ProcessingConfig {
   val ThumbnailsEnabledKey = "processing.thumbnails.enabled"
   val ThumbnailsSmallSizeKey = "processing.thumbnails.smallDimensions"
   val ThumbnailsMediumSizeKey = "processing.thumbnails.mediumDimensions"
+  val HashListKey = "processing.hash.types"
 
   import ConfigLoader._
 
@@ -45,7 +47,8 @@ object ProcessingConfig {
     MandatoryTagsKey -> All,
     ThumbnailsEnabledKey -> false,
     ThumbnailsSmallSizeKey -> "",
-    ThumbnailsMediumSizeKey -> ""
+    ThumbnailsMediumSizeKey -> "",
+    HashListKey -> All
   )
 
   def build(config: Config): ProcessingConfig = {
@@ -55,6 +58,7 @@ object ProcessingConfig {
       configWithDefaults.getString(AllowedDirectoriesKey),
       configWithDefaults.getString(AllowedTagsKey),
       configWithDefaults.getString(MandatoryTagsKey),
+      configWithDefaults.getString(HashListKey),
       configWithDefaults.getString(ColumnsNamingConventionKey),
       configWithDefaults.getString(MetadataColumnsPrefixKey),
       configWithDefaults.getBoolean(IncludeDirectoriesInTagNamesKey),

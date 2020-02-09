@@ -7,7 +7,6 @@ import ai.datahunters.md.processor._
 import ai.datahunters.md.reader.PipelineSource
 import ai.datahunters.md.writer.PipelineSink
 import org.apache.spark.sql.SparkSession
-import org.apache.zookeeper.KeeperException.NotEmptyException
 
 /**
   * Main workflow which run the following steps:
@@ -34,12 +33,14 @@ class MainExtractionWorkflow(config: ProcessingConfig,
     val mandatoryTagsFilter = mandatoryTagConfig.dirTags.map(d => new NotEmptyTagFilter(d))
     val columnNamesConverter = ColumnNamesConverterFactory.create(config.namingConvention)
     val rawInputDF = reader.load()
+    val hashExtractor = config.hashList.map(s => HashExtractor(s))
     val pipeline = ProcessingPipeline(rawInputDF)
       .setFormatAdjustmentProcessor(formatAdjustmentProcessor)
       .setColumnNamesConverter(Some(columnNamesConverter))
     if (config.thumbnailsEnabled) {
       pipeline.addProcessor(ThumbnailsGenerator(config.smallThumbnailsSize, config.mediumThumbnailsSize))
     }
+    hashExtractor.foreach(pipeline.addProcessor)
     pipeline.addProcessor(MetadataExtractor())
     analyticsFilters.foreach(pipeline.addFilter)
 

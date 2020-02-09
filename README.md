@@ -420,6 +420,9 @@ We use the following libraries in our application:
 * <a href="https://github.com/apache/lucene-solr/" target="_blank">SolrJ</a> - Apache License 2.0
 * <a href="https://github.com/apache/hadoop/" target="_blank">Apache Hadoop</a> - Apache License 2.0
 * <a href="https://github.com/aws/aws-sdk-java/" target="_blank">AWS SDK for Java</a> - Apache License 2.0
+* <a href="https://github.com/intel-analytics/bigdl" target="_blank">BigDL</a> - Apache License 2.0
+* <a href="https://github.com/intel-analytics/analytics-zoo" target="_blank">Analytics Zoo</a> - Apache License 2.0
+* <a href="https://opencv.org/license/" target="_blank">OpenCV</a>
 * Other common libraries for Scala, see built.sbt for details
 
 Please read documentation of particular dependencies to check details about licenses and used libraries.

@@ -15,6 +15,8 @@
   * [Detecting objects on images - Metadata Enrichment](#detecting-objects-on-images---metadata-enrichment)
   * [Finding similar images based on metadata](#finding-similar-images-based-on-metadata)
   * [Displaying Metadata of single file](#displaying-metadata-of-single-file)
+- [Image Processing](#image-processing)
+  * [Generating Thumbnails](#generating-thumbnails)
 - [Advanced settings](#advanced-settings)
   * [Reader configuration](#reader-configuration)
     + [Common Reader properties](#common-reader-properties)
@@ -243,6 +245,19 @@ Sometimes you just need to display Metatags for single file from Local File Syst
 sh run-standalone-metadata-digger.sh extract_single <path_to_image_file>
 ```
 
+## Image Processing
+
+### Generating Thumbnails
+
+Metadata Digger provides support for thumbnails generation (OpenCV is used under the hood). It could be enabled and run in `full` and `extract` flows/commands. The following table presents possible properties related to this feature.
+
+| Property | Default | Description |
+| -------- | ------- | ----------- |
+| `processing.thumbnails.enabled` | false | Enables thumbnails generation |
+| `processing.thumbnails.smallDimensions` | | Max width and height (in pixels) of small thumbnail, e.g.: `150x100`. Output image will be encoded in base64 to column: `small_thumb` or `smallThumb` depends on specified naming convention |
+| `processing.thumbnails.mediumDimensions` | | Max width and height (in pixels) of medium thumbnail, e.g.: `800x600`. Output image will be encoded in base64 to column: `medium_thumb` or `mediumThumb` depends on specified naming convention |
+
+Both sizes are optional. MD preserves ratio of original image during above process.
 
 ## Advanced settings
 

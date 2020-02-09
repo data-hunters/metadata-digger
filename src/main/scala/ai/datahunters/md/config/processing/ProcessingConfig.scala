@@ -1,6 +1,7 @@
 package ai.datahunters.md.config.processing
 
 import ai.datahunters.md.config.{ConfigLoader, Writer}
+import ai.datahunters.md.udf.image.ImageProcessing.ThumbnailSize
 import com.typesafe.config.Config
 
 case class ProcessingConfig(allowedDirectories: Option[Seq[String]],
@@ -10,7 +11,10 @@ case class ProcessingConfig(allowedDirectories: Option[Seq[String]],
                             metadataColumnsPrefix: String,
                             includeDirsInTags: Boolean,
                             outputFormat: String,
-                            includeMetadataContent: Boolean) {
+                            includeMetadataContent: Boolean,
+                            thumbnailsEnabled: Boolean,
+                            smallThumbnailsSize: Option[ThumbnailSize],
+                            mediumThumbnailsSize: Option[ThumbnailSize]) {
 
 }
 
@@ -23,9 +27,13 @@ object ProcessingConfig {
   val ColumnsNamingConventionKey = "output.columns.namingConvention"
   val IncludeMetadataContentKey = "output.columns.includeMetadataContent"
   val MandatoryTagsKey = "filter.mandatoryTags"
+  val ThumbnailsEnabledKey = "processing.thumbnails.enabled"
+  val ThumbnailsSmallSizeKey = "processing.thumbnails.smallDimensions"
+  val ThumbnailsMediumSizeKey = "processing.thumbnails.mediumDimensions"
 
   import ConfigLoader._
 
+  val SizeDelimiter = "x"
 
   val Defaults = Map(
     AllowedDirectoriesKey -> All,
@@ -34,11 +42,15 @@ object ProcessingConfig {
     MetadataColumnsPrefixKey -> "",
     IncludeDirectoriesInTagNamesKey -> true,
     IncludeMetadataContentKey -> false,
-    MandatoryTagsKey -> All
+    MandatoryTagsKey -> All,
+    ThumbnailsEnabledKey -> false,
+    ThumbnailsSmallSizeKey -> "",
+    ThumbnailsMediumSizeKey -> ""
   )
 
   def build(config: Config): ProcessingConfig = {
     val configWithDefaults = assignDefaults(config, Defaults)
+    val thumbnailsInfo = parseThumbnailsInfo(configWithDefaults)
     ProcessingConfig(
       configWithDefaults.getString(AllowedDirectoriesKey),
       configWithDefaults.getString(AllowedTagsKey),
@@ -47,8 +59,33 @@ object ProcessingConfig {
       configWithDefaults.getString(MetadataColumnsPrefixKey),
       configWithDefaults.getBoolean(IncludeDirectoriesInTagNamesKey),
       configWithDefaults.getString(Writer.OutputFormatKey),
-      configWithDefaults.getBoolean(IncludeMetadataContentKey)
+      configWithDefaults.getBoolean(IncludeMetadataContentKey),
+      thumbnailsInfo._1,
+      thumbnailsInfo._2,
+      thumbnailsInfo._3
     )
+  }
+
+  protected def parseThumbnailsInfo(config: Config): (Boolean, Option[ThumbnailSize], Option[ThumbnailSize]) = {
+    val enabled = config.getBoolean(ThumbnailsEnabledKey)
+    if (enabled) {
+      val small = parseThumbnailSize(config, ThumbnailsSmallSizeKey)
+      val medium = parseThumbnailSize(config, ThumbnailsMediumSizeKey)
+      (true, small, medium)
+    } else {
+      (false, None, None)
+    }
+  }
+
+  protected def parseThumbnailSize(config: Config, key: String): Option[ThumbnailSize] = {
+    val size = config.getString(key)
+    if (size.isEmpty) {
+      None
+    } else {
+      val parsedSize = size.toLowerCase.split(SizeDelimiter)
+      if (parsedSize.size != 2) throw new RuntimeException(s"Wrong format of $key property's value. It should be: <INT_NUMBER>x<INT_NUMBER>, e.g.: 800x600 but is: $size")
+      Some(ThumbnailSize(parsedSize(0).toInt, parsedSize(1).toInt))
+    }
   }
 
 

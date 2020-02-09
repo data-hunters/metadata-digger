@@ -3,7 +3,7 @@ package ai.datahunters.md.workflow
 import ai.datahunters.md.config.processing.{MandatoryTagsConfig, ProcessingConfig}
 import ai.datahunters.md.filter.{Filter, NotEmptyTagFilter}
 import ai.datahunters.md.pipeline.ProcessingPipeline
-import ai.datahunters.md.processor.{ColumnNamesConverterFactory, FlattenMetadataDirectories, MetadataExtractor, Processor}
+import ai.datahunters.md.processor._
 import ai.datahunters.md.reader.PipelineSource
 import ai.datahunters.md.writer.PipelineSink
 import org.apache.spark.sql.SparkSession
@@ -37,8 +37,12 @@ class MainExtractionWorkflow(config: ProcessingConfig,
     val pipeline = ProcessingPipeline(rawInputDF)
       .setFormatAdjustmentProcessor(formatAdjustmentProcessor)
       .setColumnNamesConverter(Some(columnNamesConverter))
-      .addProcessor(MetadataExtractor())
+    if (config.thumbnailsEnabled) {
+      pipeline.addProcessor(ThumbnailsGenerator(config.smallThumbnailsSize, config.mediumThumbnailsSize))
+    }
+    pipeline.addProcessor(MetadataExtractor())
     analyticsFilters.foreach(pipeline.addFilter)
+
     pipeline.addProcessor(FlattenMetadataDirectories(config.allowedDirectories))
     mandatoryTagsFilter.foreach(pipeline.addFilter)
     val extractedDF = pipeline.run()

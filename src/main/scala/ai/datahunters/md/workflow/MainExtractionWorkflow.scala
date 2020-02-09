@@ -37,9 +37,13 @@ class MainExtractionWorkflow(config: ProcessingConfig,
     val pipeline = ProcessingPipeline(rawInputDF)
       .setFormatAdjustmentProcessor(formatAdjustmentProcessor)
       .setColumnNamesConverter(Some(columnNamesConverter))
+    if (config.thumbnailsEnabled) {
+      pipeline.addProcessor(ThumbnailsGenerator(config.smallThumbnailsSize, config.mediumThumbnailsSize))
+    }
     hashExtractor.foreach(pipeline.addProcessor)
     pipeline.addProcessor(MetadataExtractor())
     analyticsFilters.foreach(pipeline.addFilter)
+
     pipeline.addProcessor(FlattenMetadataDirectories(config.allowedDirectories))
     mandatoryTagsFilter.foreach(pipeline.addFilter)
     val extractedDF = pipeline.run()

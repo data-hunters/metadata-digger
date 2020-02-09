@@ -45,7 +45,10 @@ class FullMDWorkflow(config: MetadataEnrichmentConfig,
       .setFormatAdjustmentProcessor(formatAdjustmentProcessor)
       .setColumnNamesConverter(Some(columnNamesConverter))
       .addProcessor(MultiLabelClassifier(sparkSession, model, config.labelsMapping, config.threshold))
-      .addProcessor(MetadataExtractor())
+    if (processingConfig.thumbnailsEnabled) {
+      pipeline.addProcessor(ThumbnailsGenerator(processingConfig.smallThumbnailsSize, processingConfig.mediumThumbnailsSize))
+    }
+    pipeline.addProcessor(MetadataExtractor())
     analyticsFilters.foreach(pipeline.addFilter)
     pipeline.addProcessor(FlattenMetadataDirectories(processingConfig.allowedDirectories))
     mandatoryTagsFilter.foreach(pipeline.addFilter)

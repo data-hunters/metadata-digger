@@ -33,11 +33,16 @@ case class SolrForeachWriter(config: SolrWriterConfig,
   private val logger = LoggerFactory.getLogger(classOf[SolrForeachWriter])
 
   override def call(partitionRows: util.Iterator[Row]): Unit = {
-    val client = SolrClientBuilder().setZKServers(config.zkServers)
+    SolrForeachWriter.Logger.info("Building solr client")
+    val clientBuilder = SolrClientBuilder().setZKServers(config.zkServers)
         .setZKSolrChroot(config.zkSolrZNode)
         .setDefaultCollection(config.collection)
-        .build()
+    val clientBuilderWithSec = config.krbConfig
+        .map(clientBuilder.setJaas)
+        .getOrElse(clientBuilder)
+    val client = clientBuilderWithSec.build()
     val docsBuffer = ArrayBuffer[SolrInputDocument]()
+    SolrForeachWriter.Logger.info("Writing partition to Solr...")
     processAll(partitionRows, client)
     client.close()
   }
@@ -97,3 +102,7 @@ case class SolrForeachWriter(config: SolrWriterConfig,
   }
 }
 
+object SolrForeachWriter {
+
+  val Logger = LoggerFactory.getLogger(classOf[SolrForeachWriter])
+}

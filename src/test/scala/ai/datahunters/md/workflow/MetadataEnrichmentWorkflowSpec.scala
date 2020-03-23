@@ -33,14 +33,15 @@ class MetadataEnrichmentWorkflowSpec extends UnitSpec with SparkBaseSpec {
     when(enrichmentConfig.threshold).thenReturn(0.5f)
     when(enrichmentConfig.modelPath).thenReturn(modelPath("lenet_based"))
     when(enrichmentConfig.labelsMapping).thenReturn(Map(0 -> "label1", 1 -> "label2"))
+    when(enrichmentConfig.modelFileName).thenReturn(modelPath("lenet_based"))
     val reader = mock[PipelineSource]
     when(reader.load()).thenReturn(readerOutputDF)
     val writer = mock[PipelineSink]
     val formatAdjustmentProcessor = mock[Processor]
     when(formatAdjustmentProcessor.execute(any())).thenReturn(readerOutputDF)
     val workflow = new MetadataEnrichmentWorkflow(enrichmentConfig, processingConfig, sparkSession, reader, writer, Some(formatAdjustmentProcessor))
-    verify(enrichmentConfig).modelPath
     workflow.run()
+    verify(enrichmentConfig).modelFileName
     verify(enrichmentConfig).labelsMapping
     verify(enrichmentConfig).threshold
     verify(processingConfig).namingConvention

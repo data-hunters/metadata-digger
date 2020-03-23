@@ -24,6 +24,7 @@ object MetadataEnrichmentLauncher {
     val writer = buildWriter(config, sparkSession)
     val processingConfig = loadProcessingConfig(config)
     val metadataEnrichmentConfig = MetadataEnrichmentConfig.build(config)
+    metadataEnrichmentConfig.adjustSparkConfig(sparkSession)
     val formatAdjustmentProcessor = FormatAdjustmentProcessorFactory.create(metadataEnrichmentConfig, processingConfig.outputFormat)
 
     new MetadataEnrichmentWorkflow(metadataEnrichmentConfig, processingConfig, sparkSession, reader, writer, formatAdjustmentProcessor)

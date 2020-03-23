@@ -4,6 +4,7 @@ import java.io.File
 import java.nio.file.{Files, Path, Paths}
 import java.util.stream.Collectors
 
+import org.apache.spark.SparkFiles
 import org.slf4j.LoggerFactory
 
 /**
@@ -93,6 +94,21 @@ object FilesHandler {
     }
     Logger.warn(s"Path has to start with $pathPrefix for ${TextUtils.camelCase(storageName)} Storage, changing path from $path to $correctPath")
     correctPath
+  }
+
+  /**
+    * Checks if file exists on current worker path, if not, checks just related path to file.
+    * @param file
+    * @return
+    */
+  def sparkFilePath(file: String): String = {
+    val workerPath = SparkFiles.get(file)
+    if (Files.exists(Paths.get(workerPath)))
+      workerPath
+    else if (Files.exists(Paths.get(file)))
+      file
+    else
+      throw new RuntimeException(s"File $file does not exist!")
   }
 
   private def currentDir(): String = System.getProperty("user.dir") + File.separator

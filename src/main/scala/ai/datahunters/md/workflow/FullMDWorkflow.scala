@@ -7,6 +7,7 @@ import ai.datahunters.md.pipeline.ProcessingPipeline
 import ai.datahunters.md.processor._
 import ai.datahunters.md.processor.enrich.MultiLabelClassifier
 import ai.datahunters.md.reader.PipelineSource
+import ai.datahunters.md.util.FilesHandler
 import ai.datahunters.md.writer.PipelineSink
 import com.intel.analytics.bigdl.utils.Engine
 import com.intel.analytics.zoo.pipeline.api.Net
@@ -35,7 +36,10 @@ class FullMDWorkflow(config: MetadataEnrichmentConfig,
                      analyticsFilters: Seq[Filter] = Seq()) extends Workflow {
   Engine.init
   private[workflow] val columnNamesConverter = ColumnNamesConverterFactory.create(processingConfig.namingConvention)
-  private[workflow] val model = Net.load[Float](config.modelPath)
+  private[workflow] def loadModel() = {
+    val finalPath = FilesHandler.sparkFilePath(config.modelFileName)
+    Net.load[Float](finalPath)
+  }
   private[workflow] val mandatoryTagConfig = MandatoryTagsConfig.build(processingConfig)
   private[workflow] val mandatoryTagsFilter = mandatoryTagConfig.dirTags.map(d => new NotEmptyTagFilter(d))
 
@@ -44,7 +48,7 @@ class FullMDWorkflow(config: MetadataEnrichmentConfig,
     val pipeline = ProcessingPipeline(rawInputDF)
       .setFormatAdjustmentProcessor(formatAdjustmentProcessor)
       .setColumnNamesConverter(Some(columnNamesConverter))
-      .addProcessor(MultiLabelClassifier(sparkSession, model, config.labelsMapping, config.threshold))
+      .addProcessor(MultiLabelClassifier(sparkSession, loadModel(), config.labelsMapping, config.threshold))
     if (processingConfig.thumbnailsEnabled) {
       pipeline.addProcessor(ThumbnailsGenerator(processingConfig.smallThumbnailsSize, processingConfig.mediumThumbnailsSize))
     }

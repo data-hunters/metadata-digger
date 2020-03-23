@@ -7,6 +7,7 @@ import ai.datahunters.md.processor.enrich.MultiLabelClassifier
 import ai.datahunters.md.processor.{ColumnNamesConverterFactory, DropColumns, Processor}
 import ai.datahunters.md.reader.PipelineSource
 import ai.datahunters.md.schema.BinaryInputSchemaConfig
+import ai.datahunters.md.util.FilesHandler
 import ai.datahunters.md.writer.PipelineSink
 import com.intel.analytics.bigdl.utils.Engine
 import com.intel.analytics.zoo.pipeline.api.Net
@@ -31,7 +32,10 @@ class MetadataEnrichmentWorkflow(config: MetadataEnrichmentConfig,
 
   Engine.init
   private[workflow] val columnNamesConverter = ColumnNamesConverterFactory.create(processingConfig.namingConvention)
-  private[workflow] val model = Net.load[Float](config.modelPath)
+  private[workflow] def loadModel() = {
+    val finalPath = FilesHandler.sparkFilePath(config.modelFileName)
+    Net.load[Float](finalPath)
+  }
   private val labelsMapping = config.labelsMapping
 
   override def run(): Unit = {
@@ -39,7 +43,7 @@ class MetadataEnrichmentWorkflow(config: MetadataEnrichmentConfig,
     val pipeline = ProcessingPipeline(rawInputDF)
       .setFormatAdjustmentProcessor(formatAdjustmentProcessor)
       .setColumnNamesConverter(Some(columnNamesConverter))
-      .addProcessor(MultiLabelClassifier(sparkSession, model, labelsMapping, config.threshold))
+      .addProcessor(MultiLabelClassifier(sparkSession, loadModel(), labelsMapping, config.threshold))
       .addProcessor(DropColumns(Seq(BinaryInputSchemaConfig.FileCol)))
     val extractedDF = pipeline.run()
 

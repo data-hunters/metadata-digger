@@ -25,6 +25,7 @@ class FullMDWorkflowSpec extends UnitSpec with SparkBaseSpec {
       Row.fromTuple("somehash", "some/path", "some/path/img.jpg", imgBytes)
     )
     val rdd = sparkSession.sparkContext.parallelize(inputData)
+    sparkSession.sparkContext.addFile(modelPath("lenet_based"))
     val readerOutputDF = sparkSession.createDataFrame(rdd, BinaryInputSchemaConfig().schema())
     val processingConfig = mock[ProcessingConfig]
     when(processingConfig.namingConvention).thenReturn("snakeCase")
@@ -35,6 +36,7 @@ class FullMDWorkflowSpec extends UnitSpec with SparkBaseSpec {
     when(enrichmentConfig.outputLabelsDelimiter).thenReturn(",")
     when(enrichmentConfig.modelPath).thenReturn(modelPath("lenet_based"))
     when(enrichmentConfig.labelsMapping).thenReturn(Map(0 -> "label1", 1 -> "label2"))
+    when(enrichmentConfig.modelFileName).thenReturn("lenet_based")
     val reader = mock[PipelineSource]
     when(reader.load()).thenReturn(readerOutputDF)
     val writer = mock[PipelineSink]

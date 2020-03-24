@@ -398,6 +398,9 @@ If you want to write result to Solr, you have to set `output.storage.name` to `s
 | `output.zk.znode` |  | ZooKeeper ZNode that keeps Solr configuration. Leave empty if you keep Solr data in ZooKeeper root. |
 | `output.solr.conversion.integerTags` |  | List of tag names that has to be converted into integers to adjust output to Solr Schema. If you use Metadata Digger Solr Schema, use the following value: `md_jpeg_image_width,md_jpeg_image_height,md_exif_subifd_exif_image_width,md_exif_subifd_exif_image_height,md_gps_gps_satellites`. |
 | `output.solr.conversion.dateTimeTags` |  | List of tag names that has to be converted into Solr date time format. If you use Metadata Digger Solr Schema use the following: `md_exif_ifd0_datetime,md_icc_profile_profile_datetime,md_gps_datetime,md_exif_subifd_datetime_original`. |
+| `output.solr.security.principal` | | Optional property. If Solr instance is configured with Kerberos, put here principal that will be used for authentication |
+| `output.solr.security.keytabPath` | | Optional property. Path to keytab for principal passed in `output.solr.security.principal`. Remember that Keytab file will be copied to all workers (in temporary directory of Spark's Application workspace) to ensure right authentication from each Spark executor. |
+| `output.solr.security.debug` | false | Switch debug mode for Kerberos. |
 
 Metadata Digger sends commit request immediately after indexing all results to Solr.
 

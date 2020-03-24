@@ -33,7 +33,11 @@ lazy val sparkDependencies = Seq(
 )
 
 lazy val analyticsDependencies = Seq(
-  "com.intel.analytics.zoo" % "analytics-zoo-bigdl_0.9.1-spark_2.4.3" % zooV exclude("org.tensorflow", "*") exclude("org.apache.commons", "commons-lang3")
+  "com.intel.analytics.zoo" % "analytics-zoo-bigdl_0.9.1-spark_2.4.3" % zooV 
+    exclude("org.tensorflow", "*") 
+    exclude("org.apache.commons", "commons-lang3")
+    exclude("log4j", "log4j")
+    exclude("org.slf4j", "*")
 )
 
 lazy val externalConnectors = Seq(
@@ -46,8 +50,7 @@ lazy val utilsDependencies = Seq(
   "com.typesafe" % "config" % typesafeConfigV,
   "com.drewnoakes" % "metadata-extractor" % metadataExtractorV,
   "com.twelvemonkeys.imageio" % "imageio-core" % imageIOV,
-  "com.twelvemonkeys.imageio" % "imageio-tiff" % imageIOV,
-  "org.apache.commons" % "commons-lang3" % commonsLangV // Forcing this version to avoid issue "Illegal pattern component: XXX"
+  "com.twelvemonkeys.imageio" % "imageio-tiff" % imageIOV
 )
 
 lazy val testDependencies = Seq(

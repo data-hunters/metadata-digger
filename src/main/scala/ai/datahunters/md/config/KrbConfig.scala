@@ -51,14 +51,4 @@ object KrbConfig {
     }
   }
 
-  private def loadProps(key: String, config: Config): String = {
-    if (config.hasPath(key)) {
-      val kp = config.getString(key)
-      Logger.info(s"Kerberos property ($key): $kp")
-      kp
-    } else {
-      Logger.info(s"Kerberos property $key not set.")
-      ""
-    }
-  }
 }

@@ -2,7 +2,8 @@ package ai.datahunters.md.writer
 
 import ai.datahunters.md.config.writer.{FilesWriterConfig, LocalFSWriterConfig, SolrWriterConfig, WriterConfig}
 import ai.datahunters.md.listener.OutputFilesCleanupListener
-import ai.datahunters.md.writer.solr.{SolrClientBuilder, SolrForeachWriter}
+import ai.datahunters.md.util.SolrClientBuilder
+import ai.datahunters.md.writer.solr.SolrForeachWriter
 import org.apache.spark.sql.SparkSession
 
 object PipelineSinkFactory {

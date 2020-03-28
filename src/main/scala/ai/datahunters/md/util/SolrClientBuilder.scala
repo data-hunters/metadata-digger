@@ -1,4 +1,4 @@
-package ai.datahunters.md.writer.solr
+package ai.datahunters.md.util
 
 import java.util
 import java.util.Optional

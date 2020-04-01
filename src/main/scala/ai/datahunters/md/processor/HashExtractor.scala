@@ -16,13 +16,14 @@ case class HashExtractor(hashTypes: Seq[String]) extends Processor {
   override def execute(inputDF: DataFrame): DataFrame = {
     hashTypes.foldLeft(inputDF)(
       (previousDF, hash) =>
-        previousDF.withColumn(HASH_COL_PREFIX + hash, generateHashUDF(hash)(col(BinaryInputSchemaConfig.FileCol)))
+        previousDF.withColumn(HashColPrefix + hash, generateHashUDF(hash)(col(BinaryInputSchemaConfig.FileCol)))
     )
   }
 }
 
 object HashExtractor {
-  val HASH_COL_PREFIX = "hash_"
+  val HashColPrefix = "Hash "
+
 }
 
 

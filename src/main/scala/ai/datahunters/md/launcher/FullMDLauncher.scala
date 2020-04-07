@@ -25,6 +25,7 @@ object FullMDLauncher {
     val writer = buildWriter(config, sparkSession)
     val processingConfig = loadProcessingConfig(config)
     val metadataEnrichmentConfig = MetadataEnrichmentConfig.build(config)
+    metadataEnrichmentConfig.adjustSparkConfig(sparkSession)
     val formatAdjustmentProcessor = FormatAdjustmentProcessorFactory.create(processingConfig)
 
     new FullMDWorkflow(metadataEnrichmentConfig, processingConfig, sparkSession, reader, writer, formatAdjustmentProcessor)

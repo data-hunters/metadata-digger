@@ -36,7 +36,7 @@ DH="
 
                          Metadata Digger
                              v.$MD_VERSION
-                        [Standalone Mode]
+                        [Distributed Mode]
                        Apache License 2.0
 
 "
@@ -52,9 +52,9 @@ then
 fi
 . "./$MD_ENV_FILE"
 
-MD_CONFIG_PATH=$1
+MD_CONFIG_PATH=$2
 MD_JAR=metadata-digger-$MD_VERSION.jar
-MD_ACTION=$2
+MD_ACTION=$1
 BASE_IMG_FILE=""
 
 if [ ! -f "$MD_CONFIG_PATH" ]
@@ -107,6 +107,7 @@ spark-submit --class $MAIN_CLASS \
     --driver-memory $DRIVER_MEMORY \
     --executor-memory $EXECUTOR_MEMORY \
     --executor-cores $EXECUTOR_CORES \
+    --num-executors $NUM_EXECUTORS \
     --queue $QUEUE \
     --files $MD_CONFIG_PATH \
     $MD_JAR \

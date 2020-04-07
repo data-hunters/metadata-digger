@@ -8,8 +8,8 @@
 - [Getting Started](#getting-started)
   * [Requirements](#requirements)
   * [Output formats](#output-formats)
-  * [Running in Standalone mode](#running-in-standalone-mode)
-  * [Running in Distributed mode](#running-in-distributed-mode)
+  * [Running in Standalone mode (extracting metadata)](#running-in-standalone-mode-extracting-metadata)
+  * [Running in Distributed mode (extracting metadata)](#running-in-distributed-mode-extracting-metadata)
   * [Displaying available Tags](#displaying-available-tags)
   * [Setting up mandatory Tags](#setting-up-mandatory-tags)
   * [Detecting objects on images - Metadata Enrichment](#detecting-objects-on-images---metadata-enrichment)
@@ -43,10 +43,8 @@
 
 ## Overview
 
-Main goal of Metadata Digger is to provide better insights into Metadata extracted from binary files (currently images).
-MD is built on top of <a href="https://spark.apache.org/" target="_blank">Apache Spark</a> - one of the most popular Big Data processing engine - to take advantage of distributed computing.
-
-Features:
+Main goal of Metadata Digger is to provide better insights into Metadata extracted from binary files (currently images) for OSINT researchers, digital forensic investigators and any other person who need to analyze metadata from many images.
+MD is built on top of <a href="https://spark.apache.org/" target="_blank">Apache Spark</a> - one of the most popular Big Data processing engine - to take advantage of distributed computing. Our tool is especially useful when you have huge amounts of data originating from many sources. Currently many services remove original metadata. In result when you are crawling multiple sources, it is hard to find interesting pieces of information hidden in such datasets. We have implemented couple of features that can help you with it. See main list below:
 
 * Extracting Metadata from files located in multiple directories, from the following sources:
 
@@ -65,9 +63,9 @@ Features:
 * Hash comparison to avoid overprocessing.
 * Scaling extraction process to multiple machines and cores, so you can work with huge volumes of data
 * Saving output in CSV and JSON formats
-* Indexing results to <a href="http://lucene.apache.org/solr/" target="_blank">Apache Solr</a> (Full-Text Search Engine)
+* Indexing results to <a href="http://lucene.apache.org/solr/" target="_blank">Apache Solr</a> (Full-Text Search Engine). You can write output of MD to Solr and take advantage of all Solr features.
 
-To provide easy start for OSINT researchers who do not know details of Apache Spark, special Standalone version has been prepared that can utilize many cores of processor on single machine.
+To provide easy start for users who do not know details of Apache Spark, special Standalone version has been prepared that can utilize many cores of processor on single machine.
 **If you want to try Metadata Digger without going into Big Data/Spark technical details**, read *Getting Started* section, especially *Runing in Standalone mode*. More complex configuration is covered in *Advanced settings*.
 
 Metadata Digger is under development. We are also working on Web Appliction that will allow searching and analysing processed metadata.
@@ -97,8 +95,8 @@ Currently two files output formats are supported:
 
 Additionally it is possible to index metadata directly to  <a href="http://lucene.apache.org/solr/" target="_blank">Apache Solr</a> (one of the most popular Full-Text Search Engine), instead of writing results to file.
 
-### Running in Standalone mode
-To get current distribution, please go to releases tab, download `metadata-digger-0.1.2_standalone.zip` file and unpack it. There you will have run-metadata-digger.sh script and two sample configuration files (`json.config.properties` and `csv.config.properties`) with examples for JSON and CSV output format. Pick one, open it and change two settings:
+### Running in Standalone mode (extracting metadata)
+To get current distribution, please go to releases tab, download `metadata-digger-0.1.2_standalone.zip` file and unpack it. There you will have run-metadata-digger.sh script and sample configuration files in `configs` directory. For the first time it is the best to pick one of: `json.config.properties` or `csv.config.properties` files. Open it and change two settings:
 
 * `input.paths` - paths to directories with files you want to process. You can set multiple paths delimited by comma
 * `output.directoryPath` - path to output directory where files with metadata will be written. *Make sure this directory does not exist before you start processing*. Metadata Digger will create it and write there files.
@@ -116,10 +114,11 @@ When you adjust your config, run the following command (where `<path_to_config>`
 sh run-standalone-metadata-digger.sh extract <path_to_config> [--includeAWS]
 ```
 Third argument `--includeAWS` is optional but it has to be used if you specified in your configuration that MD loads data from or write to Amazon S3/Digital Ocean Spaces.
+Above command will run basic extraction process. See other features of Metadata Digger in next sections.
 
-### Running in Distributed mode
+### Running in Distributed mode (extracting metadata)
 See above information about running in standalone mode to download release and adjust configuration (just choose `metadata-digger-0.1.2_distributed.zip` file).
-To run Metadata Digger in Distribute mode you need a cluster. It could be one of systems [supported by Spark](https://spark.apache.org/docs/latest/cluster-overview.html#cluster-manager-types). After adjusting your config.properties file you will have to set right values in `metadata-digger-env.sh` file. When you do this, you can just run the following script:
+To run Metadata Digger in Distribute mode you need a cluster. It could be one of systems [supported by Spark](https://spark.apache.org/docs/2.4.3/cluster-overview.html#cluster-manager-types). After adjusting your config.properties file you will have to set right values in `metadata-digger-env.sh` file. When you do this, you can just run the following script:
 
 ```
 sh run-distributed-metadata-digger.sh extract <path_to_config>
@@ -127,6 +126,7 @@ sh run-distributed-metadata-digger.sh extract <path_to_config>
 
 Above script has been tested on YARN cluster (HDP 3.1.4) which is probably the most common case but this script is just `spark-submit` command with appropriate parameters, so if you have different cluster and you know some Spark basics, it will be easy to adjust it.
 On most Hadoop Clusters Amazon AWS libraries (for connecting to S3) are available, so we are not including them in our package. However, we know that there are many differences between particular distributions of Hadoop, so in case of lack of AWS SDK, we put it in aws_libs directory.
+Above command will run basic extraction process. See other features of Metadata Digger in next sections.
 
 ### Displaying available Tags
 If you have many different files, there are chances that not all of tags you want to have in output. Currently you can decide which directories you want to include in output (property `filter.allowedMetadataDirectories`) but to know what is exact name you can run Metadata Digger with special command `describe`.
@@ -170,9 +170,7 @@ Sample output of describe action:
 **Important!** - Names of tags could be a bit different than other tools (like Exiftool) provide. We use the same names as [Metadata-Extractor](https://drewnoakes.com/code/exif/) but additionally remove special characters like `,.":;'()`. In some cases it is useful to have tag's values in two (or three) different formats (e.g. for filtering purposes). In such case we add custom tag with `MD` prefix, for instance: `GPS.MD Location Long F` has float format like: 11.884539. The same value for original tag `GPS.GPS Longitude` will be: 11° 53' 4.34". First value could be easily compared during filtering process but second is better for human.
 
 ### Setting up mandatory tags
-After getting all available tags you can decide to set mandatory fields with not empty value. To set it up you can add them
- in specific format(same as printed above e.g. 'JPEG.Component 3') in property named 'filter.mandatoryTags'.
- In case of require more than one tag, you can split them using ','.
+After getting all available tags you can decide to set mandatory fields with not empty value. To set it up you can add them in specific format (same as printed above e.g. `JPEG.Component 3`) in property named `filter.mandatoryTags` (list of tags separated by comma - `,`). In final result MD will not include images that do not contain those tags (or value is empty). Be careful when you use this feature with property `filter.allowedMetadataDirectories`. If you set some tag as required but do not include directory of this metatag in allowed metadata directories you will not get any results.
 
 ### Detecting objects on images - Metadata Enrichment
 Metadata Digger has dedicated module responsible for recognizing objects on images using AI classification methods, currently - Artificial Neural Networks (ANN). It uses [Analytics Zoo](https://github.com/intel-analytics/analytics-zoo) (with [BigDL](https://github.com/intel-analytics/bigdl) under the hood) framework created by Intel. Core element required in process of recognizing objects is trained ANN model which contain actual "knowledge". You can train your own model using BigDL or Zoo or you can use existing one that we trained during Proof of Concept project. It is available in [metadata-digger-ai](https://github.com/data-hunters/metadata-digger-ai) repository.
@@ -218,7 +216,7 @@ This functionality allows you to find all images that are similar. In the simple
 
 To specify list of tags that have to be compared, you have to define them with key `analytics.similar.tags` in the following format:
 ```
-analytics.similar.tags=DIR1_NAME:TAG1_NAME:TYPE:MAX_DIFFERENCE,DIR2_NAME:TAG2_NAME:TYPE:MAX_DIFFERENCE,DIR3_NAME:TAG3_NAME:TYPE:MAX_DIFFERENCE
+analytics.similar.tags=DIR1_NAME.TAG1_NAME:TYPE:MAX_DIFFERENCE,DIR2_NAME.TAG2_NAME:TYPE:MAX_DIFFERENCE,DIR3_NAME.TAG3_NAME:TYPE:MAX_DIFFERENCE
 ```
 Example for Camera model and GPS location:
 ```
@@ -404,6 +402,9 @@ If you want to write result to Solr, you have to set `output.storage.name` to `s
 | `output.zk.znode` |  | ZooKeeper ZNode that keeps Solr configuration. Leave empty if you keep Solr data in ZooKeeper root. |
 | `output.solr.conversion.integerTags` |  | List of tag names that has to be converted into integers to adjust output to Solr Schema. If you use Metadata Digger Solr Schema, use the following value: `md_jpeg_image_width,md_jpeg_image_height,md_exif_subifd_exif_image_width,md_exif_subifd_exif_image_height,md_gps_gps_satellites`. |
 | `output.solr.conversion.dateTimeTags` |  | List of tag names that has to be converted into Solr date time format. If you use Metadata Digger Solr Schema use the following: `md_exif_ifd0_datetime,md_icc_profile_profile_datetime,md_gps_datetime,md_exif_subifd_datetime_original`. |
+| `output.solr.security.principal` | | Optional property. If Solr instance is configured with Kerberos, put here principal that will be used for authentication |
+| `output.solr.security.keytabPath` | | Optional property. Path to keytab for principal passed in `output.solr.security.principal`. Remember that Keytab file will be copied to all workers (in temporary directory of Spark's Application workspace) to ensure right authentication from each Spark executor. |
+| `output.solr.security.debug` | false | Switch debug mode for Kerberos. |
 
 Metadata Digger sends commit request immediately after indexing all results to Solr.
 

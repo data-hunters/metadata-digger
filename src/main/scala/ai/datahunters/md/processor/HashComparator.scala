@@ -15,14 +15,18 @@ case class HashComparator(solrHashDF: Option[DataFrame],
 
 
   override def execute(inputDF: DataFrame): DataFrame = {
-    solrHashDF.map(df => {
-      inputDF.join(
-        df,
-        hashColumns,
-        JoinType
-      )
-    })
-      .getOrElse(inputDF)
+    if (hashColumns.nonEmpty) {
+      solrHashDF.map(df => {
+        inputDF.join(
+          df,
+          hashColumns,
+          JoinType
+        )
+      })
+        .getOrElse(inputDF)
+    } else {
+      inputDF
+    }
   }
 }
 

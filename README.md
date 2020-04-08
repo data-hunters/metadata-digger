@@ -250,9 +250,10 @@ sh run-standalone-metadata-digger.sh extract_single <path_to_image_file>
 
 There are some moments when you need to verify if different data sets contain same content. As a first step hashes can be generated based on a file using several algorithm. Currently Metadata Digger supports: CRC32, MD5, SHA-1, SHA-224, SHA-256, SHA-384, SHA-512. See [Processing configuration](#processing-configuration) for information how to specify particular algorithms.
 
-### Hash comparison
+### Hash comparison - experimental
 
 Let's suppose that you have processed data in solr index and you need to run processing few more times with solr output as well. Data can contain duplicates and you don't want to overprocessing. MD have feature to verify if data was already processed. You can exclude them from processing part just change `processing.hash.comparator` to true. Keep in mind that comparison process include hash algorithms from [Hash generation](#hash-generation) list only.
+**Important!** - feature can cause out of memory exception and require more memory on driver side.
 
 ## Image Processing
 

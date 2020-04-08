@@ -34,7 +34,7 @@ class MainExtractionWorkflow(config: ProcessingConfig,
     val mandatoryTagsFilter = mandatoryTagConfig.dirTags.map(d => new NotEmptyTagFilter(d))
     val columnNamesConverter = ColumnNamesConverterFactory.create(config.namingConvention)
     val rawInputDF = reader.load()
-    val hashExtractor = config.hashList.map(s => HashExtractor(s))
+    val hashExtractor = config.hashList.map(s => HashExtractor(s, columnNamesConverter))
 
     val hashGenerationPipeline = ProcessingPipeline(rawInputDF)
     hashExtractor.foreach(hashGenerationPipeline.addProcessor)
@@ -42,7 +42,7 @@ class MainExtractionWorkflow(config: ProcessingConfig,
 
     if (config.processHashComparator) {
       val solrHashDF = solrHashReader.map(r => r.load())
-      val hashComparator = HashComparator(solrHashDF, config.hashList.getOrElse(Seq()))
+      val hashComparator = HashComparator(solrHashDF, config.hashList.getOrElse(Seq()), columnNamesConverter)
       dfWithHashes = ProcessingPipeline(dfWithHashes)
         .addProcessor(hashComparator)
         .run()

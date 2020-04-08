@@ -33,7 +33,8 @@ object BasicExtractorLauncher {
 
   private[launcher] def buildWriter(config: Config, sparkSession: SparkSession): PipelineSink = PipelineSinkFactory.create(WriterConfig(config), sparkSession)
 
-  private[launcher] def buildAlternativeReader(config: Config, sparkSession: SparkSession) = Option(SolrHashReader(sparkSession, SolrWriterConfig.build(config)))
+  private[launcher] def buildAlternativeReader(config: Config, sparkSession: SparkSession, namingConvention : String) =
+    Option(SolrHashReader(sparkSession, SolrWriterConfig.build(config), namingConvention))
 
   private[launcher] def buildWorkflow(appInputArgs: BasicAppArguments, config: Config, analyticsFilters: Seq[Filter] = Seq()): Workflow = {
     val localMode = appInputArgs.standaloneMode.getOrElse(true)
@@ -45,7 +46,7 @@ object BasicExtractorLauncher {
     val formatAdjustmentProcessor = FormatAdjustmentProcessorFactory.create(processingConfig)
     var solrHashReader: Option[SolrHashReader] = Option.empty
     if (processingConfig.processHashComparator && format.equals(SolrWriter.FormatName)) {
-      solrHashReader = buildAlternativeReader(config, sparkSession)
+      solrHashReader = buildAlternativeReader(config, sparkSession, processingConfig.namingConvention)
     }
     new MainExtractionWorkflow(processingConfig, sparkSession, reader, writer, formatAdjustmentProcessor, analyticsFilters, solrHashReader)
   }

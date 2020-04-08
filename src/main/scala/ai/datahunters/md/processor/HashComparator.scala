@@ -4,18 +4,21 @@ package ai.datahunters.md.processor
 import org.apache.spark.sql.DataFrame
 
 case class HashComparator(solrHashDF: Option[DataFrame],
-                          hashList: Seq[String]) extends Processor {
+                          hashList: Seq[String],
+                          nameConverter: ColumnNamesConverter) extends Processor {
 
   import ai.datahunters.md.processor.HashComparator._
+  import ai.datahunters.md.processor.HashExtractor._
 
-  val HashColumns : Seq[String] = hashList.map(s => HashPrefix + s)
+  val hashColumns: Seq[String] = hashList.map(s => HashColPrefix + s)
+    .map(s => nameConverter.namingConvention(s))
 
 
   override def execute(inputDF: DataFrame): DataFrame = {
     solrHashDF.map(df => {
       inputDF.join(
         df,
-        HashColumns,
+        hashColumns,
         JoinType
       )
     })
@@ -26,5 +29,4 @@ case class HashComparator(solrHashDF: Option[DataFrame],
 object HashComparator {
 
   val JoinType = "left_anti"
-  val HashPrefix = "hash_"
 }

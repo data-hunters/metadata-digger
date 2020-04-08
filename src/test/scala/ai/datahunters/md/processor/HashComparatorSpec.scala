@@ -11,7 +11,7 @@ class HashComparatorSpec extends UnitSpec with SparkBaseSpec {
   "a HashComparator" should "compare two data frames" in {
     val hashRdd = sparkSession.sparkContext.parallelize(HashData)
     val hashDF = Option(sparkSession.createDataFrame(hashRdd, HashSchema))
-    val processor = HashComparator(hashDF, Option(Seq("crc32", "md5")))
+    val processor = HashComparator(hashDF, Seq("crc32", "md5"), ColumnNamesConverterFactory.create("camelCase"))
 
     val inputRdd = sparkSession.sparkContext.parallelize(InputData)
     val inputDF = sparkSession.createDataFrame(inputRdd, InputSchema)
@@ -34,8 +34,8 @@ object HashComparatorSpec {
 
   val HashSchema = StructType(
     Array(
-      StructField("hash_crc32", DataTypes.StringType),
-      StructField("hash_md5", DataTypes.StringType)
+      StructField("HashCrc32", DataTypes.StringType),
+      StructField("HashMd5", DataTypes.StringType)
     )
   )
 
@@ -49,9 +49,9 @@ object HashComparatorSpec {
   val InputSchema = StructType(
     Array(
       StructField("id", DataTypes.StringType),
-      StructField("hash_crc32", DataTypes.StringType),
-      StructField("hash_md5", DataTypes.StringType),
-      StructField("custom_value", DataTypes.StringType)
+      StructField("HashCrc32", DataTypes.StringType),
+      StructField("HashMd5", DataTypes.StringType),
+      StructField("CustomValue", DataTypes.StringType)
     )
   )
 }

@@ -33,7 +33,11 @@ object BasicExtractorLauncher {
 
   private[launcher] def buildWriter(config: Config, sparkSession: SparkSession): PipelineSink = PipelineSinkFactory.create(WriterConfig(config), sparkSession)
 
-  private[launcher] def buildAlternativeReader(config: Config, sparkSession: SparkSession, namingConvention : String) =
+  /**
+    * SolrHashReader use Writer config for initialization.
+    * Solr hash comparator feature work properly with Solr as a sink only and configuration are the same.
+    */
+  private[launcher] def buildHelperSolrReader(config: Config, sparkSession: SparkSession, namingConvention: String) =
     Option(SolrHashReader(sparkSession, SolrWriterConfig.build(config), namingConvention))
 
   private[launcher] def buildWorkflow(appInputArgs: BasicAppArguments, config: Config, analyticsFilters: Seq[Filter] = Seq()): Workflow = {
@@ -44,9 +48,10 @@ object BasicExtractorLauncher {
     val format = config.getString(Writer.OutputFormatKey)
     val processingConfig = loadProcessingConfig(config)
     val formatAdjustmentProcessor = FormatAdjustmentProcessorFactory.create(processingConfig)
-    var solrHashReader: Option[SolrHashReader] = Option.empty
-    if (processingConfig.processHashComparator && format.equals(SolrWriter.FormatName)) {
-      solrHashReader = buildAlternativeReader(config, sparkSession, processingConfig.namingConvention)
+    val solrHashReader = if (processingConfig.processHashComparator && format.equals(SolrWriter.FormatName)) {
+      buildHelperSolrReader(config, sparkSession, processingConfig.namingConvention)
+    } else {
+      None
     }
     new MainExtractionWorkflow(processingConfig, sparkSession, reader, writer, formatAdjustmentProcessor, analyticsFilters, solrHashReader)
   }

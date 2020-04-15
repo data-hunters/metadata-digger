@@ -6,16 +6,16 @@ import java.util.zip.{CRC32, Checksum}
 object HashUtils {
 
   lazy val HashExecutionMap: Map[String, Function[Array[Byte], (String, String)]] = Map(
-    HashNameNorm(CRC32) -> ((c: Array[Byte]) => generateChecksum(CRC32, c)),
-    HashNameNorm(MD5) -> ((c: Array[Byte]) => hashExecution(MD5)(c)),
-    HashNameNorm(SHA_1) -> ((c: Array[Byte]) => hashExecution(SHA_1)(c)),
-    HashNameNorm(SHA_224) -> ((c: Array[Byte]) => hashExecution(SHA_224)(c)),
-    HashNameNorm(SHA_256) -> ((c: Array[Byte]) => hashExecution(SHA_256)(c)),
-    HashNameNorm(SHA_384) -> ((c: Array[Byte]) => hashExecution(SHA_384)(c)),
-    HashNameNorm(SHA_512) -> ((c: Array[Byte]) => hashExecution(SHA_512)(c))
+    HashNameNorm(Crc32) -> ((c: Array[Byte]) => generateChecksum(Crc32, c)),
+    HashNameNorm(Md5) -> ((c: Array[Byte]) => hashExecution(Md5)(c)),
+    HashNameNorm(Sha1) -> ((c: Array[Byte]) => hashExecution(Sha1)(c)),
+    HashNameNorm(Sha224) -> ((c: Array[Byte]) => hashExecution(Sha224)(c)),
+    HashNameNorm(Sha256) -> ((c: Array[Byte]) => hashExecution(Sha256)(c)),
+    HashNameNorm(Sha384) -> ((c: Array[Byte]) => hashExecution(Sha384)(c)),
+    HashNameNorm(Sha512) -> ((c: Array[Byte]) => hashExecution(Sha512)(c))
   )
 
-  val HashNameNorm: (String) => String = s => s.replace(DASH, EMPTY_STRING).toLowerCase()
+  val HashNameNorm: (String) => String = s => s.replace(Dash, EmptyString).toLowerCase()
 
   /**
     * Method covers generation of hash for methods:
@@ -35,7 +35,7 @@ object HashUtils {
       .digest(content)
       .map(0xFF & _)
       .map("%02x".format(_))
-      .foldLeft(EMPTY_STRING)(_ + _)
+      .foldLeft(EmptyString)(_ + _)
     HashNameNorm(algorithm) -> hashResult
   }
 
@@ -52,14 +52,14 @@ object HashUtils {
     val hashResult = crc.getValue.intValue().toHexString
     HashNameNorm(algorithm) -> hashResult
   }
-  val DASH = "-"
-  val EMPTY_STRING = ""
+  val Dash = "-"
+  val EmptyString = ""
 
-  val CRC32 = "CRC32"
-  val MD5 = "MD5"
-  val SHA_1 = "SHA-1"
-  val SHA_224 = "SHA-224"
-  val SHA_256 = "SHA-256"
-  val SHA_384 = "SHA-384"
-  val SHA_512 = "SHA-512"
+  val Crc32 = "CRC32"
+  val Md5 = "MD5"
+  val Sha1 = "SHA-1"
+  val Sha224 = "SHA-224"
+  val Sha256 = "SHA-256"
+  val Sha384 = "SHA-384"
+  val Sha512 = "SHA-512"
 }

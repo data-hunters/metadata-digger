@@ -14,7 +14,10 @@ import org.apache.spark.sql.{DataFrame, Row, SparkSession}
 import scala.collection.JavaConversions._
 
 /**
-  * Read  id and hashes to DataFrame mainly for processing reduction
+  * Read  id and hashes to DataFrame mainly for processing reduction.
+  *
+  * ##Important! Feature is experimental due to loading all IDs from Solr collection into driver.
+  * Out of memory can appear in case of large collections.
   *
   * @param sparkSession
   * @param config
@@ -29,18 +32,18 @@ case class SolrHashReader(sparkSession: SparkSession,
 
   val nameConverter = ColumnNamesConverterFactory.create(namingConvention)
 
-  private val NormalizedHashSeq: Seq[String] = HashSeq
+  private val normalizedHashSeq: Seq[String] = HashSeq
     .map(s => HashColPrefix + HashNameNorm(s))
     .map(s => nameConverter.namingConvention(s))
 
   private val StructFieldsArray = StructType(
-    NormalizedHashSeq
+    normalizedHashSeq
       .map(s => StructField(s, DataTypes.StringType, nullable = true))
       .toArray
   )
 
   private val documentToStrings: SolrDocument => Seq[String] =
-    (document: SolrDocument) => NormalizedHashSeq.map(s => getDocumentFieldValueOrEmptyString(document, s))
+    (document: SolrDocument) => normalizedHashSeq.map(s => getDocumentFieldValueOrEmptyString(document, s))
 
 
   override def load(): DataFrame = {
@@ -77,7 +80,7 @@ case class SolrHashReader(sparkSession: SparkSession,
   def builtQueryParamMap(queryStartRow: Int) = {
     val queryParamMap = new util.HashMap[String, String]()
     queryParamMap.put(QueryKey, QueryAllValue)
-    queryParamMap.put(FieldKey, NormalizedHashSeq.mkString(Comma))
+    queryParamMap.put(FieldKey, normalizedHashSeq.mkString(Comma))
     queryParamMap.put(StartKey, queryStartRow.toString)
     queryParamMap.put(RowsKey, RowsValue.toString)
     queryParamMap
@@ -97,6 +100,6 @@ object SolrHashReader {
   val StartKey = "start"
   val QueryStartRow = 0
 
-  val HashSeq: Seq[String] = Seq(CRC32, MD5, SHA_1, SHA_224, SHA_256, SHA_384, SHA_512)
+  val HashSeq: Seq[String] = Seq(Crc32, Md5, Sha1, Sha224, Sha256, Sha384, Sha512)
 
 }

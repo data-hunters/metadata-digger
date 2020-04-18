@@ -4,6 +4,7 @@ import ai.datahunters.md.config.enrich.MetadataEnrichmentConfig
 import ai.datahunters.md.config.processing.{MandatoryTagsConfig, ProcessingConfig}
 import ai.datahunters.md.filter.{Filter, NotEmptyTagFilter}
 import ai.datahunters.md.pipeline.ProcessingPipeline
+import ai.datahunters.md.processor.HashExtractor.HashColPrefix
 import ai.datahunters.md.processor._
 import ai.datahunters.md.processor.enrich.MultiLabelClassifier
 import ai.datahunters.md.reader.{PipelineSource, SolrHashReader}
@@ -50,6 +51,8 @@ class FullMDWorkflow(config: MetadataEnrichmentConfig,
     val rawInputDF = reader.load()
     val hashList = processingConfig.hashList
       .map(s => s.filter(e => e.nonEmpty))
+    val hashColumns: Option[Seq[String]] = hashList.map(s=>s.map(s => HashColPrefix + s)
+      .map(s => columnNamesConverter.namingConvention(s)))
     val hashExtractor = hashList.map(s => HashExtractor(s, columnNamesConverter))
     val hashGenerationPipeline = ProcessingPipeline(rawInputDF)
     hashExtractor.foreach(hashGenerationPipeline.addProcessor)
@@ -64,7 +67,7 @@ class FullMDWorkflow(config: MetadataEnrichmentConfig,
     val pipeline = ProcessingPipeline(dfWithHashes)
       .setFormatAdjustmentProcessor(formatAdjustmentProcessor)
       .setColumnNamesConverter(Some(columnNamesConverter))
-      .addProcessor(MultiLabelClassifier(sparkSession, loadModel(), config.labelsMapping, config.threshold))
+      .addProcessor(MultiLabelClassifier(sparkSession, loadModel(), config.labelsMapping, config.threshold, hashList = hashColumns.getOrElse(Seq())))
     if (processingConfig.thumbnailsEnabled) {
       pipeline.addProcessor(ThumbnailsGenerator(processingConfig.smallThumbnailsSize, processingConfig.mediumThumbnailsSize))
     }

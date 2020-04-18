@@ -29,9 +29,10 @@ object FullMDLauncher {
     metadataEnrichmentConfig.adjustSparkConfig(sparkSession)
     val formatAdjustmentProcessor = FormatAdjustmentProcessorFactory.create(processingConfig)
     val format = config.getString(Writer.OutputFormatKey)
-    var solrHashReader: Option[SolrHashReader] = Option.empty
-    if (processingConfig.processHashComparator && format.equals(SolrWriter.FormatName)) {
-      solrHashReader = buildHelperSolrReader(config, sparkSession, processingConfig.namingConvention)
+    val solrHashReader: Option[SolrHashReader] = if (processingConfig.processHashComparator && format.equals(SolrWriter.FormatName)) {
+      buildHelperSolrReader(config, sparkSession, processingConfig.namingConvention)
+    } else {
+      None
     }
     new FullMDWorkflow(metadataEnrichmentConfig, processingConfig, sparkSession, reader, writer, formatAdjustmentProcessor, solrHashReader = solrHashReader)
   }

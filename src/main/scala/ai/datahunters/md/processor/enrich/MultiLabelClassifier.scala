@@ -13,7 +13,8 @@ case class MultiLabelClassifier(@transient sparkSession: SparkSession,
                                 labelsMapping: Map[Int, String],
                                 threshold: Float,
                                 targetImgWidh: Int = 256,
-                                targetImgHeight: Int = 256) extends Processor {
+                                targetImgHeight: Int = 256,
+                                hashList: Seq[String] = Seq()) extends Processor {
 
   protected val featureTransformer: FeatureTransformer = Resize(targetImgWidh, targetImgHeight) ->
     ChannelNormalize(0, 0, 0, 1, 1, 1) ->
@@ -22,12 +23,12 @@ case class MultiLabelClassifier(@transient sparkSession: SparkSession,
 
 
   override def execute(inputDF: DataFrame): DataFrame = {
-    val imgFrame = ImageFeatureUtils.buildImageFrame(inputDF, labelsMapping.size, featureTransformer)
+    val imgFrame = ImageFeatureUtils.buildImageFrame(inputDF, labelsMapping.size, featureTransformer, hashList = hashList)
     val predictionsRDD = model.predictImage(imgFrame)
       .toDistributed()
       .rdd
-      .map(ImageFeatureUtils.imageFeatureToRow(labelsMapping, threshold = threshold))
-    sparkSession.createDataFrame(predictionsRDD, MultiLabelPredictionSchemaConfig.schema())
+      .map(ImageFeatureUtils.imageFeatureToRow(labelsMapping, threshold = threshold, hashList = hashList))
+    sparkSession.createDataFrame(predictionsRDD, MultiLabelPredictionSchemaConfig.schema(hashList))
   }
 
 

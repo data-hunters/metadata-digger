@@ -30,4 +30,18 @@ object MultiLabelPredictionSchemaConfig extends SchemaConfig {
     .addBinaryField(FileCol)
     .addStringArrayField(LabelsCol)
     .build()
+
+  /**
+    * Overloaded method add all hash columns additionally.
+    * @param hashList
+    * @return
+    */
+  def schema(hashList: Seq[String] = Seq()): StructType = new SchemaBuilder()
+    .addStringField(IDCol)
+    .addStringField(BasePathCol)
+    .addStringField(FilePathCol)
+    .addBinaryField(FileCol)
+    .addStringArrayField(LabelsCol)
+    .addStringFields(hashList)
+    .build()
 }

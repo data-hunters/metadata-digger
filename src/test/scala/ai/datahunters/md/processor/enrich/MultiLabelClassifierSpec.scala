@@ -26,13 +26,13 @@ class MultiLabelClassifierSpec extends UnitSpec with SparkBaseSpec{
     val rdd = spark.sparkContext.parallelize(input)
     val df = spark.createDataFrame(rdd, new BinaryInputSchemaConfig().schema())
     val predictions = classifier.execute(df)
-    assert(predictions.columns === MultiLabelPredictionSchemaConfig.columns())
+    assert(predictions.columns === MultiLabelPredictionSchemaConfig().columns())
     val predictionsArr = predictions.drop(BinaryInputSchemaConfig.FileCol).collect()
     assert(predictionsArr.size === 1)
     val row = predictionsArr(0)
     assert(row.getAs[String](BinaryInputSchemaConfig.IDCol) === "id1")
     assert(row.getAs[String](BinaryInputSchemaConfig.BasePathCol) === imgPath(""))
-    assert(row.getList[String](row.schema.fieldIndex(MultiLabelPredictionSchemaConfig.LabelsCol)).toArray === Array("person"))
+    assert(row.getList[String](row.schema.fieldIndex(MultiLabelPredictionSchemaConfig().LabelsCol)).toArray === Array("person"))
   }
 }
 

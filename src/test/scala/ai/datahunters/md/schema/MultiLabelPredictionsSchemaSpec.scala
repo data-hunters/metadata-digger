@@ -8,12 +8,12 @@ import org.apache.spark.sql.types.{ArrayType, BinaryType, DataTypes, StringType}
 class MultiLabelPredictionsSchemaSpec extends UnitSpec {
 
   "A MultiLabelPredictionsSchema" should "keep info about schema for results of MultiLabel classifier" in {
-    val schemaConfig = MultiLabelPredictionSchemaConfig
-    assert(schemaConfig.columns() === Seq(IDCol, BasePathCol, FilePathCol, FileCol, MultiLabelPredictionSchemaConfig.LabelsCol))
+    val schemaConfig = MultiLabelPredictionSchemaConfig()
+    assert(schemaConfig.columns() === Seq(IDCol, BasePathCol, FilePathCol, FileCol, MultiLabelPredictionSchemaConfig().LabelsCol))
   }
 
   it should "provide types of fields for results of MultiLabel classifier" in {
-    val schema = MultiLabelPredictionSchemaConfig.schema()
+    val schema = MultiLabelPredictionSchemaConfig().schema()
     val fields = schema.fields
     assert(fields.size === 5)
     assert(fields(0).name === IDCol)
@@ -24,7 +24,7 @@ class MultiLabelPredictionsSchemaSpec extends UnitSpec {
     assert(fields(2).dataType === StringType)
     assert(fields(3).name === FileCol)
     assert(fields(3).dataType === BinaryType)
-    assert(fields(4).name === MultiLabelPredictionSchemaConfig.LabelsCol)
+    assert(fields(4).name === MultiLabelPredictionSchemaConfig().LabelsCol)
     assert(fields(4).dataType === DataTypes.createArrayType(StringType))
   }
 

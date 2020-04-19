@@ -28,7 +28,7 @@ case class MultiLabelClassifier(@transient sparkSession: SparkSession,
       .toDistributed()
       .rdd
       .map(ImageFeatureUtils.imageFeatureToRow(labelsMapping, threshold = threshold, hashList = hashList))
-    sparkSession.createDataFrame(predictionsRDD, MultiLabelPredictionSchemaConfig.schema(hashList))
+    sparkSession.createDataFrame(predictionsRDD, MultiLabelPredictionSchemaConfig(hashList).schema())
   }
 
 

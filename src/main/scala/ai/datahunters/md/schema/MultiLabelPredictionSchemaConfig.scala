@@ -2,7 +2,7 @@ package ai.datahunters.md.schema
 import ai.datahunters.md.schema.BinaryInputSchemaConfig.{BasePathCol, FileCol, FilePathCol, IDCol}
 import org.apache.spark.sql.types.StructType
 
-class MultiLabelPredictionSchemaConfig(hashList: Seq[String] = Seq()) extends SchemaConfig {
+case class MultiLabelPredictionSchemaConfig(hashList: Seq[String] = Seq()) extends SchemaConfig {
 
   val LabelsCol = "Labels"
   /**

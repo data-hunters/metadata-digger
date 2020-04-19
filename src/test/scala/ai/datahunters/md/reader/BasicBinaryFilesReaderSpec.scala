@@ -1,5 +1,6 @@
 package ai.datahunters.md.reader
 
+import java.io.File
 import java.nio.file.{Files, Paths}
 
 import ai.datahunters.md.config.reader.LocalFSReaderConfig
@@ -13,23 +14,25 @@ class BasicBinaryFilesReaderSpec extends UnitSpec with SparkBaseSpec {
 
 
   "An BasicBinaryFilesReader" should "properly load image file to dataframe" in {
-    val reader = BasicBinaryFilesReader(sparkSession, LocalFSReaderConfig(Seq(imgPath("")), 1))
+    val reader = BasicBinaryFilesReader(sparkSession, LocalFSReaderConfig(Seq(imgPath("landscape*.jpg")), 1))
     val df = reader.load()
     verifyReaderResults(df)
   }
 
   private def verifyReaderResults(df: DataFrame): Unit = {
     val expectedFilePath = imgPath("landscape-4518195_960_720_pixabay_license.jpg")
+
     val fields = df.schema.fields.map(_.name)
-    assert(fields === Array(ContentHash, BasePathCol, FilePathCol, FileCol))
+    assert(fields === Array(IDCol, BasePathCol, FilePathCol, FileCol))
     val row = df.collect()(0)
-    val expectedContentHash: String = md5sum(imgPath(""))
+    val expectedId: String = md5sum( "file:" + expectedFilePath)
     val file: Array[Byte] = row.getAs(FileCol)
     val filePath = row.getAs[String](FilePathCol)
     val expectedFile = Files.readAllBytes(Paths.get(expectedFilePath))
-    assert(imgPath("") === row.getAs[String](BasePathCol))
+    assert(row.getAs[String](BasePathCol) === imgPath("landscape*.jpg"))
     assert(filePath.endsWith(expectedFilePath))
     assert(file === expectedFile)
+    assert(row.getAs[String](IDCol) === expectedId)
   }
 
 }

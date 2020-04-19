@@ -12,7 +12,7 @@ class FlattenMetadataTagsSpec extends UnitSpec with SparkBaseSpec {
   import BinaryInputSchemaConfig._
 
   "A FlattenMetadataTags" should "extract embedded tags to root level" in {
-    val processor = FlattenMetadataTags("")
+    val processor = FlattenMetadataTags("", includeMetadataContent = true)
     val rdd = sparkSession.sparkContext.parallelize(Data)
     val df = sparkSession.createDataFrame(rdd, Schema)
     val outputDF = processor.execute(df)
@@ -21,7 +21,7 @@ class FlattenMetadataTagsSpec extends UnitSpec with SparkBaseSpec {
   }
 
   it should "extract selected embedded tags to root level" in {
-    val processor = FlattenMetadataTags("", false, true, Some(Seq("tag1", "tag2")))
+    val processor = FlattenMetadataTags("", false, true, true, Some(Seq("tag1", "tag2")))
     val rdd = sparkSession.sparkContext.parallelize(Data)
     val df = sparkSession.createDataFrame(rdd, Schema)
     val outputDF = processor.execute(df)

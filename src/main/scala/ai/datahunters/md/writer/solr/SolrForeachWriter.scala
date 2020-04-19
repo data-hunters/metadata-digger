@@ -5,7 +5,7 @@ import java.util.{Date, Optional}
 
 import ai.datahunters.md.config.writer.SolrWriterConfig
 import ai.datahunters.md.schema.SchemaConfig
-import ai.datahunters.md.util.{DateTimeUtils, TextUtils}
+import ai.datahunters.md.util.{DateTimeUtils, SolrClientBuilder, TextUtils}
 import org.apache.solr.client.solrj.impl.CloudSolrClient
 import org.apache.solr.common.SolrInputDocument
 import org.apache.spark.api.java.function.ForeachPartitionFunction
@@ -19,9 +19,6 @@ import scala.collection.mutable.ArrayBuffer
 /**
   * Convert all Row objects (in partition) to SolrInputDocument and index to Solr.
   *
-  * @param zkServers
-  * @param zkSolrChroot
-  * @param collection
   * @param putBatchSize
   */
 case class SolrForeachWriter(config: SolrWriterConfig,
@@ -33,11 +30,16 @@ case class SolrForeachWriter(config: SolrWriterConfig,
   private val logger = LoggerFactory.getLogger(classOf[SolrForeachWriter])
 
   override def call(partitionRows: util.Iterator[Row]): Unit = {
-    val client = SolrClientBuilder().setZKServers(config.zkServers)
+    SolrForeachWriter.Logger.info("Building solr client")
+    val clientBuilder = SolrClientBuilder().setZKServers(config.zkServers)
         .setZKSolrChroot(config.zkSolrZNode)
         .setDefaultCollection(config.collection)
-        .build()
+    val clientBuilderWithSec = config.krbConfig
+        .map(clientBuilder.setJaas)
+        .getOrElse(clientBuilder)
+    val client = clientBuilderWithSec.build()
     val docsBuffer = ArrayBuffer[SolrInputDocument]()
+    SolrForeachWriter.Logger.info("Writing partition to Solr...")
     processAll(partitionRows, client)
     client.close()
   }
@@ -97,3 +99,7 @@ case class SolrForeachWriter(config: SolrWriterConfig,
   }
 }
 
+object SolrForeachWriter {
+
+  val Logger = LoggerFactory.getLogger(classOf[SolrForeachWriter])
+}

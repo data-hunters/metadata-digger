@@ -12,7 +12,8 @@ case class FlattenMetadataDirectories(allowedDirectories: Option[Seq[String]] = 
   override def execute(inputDF: DataFrame): DataFrame = {
     val selectedDirs = retrieveDirectories(inputDF)
     val selectMetadataUDF = selectMetadata(selectedDirs)
-    inputDF.withColumn(EmbeddedMetadataSchemaConfig.DirectoriesCol, col(EmbeddedMetadataSchemaConfig.FullDirectoriesCol))
+    inputDF.withColumn(EmbeddedMetadataSchemaConfig.DirectoryNamesCol, col(EmbeddedMetadataSchemaConfig.FullDirectoriesCol))
+      .withColumn(EmbeddedMetadataSchemaConfig.TagNamesCol, col(EmbeddedMetadataSchemaConfig.FullTagNamesCol))
       .withColumn(MetadataSchemaConfig.MetadataCol, selectMetadataUDF(
         col(EmbeddedMetadataSchemaConfig.FullTagsCol)
       ))

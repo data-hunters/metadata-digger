@@ -60,14 +60,15 @@ class S3WriterConfigSpec extends UnitSpec {
     assert(confBefore.get(HadoopS3CredsProviderKey) === null)
     assert(confBefore.get(HadoopS3AccessKeyKey) === null)
     assert(confBefore.get(HadoopS3PathStyleAccessKey) === "false")
-    outputConfig.adjustSparkConfig(sparkSession)
     val confAfter = sparkSession.sparkContext.hadoopConfiguration
+    outputConfig.adjustSparkConfig(sparkSession)
     assert(confAfter.get(HadoopS3SecretKeyKey) === SampleSecretKey)
-    assert(confBefore.get(HadoopFsS3ImplKey) === HadoopFsS3Impl)
-    assert(confBefore.get(HadoopS3EndpointKey) === SampleEndpoint)
-    assert(confBefore.get(HadoopS3CredsProviderKey) === HadoopS3CredsProvider)
-    assert(confBefore.get(HadoopS3AccessKeyKey) === SampleAccessKey)
-    assert(confBefore.get(HadoopS3PathStyleAccessKey) === HadoopS3PathStyleAccess)
+    assert(confAfter.get(HadoopFsS3ImplKey) === HadoopFsS3Impl)
+    assert(confAfter.get(HadoopS3EndpointKey) === SampleEndpoint)
+    assert(confAfter.get(HadoopS3CredsProviderKey) === HadoopS3CredsProvider)
+    assert(confAfter.get(HadoopS3AccessKeyKey) === SampleAccessKey)
+    assert(confAfter.get(HadoopS3PathStyleAccessKey) === HadoopS3PathStyleAccess)
+    sparkSession.close()
   }
 }
 

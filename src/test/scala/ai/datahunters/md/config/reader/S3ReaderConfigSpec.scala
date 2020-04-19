@@ -65,6 +65,7 @@ class S3ReaderConfigSpec extends UnitSpec {
     assert(confBefore.get(HadoopS3CredsProviderKey) === HadoopS3CredsProvider)
     assert(confBefore.get(HadoopS3AccessKeyKey) === SampleAccessKey)
     assert(confBefore.get(HadoopS3PathStyleAccessKey) === HadoopS3PathStyleAccess)
+    sparkSession.close()
   }
 }
 

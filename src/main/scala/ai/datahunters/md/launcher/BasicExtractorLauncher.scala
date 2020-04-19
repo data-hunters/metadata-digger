@@ -3,33 +3,57 @@ package ai.datahunters.md.launcher
 import ai.datahunters.md.config._
 import ai.datahunters.md.config.processing.ProcessingConfig
 import ai.datahunters.md.config.reader.ReaderConfig
-import ai.datahunters.md.config.writer.WriterConfig
-import ai.datahunters.md.pipeline.{BasicExtractionWorkflow, SessionCreator}
-import ai.datahunters.md.reader.PipelineSourceFactory
-import ai.datahunters.md.util.Parser.parse
-import ai.datahunters.md.writer.{FormatAdjustmentProcessorFactory, PipelineSinkFactory}
+import ai.datahunters.md.config.writer.{SolrWriterConfig, WriterConfig}
+import ai.datahunters.md.filter.Filter
+import ai.datahunters.md.pipeline.SessionCreator
+import ai.datahunters.md.reader.{PipelineSource, PipelineSourceFactory, SolrHashReader}
+import ai.datahunters.md.workflow.{MainExtractionWorkflow, Workflow}
+import ai.datahunters.md.writer.{FormatAdjustmentProcessorFactory, PipelineSink, PipelineSinkFactory, SolrWriter}
 import com.typesafe.config.Config
+import org.apache.spark.sql.SparkSession
 
 object BasicExtractorLauncher {
 
-  val AppName = "Metadata-Digger"
+  val AppName = "Metadata-Digger [Basic Extraction]"
 
   def main(args: Array[String]): Unit = {
-    if (args.isEmpty) {
-      println("Configuration path not provided in arguments. Closing application.")
-      System.exit(1)
-    }
-    val mode = if (args.length > 1) parse[Boolean](args(1)) else None
-    val localMode = mode.getOrElse(false)
-    val config: Config = ConfigLoader.load(args(0))
-    val sessionCreator = new SessionCreator(SessionConfig.build(config), localMode, AppName)
-    val sparkSession = sessionCreator.create()
-    val reader = PipelineSourceFactory.create(ReaderConfig(config), sparkSession)
-    val writer = PipelineSinkFactory.create(WriterConfig(config), sparkSession)
+    val appInputArgs = AppArguments.parseArgs(args)
+    val config: Config = ConfigLoader.load(appInputArgs.configPath)
+    buildWorkflow(appInputArgs, config).run()
+  }
+
+  private[launcher] def loadProcessingConfig(config: Config): ProcessingConfig = ProcessingConfig.build(config)
+
+  private[launcher] def loadSession(appName: String, config: Config, localMode: Boolean): SparkSession = {
+    val sessionCreator = new SessionCreator(SessionConfig.build(config), localMode, appName)
+    sessionCreator.create()
+  }
+
+  private[launcher] def buildReader(config: Config, sparkSession: SparkSession): PipelineSource = PipelineSourceFactory.create(ReaderConfig(config), sparkSession)
+
+  private[launcher] def buildWriter(config: Config, sparkSession: SparkSession): PipelineSink = PipelineSinkFactory.create(WriterConfig(config), sparkSession)
+
+  /**
+    * SolrHashReader use Writer config for initialization.
+    * Solr hash comparator feature work properly with Solr as a sink only and configuration are the same.
+    */
+  private[launcher] def buildHelperSolrReader(config: Config, sparkSession: SparkSession, namingConvention: String) =
+    Option(SolrHashReader(sparkSession, SolrWriterConfig.build(config), namingConvention))
+
+  private[launcher] def buildWorkflow(appInputArgs: BasicAppArguments, config: Config, analyticsFilters: Seq[Filter] = Seq()): Workflow = {
+    val localMode = appInputArgs.standaloneMode.getOrElse(true)
+    val sparkSession = loadSession(AppName, config, localMode)
+    val reader = buildReader(config, sparkSession)
+    val writer = buildWriter(config, sparkSession)
     val format = config.getString(Writer.OutputFormatKey)
-    val processingConfig = ProcessingConfig.build(config)
+    val processingConfig = loadProcessingConfig(config)
     val formatAdjustmentProcessor = FormatAdjustmentProcessorFactory.create(processingConfig)
-    new BasicExtractionWorkflow(processingConfig, sparkSession, reader, writer, formatAdjustmentProcessor).run()
+    val solrHashReader = if (processingConfig.processHashComparator && format.equals(SolrWriter.FormatName)) {
+      buildHelperSolrReader(config, sparkSession, processingConfig.namingConvention)
+    } else {
+      None
+    }
+    new MainExtractionWorkflow(processingConfig, sparkSession, reader, writer, formatAdjustmentProcessor, analyticsFilters, solrHashReader)
   }
 
 }

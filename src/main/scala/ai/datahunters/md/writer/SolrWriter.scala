@@ -1,5 +1,5 @@
 package ai.datahunters.md.writer
-import ai.datahunters.md.writer.solr.{SolrClientBuilder, SolrForeachWriter}
+import ai.datahunters.md.writer.solr.SolrForeachWriter
 import org.apache.solr.client.solrj.impl.CloudSolrClient
 import org.apache.spark.sql.{DataFrame, functions}
 import org.slf4j.LoggerFactory

@@ -48,8 +48,8 @@ case class BasicBinaryFilesReader(sparkSession: SparkSession,
       .binaryFiles(path)
       .map(r => {
         val content = r._2.toArray()
-        val contentHash: String = md5sum(content)
-        Row.fromTuple(contentHash, path, r._1, content)
+        val pathHash: String = md5sum(r._1)
+        Row.fromTuple(pathHash, path, r._1, content)
       })
   }
 

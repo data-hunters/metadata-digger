@@ -14,14 +14,14 @@ case class BinaryInputSchemaConfig() extends SchemaConfig {
   import BinaryInputSchemaConfig._
 
   override def columns(): Seq[String] = Seq(
-    ContentHash,
+    IDCol,
     BasePathCol,
     FilePathCol,
     FileCol
   )
 
   override def schema(): StructType = new SchemaBuilder()
-      .addStringField(ContentHash)
+      .addStringField(IDCol)
       .addStringField(BasePathCol)
       .addStringField(FilePathCol)
       .addBinaryField(FileCol)
@@ -31,7 +31,7 @@ case class BinaryInputSchemaConfig() extends SchemaConfig {
 
 object BinaryInputSchemaConfig {
 
-  val ContentHash = "ID"
+  val IDCol = "ID"
   val BasePathCol = "Base Path"
   val FilePathCol = "File Path"
   val FileCol = "File Data"

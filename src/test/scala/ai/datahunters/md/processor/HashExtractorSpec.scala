@@ -11,7 +11,7 @@ class HashExtractorSpec extends UnitSpec with SparkBaseSpec {
   import HashExtractorSpec._
 
   "a HashExtractor" should "generate crc32 value" in {
-    val processor = HashExtractor(Seq("crc32", "md5"))
+    val processor = HashExtractor(Seq("crc32", "md5"), ColumnNamesConverterFactory.create("camelCase"))
     val rdd = sparkSession.sparkContext.parallelize(Data)
     val df = sparkSession.createDataFrame(rdd, InputSchema)
     val resultDF = processor.execute(df)
@@ -22,7 +22,7 @@ class HashExtractorSpec extends UnitSpec with SparkBaseSpec {
   }
 
   "a HashExtractor" should "not generate crc32 value" in {
-    val processor = HashExtractor(Seq())
+    val processor = HashExtractor(Seq(), ColumnNamesConverterFactory.create("camelCase"))
     val rdd = sparkSession.sparkContext.parallelize(Data)
     val df = sparkSession.createDataFrame(rdd, InputSchema)
     val resultDF = processor.execute(df)

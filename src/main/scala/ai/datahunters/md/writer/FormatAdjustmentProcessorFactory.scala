@@ -17,7 +17,7 @@ object FormatAdjustmentProcessorFactory {
   }
 
   def create(config: MetadataEnrichmentConfig, outputFormat: String): Option[Processor] = outputFormat match {
-    case FileOutputWriter.CsvFormat => Some(new FlattenArrays(config.outputLabelsDelimiter)(Seq(MultiLabelPredictionSchemaConfig.LabelsCol)))
+    case FileOutputWriter.CsvFormat => Some(new FlattenArrays(config.outputLabelsDelimiter)(Seq(MultiLabelPredictionSchemaConfig().LabelsCol)))
     case FileOutputWriter.JsonFormat => None
     case SolrWriter.FormatName => None
     case other => None

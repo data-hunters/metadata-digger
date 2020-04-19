@@ -37,7 +37,9 @@ object ImageFeatureUtils {
                       idCol: String = BinaryInputSchemaConfig.IDCol,
                       fileDataCol: String = BinaryInputSchemaConfig.FileCol,
                       basePathCol: String = BinaryInputSchemaConfig.BasePathCol,
-                      filePathCol: String = BinaryInputSchemaConfig.FilePathCol): ImageFrame = {
+                      filePathCol: String = BinaryInputSchemaConfig.FilePathCol,
+                      hashList: Seq[String] = Seq()): ImageFrame = {
+
     val inputRDD = inputDF
       .rdd
       .map(row => {
@@ -47,7 +49,8 @@ object ImageFeatureUtils {
           row.getAs(filePathCol),
           Tensor(Array.fill(labelsSize)(0.0f), Array(labelsSize)),
           idCol,
-          basePathCol)
+          basePathCol,
+          hashList.map(s => (s, row.getAs(s))))
       }).filter(_.isDefined)
       .map(_.get)
     ImageFrame.rdd(inputRDD).transform(featureTransformer)
@@ -55,6 +58,7 @@ object ImageFeatureUtils {
 
   /**
     * Convert ImageFeature to Row by retrieving all necessary values using keys.
+    *
     * @param labelsMapping
     * @param idKey
     * @param basePathKey
@@ -65,18 +69,22 @@ object ImageFeatureUtils {
   def imageFeatureToRow(labelsMapping: Map[Int, String],
                         idKey: String = BinaryInputSchemaConfig.IDCol,
                         basePathKey: String = BinaryInputSchemaConfig.BasePathCol,
-                        threshold: Float = 0.5f)(imageFeature: ImageFeature): Row = {
+                        threshold: Float = 0.5f,
+                        hashList: Seq[String] = Seq())(imageFeature: ImageFeature): Row = {
+
     val predictions = imageFeature[Tensor[Float]](ImageFeature.predict).toArray()
       .zipWithIndex
       .filter(_._1 > threshold)
       .map(pred => labelsMapping.get(pred._2).getOrElse(UnknownLabel))
-    Row.fromTuple((
+    val hashValues = hashList.map(s => imageFeature[String](s))
+    Row.fromSeq(Seq(
       imageFeature(idKey),
       imageFeature(basePathKey),
       imageFeature(ImageFeature.uri),
       imageFeature[Array[Byte]](ImageFeature.bytes),
       predictions
-    ))
+    ) ++ hashValues
+    )
   }
 
   private[util] def prepareImageFeature(originalImg: Array[Byte],
@@ -85,7 +93,8 @@ object ImageFeatureUtils {
                                         filePath: String,
                                         label: Tensor[Float],
                                         idCol: String = BinaryInputSchemaConfig.IDCol,
-                                        basePathCol: String = BinaryInputSchemaConfig.BasePathCol): Option[ImageFeature] = {
+                                        basePathCol: String = BinaryInputSchemaConfig.BasePathCol,
+                                        hashMap: Seq[(String, String)] = Seq()): Option[ImageFeature] = {
     try {
       val bm = OpenCVMat.fromImageBytes(originalImg)
       val finalBM = if (bm.channels() != 3) {
@@ -99,6 +108,7 @@ object ImageFeatureUtils {
       imgFeature.update(ImageFeature.mat, finalBM)
       imgFeature.update(idCol, id)
       imgFeature.update(basePathCol, basePath)
+      hashMap.foreach(s => imgFeature.update(s._1, s._2))
       Some(imgFeature)
     } catch {
       case e: Exception => {

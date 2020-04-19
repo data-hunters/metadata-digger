@@ -3,12 +3,12 @@ package ai.datahunters.md.launcher
 import ai.datahunters.md.config._
 import ai.datahunters.md.config.processing.ProcessingConfig
 import ai.datahunters.md.config.reader.ReaderConfig
-import ai.datahunters.md.config.writer.WriterConfig
+import ai.datahunters.md.config.writer.{SolrWriterConfig, WriterConfig}
 import ai.datahunters.md.filter.Filter
 import ai.datahunters.md.pipeline.SessionCreator
-import ai.datahunters.md.reader.{PipelineSource, PipelineSourceFactory}
+import ai.datahunters.md.reader.{PipelineSource, PipelineSourceFactory, SolrHashReader}
 import ai.datahunters.md.workflow.{MainExtractionWorkflow, Workflow}
-import ai.datahunters.md.writer.{FormatAdjustmentProcessorFactory, PipelineSink, PipelineSinkFactory}
+import ai.datahunters.md.writer.{FormatAdjustmentProcessorFactory, PipelineSink, PipelineSinkFactory, SolrWriter}
 import com.typesafe.config.Config
 import org.apache.spark.sql.SparkSession
 
@@ -33,6 +33,13 @@ object BasicExtractorLauncher {
 
   private[launcher] def buildWriter(config: Config, sparkSession: SparkSession): PipelineSink = PipelineSinkFactory.create(WriterConfig(config), sparkSession)
 
+  /**
+    * SolrHashReader use Writer config for initialization.
+    * Solr hash comparator feature work properly with Solr as a sink only and configuration are the same.
+    */
+  private[launcher] def buildHelperSolrReader(config: Config, sparkSession: SparkSession, namingConvention: String) =
+    Option(SolrHashReader(sparkSession, SolrWriterConfig.build(config), namingConvention))
+
   private[launcher] def buildWorkflow(appInputArgs: BasicAppArguments, config: Config, analyticsFilters: Seq[Filter] = Seq()): Workflow = {
     val localMode = appInputArgs.standaloneMode.getOrElse(true)
     val sparkSession = loadSession(AppName, config, localMode)
@@ -41,8 +48,12 @@ object BasicExtractorLauncher {
     val format = config.getString(Writer.OutputFormatKey)
     val processingConfig = loadProcessingConfig(config)
     val formatAdjustmentProcessor = FormatAdjustmentProcessorFactory.create(processingConfig)
-
-    new MainExtractionWorkflow(processingConfig, sparkSession, reader, writer, formatAdjustmentProcessor, analyticsFilters)
+    val solrHashReader = if (processingConfig.processHashComparator && format.equals(SolrWriter.FormatName)) {
+      buildHelperSolrReader(config, sparkSession, processingConfig.namingConvention)
+    } else {
+      None
+    }
+    new MainExtractionWorkflow(processingConfig, sparkSession, reader, writer, formatAdjustmentProcessor, analyticsFilters, solrHashReader)
   }
 
 }

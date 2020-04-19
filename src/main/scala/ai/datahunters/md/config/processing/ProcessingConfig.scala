@@ -8,6 +8,7 @@ case class ProcessingConfig(allowedDirectories: Option[Seq[String]],
                             allowedTags: Option[Seq[String]],
                             mandatoryTags: Option[Seq[String]],
                             hashList: Option[Seq[String]],
+                            processHashComparator: Boolean = false,
                             namingConvention: String,
                             metadataColumnsPrefix: String,
                             includeDirsInTags: Boolean,
@@ -32,6 +33,7 @@ object ProcessingConfig {
   val ThumbnailsSmallSizeKey = "processing.thumbnails.smallDimensions"
   val ThumbnailsMediumSizeKey = "processing.thumbnails.mediumDimensions"
   val HashListKey = "processing.hash.types"
+  val ProcessHashComparatorKey = "processing.hash.comparator"
 
   import ConfigLoader._
 
@@ -48,7 +50,8 @@ object ProcessingConfig {
     ThumbnailsEnabledKey -> false,
     ThumbnailsSmallSizeKey -> "",
     ThumbnailsMediumSizeKey -> "",
-    HashListKey -> All
+    HashListKey -> All,
+    ProcessHashComparatorKey -> false
   )
 
   def build(config: Config): ProcessingConfig = {
@@ -59,6 +62,7 @@ object ProcessingConfig {
       configWithDefaults.getString(AllowedTagsKey),
       configWithDefaults.getString(MandatoryTagsKey),
       configWithDefaults.getString(HashListKey),
+      configWithDefaults.getBoolean(ProcessHashComparatorKey),
       configWithDefaults.getString(ColumnsNamingConventionKey),
       configWithDefaults.getString(MetadataColumnsPrefixKey),
       configWithDefaults.getBoolean(IncludeDirectoriesInTagNamesKey),

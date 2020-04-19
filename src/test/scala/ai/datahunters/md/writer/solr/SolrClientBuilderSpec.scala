@@ -3,6 +3,7 @@ package ai.datahunters.md.writer.solr
 import java.nio.file.Paths
 
 import ai.datahunters.md.UnitSpec
+import ai.datahunters.md.util.SolrClientBuilder
 
 class SolrClientBuilderSpec extends UnitSpec {
 

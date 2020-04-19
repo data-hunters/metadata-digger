@@ -31,6 +31,7 @@ class FullMDWorkflowSpec extends UnitSpec with SparkBaseSpec {
     when(processingConfig.namingConvention).thenReturn("snakeCase")
     when(processingConfig.allowedDirectories).thenReturn(None)
     when(processingConfig.mandatoryTags).thenReturn(None)
+    when(processingConfig.hashList).thenReturn(None)
     val enrichmentConfig = mock[MetadataEnrichmentConfig]
     when(enrichmentConfig.threshold).thenReturn(0.5f)
     when(enrichmentConfig.outputLabelsDelimiter).thenReturn(",")

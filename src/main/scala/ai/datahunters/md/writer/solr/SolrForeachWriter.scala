@@ -5,7 +5,7 @@ import java.util.{Date, Optional}
 
 import ai.datahunters.md.config.writer.SolrWriterConfig
 import ai.datahunters.md.schema.SchemaConfig
-import ai.datahunters.md.util.{DateTimeUtils, TextUtils}
+import ai.datahunters.md.util.{DateTimeUtils, SolrClientBuilder, TextUtils}
 import org.apache.solr.client.solrj.impl.CloudSolrClient
 import org.apache.solr.common.SolrInputDocument
 import org.apache.spark.api.java.function.ForeachPartitionFunction
@@ -19,9 +19,6 @@ import scala.collection.mutable.ArrayBuffer
 /**
   * Convert all Row objects (in partition) to SolrInputDocument and index to Solr.
   *
-  * @param zkServers
-  * @param zkSolrChroot
-  * @param collection
   * @param putBatchSize
   */
 case class SolrForeachWriter(config: SolrWriterConfig,

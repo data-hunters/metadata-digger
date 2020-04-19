@@ -1,9 +1,10 @@
 package ai.datahunters.md.launcher
 
-import ai.datahunters.md.config.ConfigLoader
+import ai.datahunters.md.config.{ConfigLoader, Writer}
 import ai.datahunters.md.config.enrich.MetadataEnrichmentConfig
+import ai.datahunters.md.reader.SolrHashReader
 import ai.datahunters.md.workflow.{FullMDWorkflow, Workflow}
-import ai.datahunters.md.writer.FormatAdjustmentProcessorFactory
+import ai.datahunters.md.writer.{FormatAdjustmentProcessorFactory, SolrWriter}
 import com.typesafe.config.Config
 
 object FullMDLauncher {
@@ -27,7 +28,12 @@ object FullMDLauncher {
     val metadataEnrichmentConfig = MetadataEnrichmentConfig.build(config)
     metadataEnrichmentConfig.adjustSparkConfig(sparkSession)
     val formatAdjustmentProcessor = FormatAdjustmentProcessorFactory.create(processingConfig)
-
-    new FullMDWorkflow(metadataEnrichmentConfig, processingConfig, sparkSession, reader, writer, formatAdjustmentProcessor)
+    val format = config.getString(Writer.OutputFormatKey)
+    val solrHashReader: Option[SolrHashReader] = if (processingConfig.processHashComparator && format.equals(SolrWriter.FormatName)) {
+      buildHelperSolrReader(config, sparkSession, processingConfig.namingConvention)
+    } else {
+      None
+    }
+    new FullMDWorkflow(metadataEnrichmentConfig, processingConfig, sparkSession, reader, writer, formatAdjustmentProcessor, solrHashReader = solrHashReader)
   }
 }

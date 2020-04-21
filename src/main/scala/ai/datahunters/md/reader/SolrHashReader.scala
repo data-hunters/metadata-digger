@@ -59,6 +59,7 @@ case class SolrHashReader(sparkSession: SparkSession,
     val idHashValueSeq = documents.map((d: SolrDocument) =>
       Row.fromSeq(documentToStrings(d)))
     val dataRdd = sparkSession.sparkContext.parallelize(idHashValueSeq)
+    client.close()
     sparkSession.createDataFrame(dataRdd, StructFieldsArray)
   }
 

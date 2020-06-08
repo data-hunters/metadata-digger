@@ -1,7 +1,7 @@
 package ai.datahunters.md.workflow
 
-import ai.datahunters.md.config.processing.{MandatoryTagsConfig, ProcessingConfig}
-import ai.datahunters.md.filter.{Filter, NotEmptyTagFilter}
+import ai.datahunters.md.config.processing.{AllowedExtensionsConfig, MandatoryTagsConfig, ProcessingConfig}
+import ai.datahunters.md.filter.{Filter, NotEmptyExtensionFilter, NotEmptyTagFilter}
 import ai.datahunters.md.pipeline.ProcessingPipeline
 import ai.datahunters.md.processor._
 import ai.datahunters.md.reader.{PipelineSource, SolrHashReader}
@@ -30,6 +30,8 @@ class MainExtractionWorkflow(config: ProcessingConfig,
 
   private[workflow] val mandatoryTagConfig = MandatoryTagsConfig.build(config)
   private[workflow] val mandatoryTagsFilter = mandatoryTagConfig.dirTags.map(d => new NotEmptyTagFilter(d))
+  private[workflow] val allowedExtensionConfig = AllowedExtensionsConfig.build(config)
+  private[workflow] val allowedExtensionFilter = allowedExtensionConfig.extensions.map(d => new NotEmptyExtensionFilter(d))
   private[workflow] val columnNamesConverter = ColumnNamesConverterFactory.create(config.namingConvention)
 
   override def run(): Unit = {
@@ -58,6 +60,7 @@ class MainExtractionWorkflow(config: ProcessingConfig,
     analyticsFilters.foreach(pipeline.addFilter)
     pipeline.addProcessor(FlattenMetadataDirectories(config.allowedDirectories))
     mandatoryTagsFilter.foreach(pipeline.addFilter)
+    allowedExtensionFilter.foreach(pipeline.addFilter)
     val extractedDF = pipeline.run()
 
     writer.write(extractedDF)

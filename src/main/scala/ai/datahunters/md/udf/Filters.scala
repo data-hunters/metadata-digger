@@ -19,4 +19,8 @@ object Filters {
         .equals(EMPTY_STRING)
     })
 
+  def notEmptyExtensionUDF(allowedExtensions: Seq[String]) =
+    udf((extension: String) => {
+      allowedExtensions.contains(extension)
+    })
 }

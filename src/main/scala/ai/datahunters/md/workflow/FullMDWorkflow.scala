@@ -1,8 +1,8 @@
 package ai.datahunters.md.workflow
 
 import ai.datahunters.md.config.enrich.MetadataEnrichmentConfig
-import ai.datahunters.md.config.processing.{MandatoryTagsConfig, ProcessingConfig}
-import ai.datahunters.md.filter.{Filter, NotEmptyTagFilter}
+import ai.datahunters.md.config.processing.{AllowedExtensionsConfig, MandatoryTagsConfig, ProcessingConfig}
+import ai.datahunters.md.filter.{Filter, NotEmptyExtensionFilter, NotEmptyTagFilter}
 import ai.datahunters.md.pipeline.ProcessingPipeline
 import ai.datahunters.md.processor.HashExtractor.HashColPrefix
 import ai.datahunters.md.processor._
@@ -46,6 +46,8 @@ class FullMDWorkflow(config: MetadataEnrichmentConfig,
 
   private[workflow] val mandatoryTagConfig = MandatoryTagsConfig.build(processingConfig)
   private[workflow] val mandatoryTagsFilter = mandatoryTagConfig.dirTags.map(d => new NotEmptyTagFilter(d))
+  private[workflow] val allowedExtensionConfig = AllowedExtensionsConfig.build(processingConfig)
+  private[workflow] val allowedExtensionFilter = allowedExtensionConfig.extensions.map(d => new NotEmptyExtensionFilter(d))
 
   override def run(): Unit = {
     val rawInputDF = reader.load()
@@ -75,6 +77,7 @@ class FullMDWorkflow(config: MetadataEnrichmentConfig,
     analyticsFilters.foreach(pipeline.addFilter)
     pipeline.addProcessor(FlattenMetadataDirectories(processingConfig.allowedDirectories))
     mandatoryTagsFilter.foreach(pipeline.addFilter)
+    allowedExtensionFilter.foreach(pipeline.addFilter)
     val extractedDF = pipeline.run()
 
     writer.write(extractedDF)

@@ -84,6 +84,19 @@ object Extractors {
 
 
   /**
+    * UDF flattening Map[String, Map[String, String]] into Ma[String, String].
+    * Input argument for UDF - column of type Map[String, Map[String, String]]
+    * UDF output: Map[String, String]
+    *
+    * @param colPrefix
+    * @param includeDirs
+    * @return
+    */
+  def embeddedMapsToMap(colPrefix: String, includeDirs: Boolean): UserDefinedFunction = {
+    udf(embeddedMapsToMapT(colPrefix, includeDirs) _)
+  }
+
+  /**
     * Contains methods implementing actual UDF transformations.
     */
   object Transformations {
@@ -118,6 +131,18 @@ object Extractors {
           .getOrElse(concatKeysToSeq(tags))
       } else {
         tags.flatMap(_._2.keySet).toSeq
+      }
+    }
+
+    def embeddedMapsToMapT(colPrefix: String, includeDirs: Boolean)(directories: Row): Map[String, String] = {
+      val columns = SchemaConfig.rowExistingColumns(directories)
+      val tags: Map[String, Map[String, String]] = directories.getValuesMap(columns)
+      if (includeDirs) {
+        tags.flatMap(tagsMap => {
+          tagsMap._2.map(kv => s"$colPrefix${tagsMap._1} ${kv._1}" -> kv._2)
+        })
+      } else {
+        tags.flatMap(tagsMap => tagsMap._2.map(tv => s"$colPrefix${tv._1}" -> tv._2))
       }
     }
 

@@ -9,10 +9,13 @@ import org.apache.spark.sql.functions._
   * Filter images that do not have specified allowed extension
   */
 
-class NotEmptyExtensionFilter(allowedExtensions: Seq[String]) extends Filter {
+case class NotEmptyFileTypeFilter(allowedFileTypes: Option[Seq[String]] = None) extends Filter {
 
   override def execute(inputDF: DataFrame): DataFrame = {
-    inputDF.filter(notEmptyExtensionUDF(allowedExtensions)(col(FileTypeCol)))
+    val fileTypes = allowedFileTypes.getOrElse({
+      return inputDF;
+    })
+    inputDF.filter(filterAllowedFileTypesUDF(fileTypes)(col(FileTypeCol)))
   }
 
 }

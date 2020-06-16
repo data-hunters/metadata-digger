@@ -8,7 +8,7 @@ case class ProcessingConfig(allowedDirectories: Option[Seq[String]],
                             allowedTags: Option[Seq[String]],
                             mandatoryTags: Option[Seq[String]],
                             hashList: Option[Seq[String]],
-                            allowedExtensions: Option[Seq[String]],
+                            allowedFileTypes: Option[Seq[String]],
                             processHashComparator: Boolean = false,
                             namingConvention: String,
                             metadataColumnsPrefix: String,
@@ -25,7 +25,7 @@ object ProcessingConfig {
 
   val AllowedDirectoriesKey = "filter.allowedMetadataDirectories"
   val AllowedTagsKey = "filter.allowedTags"
-  val AllowedExtensionsKey = "filter.allowedExtensions"
+  val AllowedFileTypesKey = "filter.allowedFileTypes"
   val IncludeDirectoriesInTagNamesKey = "output.columns.includeDirsInTags"
   val MetadataColumnsPrefixKey = "output.columns.metadataPrefix"
   val ColumnsNamingConventionKey = "output.columns.namingConvention"
@@ -44,7 +44,7 @@ object ProcessingConfig {
   val Defaults = Map(
     AllowedDirectoriesKey -> All,
     AllowedTagsKey -> All,
-    AllowedExtensionsKey -> All,
+    AllowedFileTypesKey -> All,
     ColumnsNamingConventionKey -> "camelCase",
     MetadataColumnsPrefixKey -> "",
     IncludeDirectoriesInTagNamesKey -> true,
@@ -65,7 +65,7 @@ object ProcessingConfig {
       configWithDefaults.getString(AllowedTagsKey),
       configWithDefaults.getString(MandatoryTagsKey),
       configWithDefaults.getString(HashListKey),
-      configWithDefaults.getString(AllowedExtensionsKey),
+      configWithDefaults.getString(AllowedFileTypesKey),
       configWithDefaults.getBoolean(ProcessHashComparatorKey),
       configWithDefaults.getString(ColumnsNamingConventionKey),
       configWithDefaults.getString(MetadataColumnsPrefixKey),

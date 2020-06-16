@@ -19,8 +19,8 @@ object Filters {
         .equals(EMPTY_STRING)
     })
 
-  def notEmptyExtensionUDF(allowedExtensions: Seq[String]) =
-    udf((extension: String) => {
-      allowedExtensions.contains(extension)
+  def filterAllowedFileTypesUDF(allowedFileTypes: Seq[String]) =
+    udf((fileType: String) => {
+      allowedFileTypes.map(s => s.toLowerCase()).contains(fileType.toLowerCase())
     })
 }

@@ -5,47 +5,48 @@ import ai.datahunters.md.{SparkBaseSpec, UnitSpec}
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.{DataTypes, StructField, StructType}
 import org.apache.spark.sql.functions._
+import EmbeddedMetadataSchemaConfig._
 
 class NotEmptyExtensionUDFSpec extends UnitSpec with SparkBaseSpec{
   import NotEmptyExtensionUDFSpec._
 
   "notEmptyExtensionUDF" should "return empty DF due to allowed extensions missing" in {
-    val testedUDF = Filters.notEmptyExtensionUDF(Seq())
+    val testedUDF = Filters.filterAllowedFileTypesUDF(Seq())
     val rdd = sparkSession.sparkContext.parallelize(Data)
     val df = sparkSession.createDataFrame(rdd, Schema)
-    val result = df.filter(testedUDF(col(EmbeddedMetadataSchemaConfig.FileTypeCol)))
+    val result = df.filter(testedUDF(col(FileTypeCol)))
     assert(result.count() === 0)
   }
 
   it should "return empty DF" in {
-    val testedUDF = Filters.notEmptyExtensionUDF(Seq(FileType3))
+    val testedUDF = Filters.filterAllowedFileTypesUDF(Seq(FileType3))
     val rdd = sparkSession.sparkContext.parallelize(Data)
     val df = sparkSession.createDataFrame(rdd, Schema)
-    val result = df.filter(testedUDF(col(EmbeddedMetadataSchemaConfig.FileTypeCol)))
+    val result = df.filter(testedUDF(col(FileTypeCol)))
     assert(result.count() === 0)
   }
 
   it should "return one row" in {
-    val testedUDF = Filters.notEmptyExtensionUDF(Seq(FileType1, FileType3))
+    val testedUDF = Filters.filterAllowedFileTypesUDF(Seq(FileType1, FileType3))
     val rdd = sparkSession.sparkContext.parallelize(Data)
     val df = sparkSession.createDataFrame(rdd, Schema)
-    val result = df.filter(testedUDF(col(EmbeddedMetadataSchemaConfig.FileTypeCol)))
+    val result = df.filter(testedUDF(col(FileTypeCol)))
     assert(result.count() === 1)
     val row1 = result.collect()(0)
-    val fileTypeField = row1.get(row1.fieldIndex(EmbeddedMetadataSchemaConfig.FileTypeCol))
+    val fileTypeField = row1.get(row1.fieldIndex(FileTypeCol))
     assert(FileType1 === fileTypeField)
   }
 
   it should "return all rows" in {
-    val testedUDF = Filters.notEmptyExtensionUDF(Seq(FileType1, FileType2))
+    val testedUDF = Filters.filterAllowedFileTypesUDF(Seq(FileType1, FileType2))
     val rdd = sparkSession.sparkContext.parallelize(Data)
     val df = sparkSession.createDataFrame(rdd, Schema)
-    val result = df.filter(testedUDF(col(EmbeddedMetadataSchemaConfig.FileTypeCol)))
+    val result = df.filter(testedUDF(col(FileTypeCol)))
     assert(result.count() === 2)
     val row1 = result.collect()(0)
     val row2 = result.collect()(1)
-    val fileTypeField1 = row1.get(row1.fieldIndex(EmbeddedMetadataSchemaConfig.FileTypeCol))
-    val fileTypeField2 = row2.get(row2.fieldIndex(EmbeddedMetadataSchemaConfig.FileTypeCol))
+    val fileTypeField1 = row1.get(row1.fieldIndex(FileTypeCol))
+    val fileTypeField2 = row2.get(row2.fieldIndex(FileTypeCol))
     assert(FileType1 === fileTypeField1)
     assert(FileType2 === fileTypeField2)
   }
@@ -85,15 +86,16 @@ object NotEmptyExtensionUDFSpec {
     Array(
       StructField(BinaryInputSchemaConfig.IDCol, DataTypes.StringType),
       StructField(BinaryInputSchemaConfig.BasePathCol, DataTypes.StringType),
-      StructField(EmbeddedMetadataSchemaConfig.FileTypeCol, DataTypes.StringType),
-      StructField(MetadataTagsSchemaConfig.MetadataCol, StructType(
+      StructField(FileTypeCol, DataTypes.StringType),
+      StructField(MetadataCol, StructType(
         Array(
-          StructField(EmbeddedMetadataSchemaConfig.TagsCountCol, DataTypes.IntegerType),
-          StructField(EmbeddedMetadataSchemaConfig.TagsCol, DataTypes.createMapType(DataTypes.StringType, DataTypes.createMapType(DataTypes.StringType, DataTypes.StringType)))
+          StructField(TagsCountCol, DataTypes.IntegerType),
+          StructField(TagsCol, DataTypes.createMapType(DataTypes.StringType, DataTypes.createMapType(DataTypes.StringType,
+            DataTypes.StringType)))
         )
       )),
-      StructField(EmbeddedMetadataSchemaConfig.DirectoryNamesCol, DataTypes.createArrayType(DataTypes.StringType)),
-      StructField(EmbeddedMetadataSchemaConfig.TagNamesCol, DataTypes.createArrayType(DataTypes.StringType))
+      StructField(DirectoryNamesCol, DataTypes.createArrayType(DataTypes.StringType)),
+      StructField(TagNamesCol, DataTypes.createArrayType(DataTypes.StringType))
     )
   )
 

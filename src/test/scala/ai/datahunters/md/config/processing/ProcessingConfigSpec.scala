@@ -22,7 +22,7 @@ class ProcessingConfigSpec extends UnitSpec {
     assert(outputConfig.includeDirsInTags === true)
     assert(outputConfig.mandatoryTags === None)
     assert(outputConfig.thumbnailsEnabled === false)
-    assert(outputConfig.allowedExtensions === None)
+    assert(outputConfig.allowedFileTypes === None)
   }
 
   it should "create default ProcessingConfig for CSV" in {
@@ -38,7 +38,7 @@ class ProcessingConfigSpec extends UnitSpec {
     assert(outputConfig.includeDirsInTags === true)
     assert(outputConfig.mandatoryTags === None)
     assert(outputConfig.thumbnailsEnabled === false)
-    assert(outputConfig.allowedExtensions === None)
+    assert(outputConfig.allowedFileTypes === None)
   }
 
   it should "create default ProcessingConfig for Solr" in {
@@ -54,7 +54,7 @@ class ProcessingConfigSpec extends UnitSpec {
     assert(outputConfig.includeDirsInTags === true)
     assert(outputConfig.mandatoryTags === None)
     assert(outputConfig.thumbnailsEnabled === false)
-    assert(outputConfig.allowedExtensions === None)
+    assert(outputConfig.allowedFileTypes === None)
   }
 
   it should "create ProcessingConfig with small thumbnails size" in {

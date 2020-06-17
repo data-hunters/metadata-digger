@@ -10,7 +10,7 @@ import org.apache.solr.client.solrj.impl.CloudSolrClient
 import org.apache.solr.common.SolrInputDocument
 import org.apache.spark.api.java.function.ForeachPartitionFunction
 import org.apache.spark.sql.Row
-import org.apache.spark.sql.types.{ArrayType, StringType, StructField}
+import org.apache.spark.sql.types.{ArrayType, MapType, StringType, StructField}
 import org.slf4j.LoggerFactory
 
 import scala.collection.JavaConverters
@@ -73,19 +73,26 @@ case class SolrForeachWriter(config: SolrWriterConfig,
           list.foreach(el => {
             doc.addField(name, el)
           })
+        } else if (f.dataType.isInstanceOf[MapType]) {
+          val map: Map[String, String] = row.getAs(name)
+          map.foreach(mf => addField(doc, mf._1, mf._2))
         } else {
-          if (config.dateTimeTags.contains(name)) {
-            strToDateTimeHandler(name, doc)(row.getAs(name))
-          } else if (config.integerTags.contains(name)) {
-            strToIntHandler(name, doc)(row.getAs(name))
-          } else {
-            doc.addField(name, row.getAs[Any](name))
-          }
+          addField(doc, name, row.getAs(name))
         }
       }
     })
     doc.addField(FixedFields.ProcessingDateTimeField, new Date())
     doc
+  }
+
+  private def addField(doc: SolrInputDocument, name: String, value: String): Unit = {
+    if (config.dateTimeTags.contains(name)) {
+      strToDateTimeHandler(name, doc)(value)
+    } else if (config.integerTags.contains(name)) {
+      strToIntHandler(name, doc)(value)
+    } else {
+      doc.addField(name, value)
+    }
   }
 
   private def checkIfEmpty(row: Row, f: StructField): Boolean = {

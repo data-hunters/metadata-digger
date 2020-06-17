@@ -6,10 +6,37 @@ import ai.datahunters.md.UnitSpec
 import ai.datahunters.md.schema.MetadataSchemaConfig
 import ai.datahunters.md.udf.Extractors.Transformations
 import ai.datahunters.md.util.TextUtils
+import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 class ExtractorsSpec extends UnitSpec {
   import ExtractorsSpec._
   import Extractors.Transformations._
+
+  "embeddedMapsToMapT" should "flatten embedded map including dirs" in {
+    val tags: Row = DirsMetadataSample
+    val map = embeddedMapsToMapT("md1_", true)(tags)
+    assert(map.size === 3)
+    val expectedTag1 = "md1_dir1 tag1"
+    val expectedTag2 = "md1_dir2 tag3"
+    val expectedTag3 = "md1_dir2 tag4"
+    assert(map.keySet === Seq(expectedTag1, expectedTag2, expectedTag3).toSet)
+    assert(map.get(expectedTag1).get === "val1")
+    assert(map.get(expectedTag2).get === "val3")
+    assert(map.get(expectedTag3).get === "val4")
+  }
+
+  "embeddedMapsToMapT" should "flatten embedded map not including dirs" in {
+    val tags: Row = DirsMetadataSample
+    val map = embeddedMapsToMapT("md1_", false)(tags)
+    assert(map.size === 3)
+    val expectedTag1 = "md1_tag1"
+    val expectedTag2 = "md1_tag3"
+    val expectedTag3 = "md1_tag4"
+    assert(map.keySet === Seq(expectedTag1, expectedTag2, expectedTag3).toSet)
+    assert(map.get(expectedTag1).get === "val1")
+    assert(map.get(expectedTag2).get === "val3")
+    assert(map.get(expectedTag3).get === "val4")
+  }
 
   "extractMetadataT" should "extract metadata from image file" in {
     val file = Files.readAllBytes(Paths.get(imgPath(ImagePath)))

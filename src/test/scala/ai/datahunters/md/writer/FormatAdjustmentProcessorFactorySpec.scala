@@ -3,7 +3,7 @@ package ai.datahunters.md.writer
 import ai.datahunters.md.UnitSpec
 import ai.datahunters.md.config.enrich.MetadataEnrichmentConfig
 import ai.datahunters.md.config.processing.ProcessingConfig
-import ai.datahunters.md.processor.{FlattenArrays, FlattenMetadataTags}
+import ai.datahunters.md.processor.{FlattenArrays, FlattenMetadataTags, SolrAdjustments}
 import org.mockito.Mockito._
 
 class FormatAdjustmentProcessorFactorySpec extends UnitSpec {
@@ -21,7 +21,7 @@ class FormatAdjustmentProcessorFactorySpec extends UnitSpec {
     when(config.outputFormat).thenReturn("solr")
     val processor = FormatAdjustmentProcessorFactory.create(config)
     assert(processor.isDefined)
-    assert(processor.get.isInstanceOf[FlattenMetadataTags])
+    assert(processor.get.isInstanceOf[SolrAdjustments])
   }
 
   it should "return None for JSON format" in {

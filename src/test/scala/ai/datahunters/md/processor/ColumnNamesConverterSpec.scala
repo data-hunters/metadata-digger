@@ -16,14 +16,17 @@ class ColumnNamesConverterSpec extends UnitSpec with SparkBaseSpec {
     val renamedDF = processor.execute(df)
     val names1 = renamedDF.schema.fields.map(_.name)
     val types1 = renamedDF.schema.fields.map(_.dataType)
-    assert(names1 === Array("SomeNumber", "SomeNestedCol"))
+    assert(names1 === Array("SomeNumber", "SomeNestedCol", "MapColumn"))
     assert(types1 === Array(IntegerType, StructType(Array(
       StructField("NestedCol1", StringType, false),
       StructField("NestedCol2", StructType(Array(
         StructField("VeryNestedCol1", IntegerType),
         StructField("VeryNestedCol2", StringType)
       )))
-    ))))
+    )), DataTypes.createMapType(StringType, StringType)))
+    val r1 = renamedDF.collect().filter(_.getInt(0) == 1)(0)
+    val mapCol1: Map[String, String] = r1.getAs("MapColumn")
+    assert(mapCol1.keySet === Seq("FirstKey", "SecondKey").toSet)
   }
 
   it should "convert all column names including nested to snake_case" in {
@@ -33,23 +36,26 @@ class ColumnNamesConverterSpec extends UnitSpec with SparkBaseSpec {
     val renamedDF = processor.execute(df)
     val names1 = renamedDF.schema.fields.map(_.name)
     val types1 = renamedDF.schema.fields.map(_.dataType)
-    assert(names1 === Array("some_number", "some_nested_col"))
+    assert(names1 === Array("some_number", "some_nested_col", "map_column"))
     assert(types1 === Array(IntegerType, StructType(Array(
       StructField("nested_col_1", StringType, false),
       StructField("nested_col2", StructType(Array(
         StructField("very_nested_col_1", IntegerType),
         StructField("very_nested_col_2", StringType)
       )))
-    ))))
+    )), DataTypes.createMapType(StringType, StringType)))
+    val r1 = renamedDF.collect().filter(_.getInt(0) == 1)(0)
+    val mapCol1: Map[String, String] = r1.getAs("map_column")
+    assert(mapCol1.keySet === Seq("first_key", "second_key").toSet)
   }
 }
 
 object ColumnNamesConverterSpec {
 
   val Data = Seq(
-    Row.fromTuple(1, Row.fromTuple("val1", Row.fromTuple(22, "nested val2"))),
-    Row.fromTuple(6, Row.fromTuple("val2_1", Row.fromTuple(15, "nested val2_2"))),
-    Row.fromTuple(3, Row.fromTuple("val3_1", Row.fromTuple(3, "nested val3_2")))
+    Row.fromTuple(1, Row.fromTuple("val1", Row.fromTuple(22, "nested val2")), Map("first key" -> "val1", "second key" -> "val2")),
+    Row.fromTuple(6, Row.fromTuple("val2_1", Row.fromTuple(15, "nested val2_2")), Map("first key" -> "val1")),
+    Row.fromTuple(3, Row.fromTuple("val3_1", Row.fromTuple(3, "nested val3_2")), Map("first key" -> "val1", "second key" -> "val2"))
   )
   val Schema = StructType(Array(
     StructField("Some number", IntegerType, true),
@@ -59,7 +65,8 @@ object ColumnNamesConverterSpec {
         StructField("Very Nested Col 1", DataTypes.IntegerType),
         StructField("Very Nested Col 2", DataTypes.StringType)
       )))
-    )), true)
+    )), true),
+    StructField("Map column", DataTypes.createMapType(StringType, StringType), false)
   )
   )
 

@@ -10,16 +10,21 @@ import org.apache.spark.sql.types.{DataType, MapType, StructField, StructType}
   */
 case class ColumnNamesConverter(namingConvention: (String) => String) extends Processor {
 
+  import ai.datahunters.md.udf.Converters.convertMapKeys
   import org.apache.spark.sql.functions._
 
   protected def nc(name: String): String = namingConvention(name)
 
   override def execute(inputDF: DataFrame): DataFrame = {
     val fields = inputDF.schema.fields
+    val mapKeysConverterUDF = convertMapKeys(nc)
     val newCols = fields.map(f => {
       if (f.dataType.isInstanceOf[StructType]) {
         col(f.name).cast(processType(f)).as(nc(f.name))
-      } else {
+      } else if (f.dataType.isInstanceOf[MapType]) {
+        mapKeysConverterUDF(col(f.name)).as(nc(f.name))
+      }
+      else {
         col(f.name).as(nc(f.name))
       }
     })

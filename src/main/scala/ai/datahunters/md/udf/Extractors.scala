@@ -84,7 +84,7 @@ object Extractors {
 
 
   /**
-    * UDF flattening Map[String, Map[String, String]] into Ma[String, String].
+    * UDF flattening Map[String, Map[String, String]] into Map[String, String].
     * Input argument for UDF - column of type Map[String, Map[String, String]]
     * UDF output: Map[String, String]
     *

@@ -6,10 +6,10 @@ import ai.datahunters.md.schema.EmbeddedMetadataSchemaConfig.FileTypeCol
 import org.apache.spark.sql.functions._
 
 /**
-  * Filter images that do not have specified allowed extension
+  * Filter images that do not have specific allowed file types
   */
 
-case class NotEmptyFileTypeFilter(allowedFileTypes: Option[Seq[String]] = None) extends Filter {
+case class AllowedFileTypesFilter(allowedFileTypes: Option[Seq[String]] = None) extends Filter {
 
   override def execute(inputDF: DataFrame): DataFrame = {
     val fileTypes = allowedFileTypes.getOrElse({

@@ -1,16 +1,16 @@
 package ai.datahunters.md.udf
 
-import ai.datahunters.md.schema.{BinaryInputSchemaConfig, EmbeddedMetadataSchemaConfig, MetadataTagsSchemaConfig}
+import ai.datahunters.md.schema.{BinaryInputSchemaConfig, EmbeddedMetadataSchemaConfig}
 import ai.datahunters.md.{SparkBaseSpec, UnitSpec}
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.{DataTypes, StructField, StructType}
 import org.apache.spark.sql.functions._
 import EmbeddedMetadataSchemaConfig._
 
-class NotEmptyExtensionUDFSpec extends UnitSpec with SparkBaseSpec{
-  import NotEmptyExtensionUDFSpec._
+class FilterAllowedFileTypesUDFSpec extends UnitSpec with SparkBaseSpec{
+  import FilterAllowedFileTypesUDFSpec._
 
-  "notEmptyExtensionUDF" should "return empty DF due to allowed extensions missing" in {
+  "filterAllowedFileTypesUDF" should "return empty DF due to allowed file types missing" in {
     val testedUDF = Filters.filterAllowedFileTypesUDF(Seq())
     val rdd = sparkSession.sparkContext.parallelize(Data)
     val df = sparkSession.createDataFrame(rdd, Schema)
@@ -53,7 +53,7 @@ class NotEmptyExtensionUDFSpec extends UnitSpec with SparkBaseSpec{
 
 }
 
-object NotEmptyExtensionUDFSpec {
+object FilterAllowedFileTypesUDFSpec {
 
   val Id1 = "id1"
   val Id2 = "id2"

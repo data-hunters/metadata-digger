@@ -1,17 +1,17 @@
 package ai.datahunters.md.filter
 
-import ai.datahunters.md.schema.{BinaryInputSchemaConfig, EmbeddedMetadataSchemaConfig, MetadataTagsSchemaConfig}
+import ai.datahunters.md.schema.{BinaryInputSchemaConfig, EmbeddedMetadataSchemaConfig}
 import ai.datahunters.md.{SparkBaseSpec, UnitSpec}
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.{DataTypes, StructField, StructType}
 import BinaryInputSchemaConfig._
 import EmbeddedMetadataSchemaConfig._
 
-class NotEmptyExtensionFilterSpec extends UnitSpec with SparkBaseSpec {
-  import NotEmptyExtensionFilterSpec._
+class AllowedFileTypesFilterSpec extends UnitSpec with SparkBaseSpec {
+  import AllowedFileTypesFilterSpec._
 
-  "A NotEmptyExtensionFilter" should "pass all rows due to lack of allowed file types" in {
-    val filter = NotEmptyFileTypeFilter()
+  "AllowedFileTypesFilter" should "pass all rows due to lack of allowed file types" in {
+    val filter = AllowedFileTypesFilter()
     val rdd = sparkSession.sparkContext.parallelize(Data)
     val df = sparkSession.createDataFrame(rdd, Schema)
     val outputDF = filter.execute(df)
@@ -28,7 +28,7 @@ class NotEmptyExtensionFilterSpec extends UnitSpec with SparkBaseSpec {
   }
 
   it should "not pass any row due to empty allowed file types" in {
-    val filter = NotEmptyFileTypeFilter(Some(Seq[String]()))
+    val filter = AllowedFileTypesFilter(Some(Seq[String]()))
     val rdd = sparkSession.sparkContext.parallelize(Data)
     val df = sparkSession.createDataFrame(rdd, Schema)
     val outputDF = filter.execute(df)
@@ -39,7 +39,7 @@ class NotEmptyExtensionFilterSpec extends UnitSpec with SparkBaseSpec {
   }
 
   it should "pass one row" in {
-    val filter = NotEmptyFileTypeFilter(Some(Seq[String](FileType1, FileType3)))
+    val filter = AllowedFileTypesFilter(Some(Seq[String](FileType1, FileType3)))
     val rdd = sparkSession.sparkContext.parallelize(Data)
     val df = sparkSession.createDataFrame(rdd, Schema)
     val outputDF = filter.execute(df)
@@ -53,7 +53,7 @@ class NotEmptyExtensionFilterSpec extends UnitSpec with SparkBaseSpec {
   }
 
   it should "pass all rows" in {
-    val filter = NotEmptyFileTypeFilter(Some(Seq[String](FileType1, FileType2)))
+    val filter = AllowedFileTypesFilter(Some(Seq[String](FileType1, FileType2)))
     val rdd = sparkSession.sparkContext.parallelize(Data)
     val df = sparkSession.createDataFrame(rdd, Schema)
     val outputDF = filter.execute(df)
@@ -70,7 +70,7 @@ class NotEmptyExtensionFilterSpec extends UnitSpec with SparkBaseSpec {
   }
 
   it should "pass no rows" in {
-    val filter = NotEmptyFileTypeFilter(Some(Seq[String](FileType3)))
+    val filter = AllowedFileTypesFilter(Some(Seq[String](FileType3)))
     val rdd = sparkSession.sparkContext.parallelize(Data)
     val df = sparkSession.createDataFrame(rdd, Schema)
     val outputDF = filter.execute(df)
@@ -82,7 +82,7 @@ class NotEmptyExtensionFilterSpec extends UnitSpec with SparkBaseSpec {
 
 }
 
-object NotEmptyExtensionFilterSpec {
+object AllowedFileTypesFilterSpec {
 
   val Id1 = "id1"
   val Id2 = "id2"

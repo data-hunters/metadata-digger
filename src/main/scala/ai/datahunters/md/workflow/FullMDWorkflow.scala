@@ -2,7 +2,7 @@ package ai.datahunters.md.workflow
 
 import ai.datahunters.md.config.enrich.MetadataEnrichmentConfig
 import ai.datahunters.md.config.processing.{MandatoryTagsConfig, ProcessingConfig}
-import ai.datahunters.md.filter.{Filter, NotEmptyFileTypeFilter, NotEmptyTagFilter}
+import ai.datahunters.md.filter.{AllowedFileTypesFilter, Filter, NotEmptyTagFilter}
 import ai.datahunters.md.pipeline.ProcessingPipeline
 import ai.datahunters.md.processor.HashExtractor.HashColPrefix
 import ai.datahunters.md.processor._
@@ -75,7 +75,7 @@ class FullMDWorkflow(config: MetadataEnrichmentConfig,
     analyticsFilters.foreach(pipeline.addFilter)
     pipeline.addProcessor(FlattenMetadataDirectories(processingConfig.allowedDirectories))
     mandatoryTagsFilter.foreach(pipeline.addFilter)
-    pipeline.addFilter(NotEmptyFileTypeFilter(processingConfig.allowedFileTypes))
+    pipeline.addFilter(AllowedFileTypesFilter(processingConfig.allowedFileTypes))
     val extractedDF = pipeline.run()
 
     writer.write(extractedDF)

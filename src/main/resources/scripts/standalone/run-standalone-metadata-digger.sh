@@ -1,6 +1,6 @@
 #!/bin/sh
 
-MD_VERSION=0.2.0
+MD_VERSION=0.2.1
 
 DH="
 

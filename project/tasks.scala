@@ -1,6 +1,6 @@
 package ai.datahunters.sbtrelease
 import sbt._
-import Keys._
+import Keys.{name, version, _}
 
 object ReleaseTasks {
 
@@ -40,6 +40,14 @@ object ReleaseTasks {
     dist := Def.sequential(assemblyTask, distStandalone, distDistributed).value
   }
 
+  private def buildStandaloneDirName(name: String, version: String): String = {
+    s"${name}-${version}_$standaloneDirName"
+  }
+
+  private def buildDistributedDirName(name: String, version: String): String = {
+    s"${name}-${version}_$distributedDirName"
+  }
+
   /**
     * Task creating distributable package for Standalone mode
     * @return
@@ -47,25 +55,25 @@ object ReleaseTasks {
   private def buildStandalone() = {
     distStandalone := {
       (update in AWSDepsConfig).value.allFiles.foreach { f =>
-        IO.copyFile(f, target.value / distTargetDirName / standaloneDirName / awsLibsDirName /  f.getName)
+        IO.copyFile(f, target.value / distTargetDirName / buildStandaloneDirName(name.value, version.value) / awsLibsDirName /  f.getName)
       }
       (update in DistStandaloneConfig).value.allFiles.foreach { f =>
-        IO.copyFile(f, target.value / distTargetDirName / standaloneDirName / distLibDirName /  f.getName)
+        IO.copyFile(f, target.value / distTargetDirName / buildStandaloneDirName(name.value, version.value) / distLibDirName /  f.getName)
       }
       // Copying sample configs
       IO.copyDirectory(
         (Compile / resourceDirectory).value / configsDirName,
-        target.value / distTargetDirName / standaloneDirName / configsDirName
+        target.value / distTargetDirName / buildStandaloneDirName(name.value, version.value) / configsDirName
       )
       // Copying running script
       IO.copyDirectory(
         (Compile / resourceDirectory).value / scriptsDirName / standaloneDirName,
-        target.value / distTargetDirName / standaloneDirName
+        target.value / distTargetDirName / buildStandaloneDirName(name.value, version.value)
       )
       // Copying main JAR
       IO.copyFile(
         target.value / s"${name.value}-${version.value}.jar",
-        target.value / distTargetDirName / standaloneDirName / s"${name.value}-${version.value}.jar"
+        target.value / distTargetDirName / buildStandaloneDirName(name.value, version.value) / s"${name.value}-${version.value}.jar"
       )
     }
   }
@@ -78,22 +86,22 @@ object ReleaseTasks {
     distDistributed := {
       
       (update in AWSDepsConfig).value.allFiles.foreach { f =>
-        IO.copyFile(f, target.value / distTargetDirName / distributedDirName / awsLibsDirName /  f.getName)
+        IO.copyFile(f, target.value / distTargetDirName / buildDistributedDirName(name.value, version.value) / awsLibsDirName /  f.getName)
       }
       // Copying sample configs
       IO.copyDirectory(
         (Compile / resourceDirectory).value / configsDirName,
-        target.value / distTargetDirName / distributedDirName / configsDirName
+        target.value / distTargetDirName / buildDistributedDirName(name.value, version.value) / configsDirName
       )
       // Copying running script
       IO.copyDirectory(
         (Compile / resourceDirectory).value / scriptsDirName / distributedDirName,
-        target.value / distTargetDirName / distributedDirName
+        target.value / distTargetDirName / buildDistributedDirName(name.value, version.value)
       )
       // Copying main JAR
       IO.copyFile(
         target.value / s"${name.value}-${version.value}.jar",
-        target.value / distTargetDirName / distributedDirName / s"${name.value}-${version.value}.jar"
+        target.value / distTargetDirName / buildDistributedDirName(name.value, version.value) / s"${name.value}-${version.value}.jar"
       )
 
     }

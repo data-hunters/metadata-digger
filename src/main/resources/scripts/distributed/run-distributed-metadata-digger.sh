@@ -3,7 +3,7 @@
 # Only one argument is needed - path to Metadata Digger configuration file.
 # Sample execution: sh run-distributed-metadata-digger.sh csv.config.properties
 
-MD_VERSION=0.2.0
+MD_VERSION=0.2.1
 
 DH="
 

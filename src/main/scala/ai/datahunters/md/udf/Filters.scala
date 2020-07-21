@@ -19,4 +19,8 @@ object Filters {
         .equals(EMPTY_STRING)
     })
 
+  def filterAllowedFileTypesUDF(allowedFileTypes: Seq[String]) =
+    udf((fileType: String) => {
+      allowedFileTypes.map(s => s.toLowerCase()).contains(fileType.toLowerCase())
+    })
 }

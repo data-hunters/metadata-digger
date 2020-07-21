@@ -1,7 +1,7 @@
 package ai.datahunters.md.workflow
 
 import ai.datahunters.md.config.processing.{MandatoryTagsConfig, ProcessingConfig}
-import ai.datahunters.md.filter.{Filter, NotEmptyTagFilter}
+import ai.datahunters.md.filter.{AllowedFileTypesFilter, Filter, NotEmptyTagFilter}
 import ai.datahunters.md.pipeline.ProcessingPipeline
 import ai.datahunters.md.processor._
 import ai.datahunters.md.reader.{PipelineSource, SolrHashReader}
@@ -58,6 +58,7 @@ class MainExtractionWorkflow(config: ProcessingConfig,
     analyticsFilters.foreach(pipeline.addFilter)
     pipeline.addProcessor(FlattenMetadataDirectories(config.allowedDirectories))
     mandatoryTagsFilter.foreach(pipeline.addFilter)
+    pipeline.addFilter(AllowedFileTypesFilter(config.allowedFileTypes))
     val extractedDF = pipeline.run()
 
     writer.write(extractedDF)
